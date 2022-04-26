@@ -18,7 +18,8 @@ class Coma:
             successfully added using `subparsers`
         hooks (list): A stack of :class:`coma.hooks.core.Hooks`
     """
-    coma: 'Coma' = None
+
+    coma: "Coma" = None
 
     def __init__(self):
         """See :class:`~coma.core.Coma`."""
@@ -28,7 +29,7 @@ class Coma:
         self.hooks: List[Hooks] = []
 
     @staticmethod
-    def get_instance() -> 'Coma':
+    def get_instance() -> "Coma":
         """Returns the singleton of :class:`~coma.core.Coma`."""
         if Coma.coma is None:
             Coma.coma = Coma()

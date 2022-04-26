@@ -4,7 +4,7 @@ from typing import Callable
 from .utils import hook
 
 
-def factory(run_fn_name: str = 'run') -> Callable:
+def factory(run_fn_name: str = "run") -> Callable:
     """Factory for running a command.
 
     Args:
@@ -16,9 +16,11 @@ def factory(run_fn_name: str = 'run') -> Callable:
     See also:
         TODO(invoke; protocol) for details on run hooks
     """
+
     @hook
     def _hook(command):
         return getattr(command, run_fn_name)()
+
     return _hook
 
 

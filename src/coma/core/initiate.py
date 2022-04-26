@@ -1,8 +1,7 @@
 """Initiate a coma."""
 import argparse
-import warnings
-
 from typing import Callable, Optional
+import warnings
 
 from . import Coma
 from .. import hooks
@@ -10,17 +9,17 @@ from ..hooks.core import Hooks
 
 
 def initiate(
-        parser: Optional[argparse.ArgumentParser] = None,
-        *,
-        parser_hook: Optional[Callable] = hooks.parser_hook.default,
-        pre_config_hook: Optional[Callable] = None,
-        config_hook: Optional[Callable] = hooks.config_hook.default,
-        pre_init_hook: Optional[Callable] = None,
-        init_hook: Optional[Callable] = hooks.init_hook.default,
-        pre_run_hook: Optional[Callable] = None,
-        run_hook: Optional[Callable] = hooks.run_hook.default,
-        post_run_hook: Optional[Callable] = None,
-        **subparsers_kwargs
+    parser: Optional[argparse.ArgumentParser] = None,
+    *,
+    parser_hook: Optional[Callable] = hooks.parser_hook.default,
+    pre_config_hook: Optional[Callable] = None,
+    config_hook: Optional[Callable] = hooks.config_hook.default,
+    pre_init_hook: Optional[Callable] = None,
+    init_hook: Optional[Callable] = hooks.init_hook.default,
+    pre_run_hook: Optional[Callable] = None,
+    run_hook: Optional[Callable] = hooks.run_hook.default,
+    post_run_hook: Optional[Callable] = None,
+    **subparsers_kwargs
 ) -> None:
     """Initiates a coma.
 
@@ -55,16 +54,18 @@ def initiate(
         parser = argparse.ArgumentParser()
     coma.parser = parser
     coma.subparsers = parser.add_subparsers(**subparsers_kwargs)
-    coma.hooks.append(Hooks(
-        parser_hook=parser_hook,
-        pre_config_hook=pre_config_hook,
-        config_hook=config_hook,
-        pre_init_hook=pre_init_hook,
-        init_hook=init_hook,
-        pre_run_hook=pre_run_hook,
-        run_hook=run_hook,
-        post_run_hook=post_run_hook
-    ))
+    coma.hooks.append(
+        Hooks(
+            parser_hook=parser_hook,
+            pre_config_hook=pre_config_hook,
+            config_hook=config_hook,
+            pre_init_hook=pre_init_hook,
+            init_hook=init_hook,
+            pre_run_hook=pre_run_hook,
+            run_hook=run_hook,
+            post_run_hook=post_run_hook,
+        )
+    )
 
 
 def get_initiated() -> Coma:

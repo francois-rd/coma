@@ -1,13 +1,18 @@
 """Dataclasses for hook management."""
-from dataclasses import dataclass
-from dataclasses import fields
-from dataclasses import replace
 from typing import Callable, Optional
+
+# Lib/dataclasses in Python>=3.7
+# dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
+from dataclasses import (
+    dataclass,
+    fields,
+    replace,
+)
 
 from .utils import sequence
 
 
-@dataclass()
+@dataclass
 class MaskHooks:
     parser_hook: bool = False
     pre_config_hook: bool = False
@@ -19,7 +24,7 @@ class MaskHooks:
     post_run_hook: bool = False
 
 
-@dataclass()
+@dataclass
 class Hooks:
     parser_hook: Optional[Callable] = None
     pre_config_hook: Optional[Callable] = None
@@ -30,7 +35,7 @@ class Hooks:
     run_hook: Optional[Callable] = None
     post_run_hook: Optional[Callable] = None
 
-    def copy(self, mask_hooks: Optional[MaskHooks] = None) -> 'Hooks':
+    def copy(self, mask_hooks: Optional[MaskHooks] = None) -> "Hooks":
         """Creates a shallow copy with all the same hooks except those that are
         masked (if any).
 
@@ -42,11 +47,14 @@ class Hooks:
         """
         kwargs = {}
         if mask_hooks is not None:
-            kwargs = {field.name: None for field in fields(self)
-                      if getattr(mask_hooks, field.name)}
+            kwargs = {
+                field.name: None
+                for field in fields(self)
+                if getattr(mask_hooks, field.name)
+            }
         return replace(self, **kwargs)
 
-    def merge(self, other: 'Hooks') -> 'Hooks':
+    def merge(self, other: "Hooks") -> "Hooks":
         """Merges two :class:`~coma.hooks.core.Hooks` together.
 
         Creates a :func:`~coma.hooks.utils.sequence` if necessary.

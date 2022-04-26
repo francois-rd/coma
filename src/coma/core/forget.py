@@ -8,15 +8,15 @@ from ..hooks.core import MaskHooks
 
 @contextmanager
 def forget(
-        *,
-        parser_hook: bool = False,
-        pre_config_hook: bool = False,
-        config_hook: bool = False,
-        pre_init_hook: bool = False,
-        init_hook: bool = False,
-        pre_run_hook: bool = False,
-        run_hook: bool = False,
-        post_run_hook: bool = False
+    *,
+    parser_hook: bool = False,
+    pre_config_hook: bool = False,
+    config_hook: bool = False,
+    pre_init_hook: bool = False,
+    init_hook: bool = False,
+    pre_run_hook: bool = False,
+    run_hook: bool = False,
+    post_run_hook: bool = False
 ) -> Iterator[None]:
     """Causes ``coma`` to temporarily forget certain hooks.
 
@@ -41,16 +41,20 @@ def forget(
         :func:`~coma.core.register.register`
     """
     coma = get_initiated()
-    coma.hooks.append(coma.hooks[-1].copy(MaskHooks(
-        parser_hook=parser_hook,
-        pre_config_hook=pre_config_hook,
-        config_hook=config_hook,
-        pre_init_hook=pre_init_hook,
-        init_hook=init_hook,
-        pre_run_hook=pre_run_hook,
-        run_hook=run_hook,
-        post_run_hook=post_run_hook
-    )))
+    coma.hooks.append(
+        coma.hooks[-1].copy(
+            MaskHooks(
+                parser_hook=parser_hook,
+                pre_config_hook=pre_config_hook,
+                config_hook=config_hook,
+                pre_init_hook=pre_init_hook,
+                init_hook=init_hook,
+                pre_run_hook=pre_run_hook,
+                run_hook=run_hook,
+                post_run_hook=post_run_hook,
+            )
+        )
+    )
     try:
         yield
     finally:

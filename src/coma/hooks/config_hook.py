@@ -1,18 +1,20 @@
 """Core config hooks."""
 import json
-
-from dataclasses import asdict
 from typing import Callable, Optional
+
+# Lib/dataclasses in Python>=3.7
+# dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
+from dataclasses import asdict
 
 from .utils import hook
 
 
 def factory(
-        attr_name: str = 'config_path',
-        *,
-        default_filepath: Optional[str] = None,
-        fail_fast_on_fnf: bool = False,
-        write_on_fnf: bool = True
+    attr_name: str = "config_path",
+    *,
+    default_filepath: Optional[str] = None,
+    fail_fast_on_fnf: bool = False,
+    write_on_fnf: bool = True,
 ) -> Callable:
     """Factory for instantiating a configuration object.
 
@@ -50,6 +52,7 @@ def factory(
         :func:`coma.hooks.parser_hook.config_factory`
         TODO(invoke; protocol) for details on config hooks
     """
+
     @hook
     def _hook(name, parser_args, config_class):
         if config_class is None:
@@ -57,16 +60,17 @@ def factory(
         default_ = default_filepath or f"{name}.json"
         filename = getattr(parser_args, attr_name, default_) or default_
         try:
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 return config_class(**json.load(f))
         except FileNotFoundError:
             if fail_fast_on_fnf:
                 raise
             config = config_class()
             if write_on_fnf:
-                with open(filename, 'w') as f:
+                with open(filename, "w") as f:
                     json.dump(asdict(config), f, indent=4)
             return config
+
     return _hook
 
 

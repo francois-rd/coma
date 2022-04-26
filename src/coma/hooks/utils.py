@@ -20,15 +20,17 @@ def hook(fn: Callable) -> Callable:
     Returns:
          A protocol-friendly wrapped version of the function
     """
+
     def wrapper(**kwargs):
         return fn(*[kwargs[arg] for arg in inspect.getfullargspec(fn).args])
+
     return wrapper
 
 
 def sequence(
-        hook_: Callable,
-        *hooks: Callable,
-        return_all: bool = False
+    hook_: Callable,
+    *hooks: Callable,
+    return_all: bool = False,
 ) -> Union[list, Any]:
     """Wraps a sequence of hooks into a single callable.
 
@@ -50,6 +52,7 @@ def sequence(
     See also:
         :func:`~coma.hooks.utils.hook`
     """
+
     @wraps(hook_)
     def wrapper(*args, **kwargs):
         rets = [hook_(*args, **kwargs)] + [h(*args, **kwargs) for h in hooks]
@@ -57,4 +60,5 @@ def sequence(
             return rets
         else:  # Never returns a list.
             return rets[-1]
+
     return wrapper
