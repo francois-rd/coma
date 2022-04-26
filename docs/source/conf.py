@@ -1,12 +1,14 @@
 # Configuration file for the Sphinx documentation builder.
 import datetime
 
+from pkg_resources import get_distribution
+
 project = 'Coma'
 author = 'Francois Roewer-Despres'
 copyright = f'{datetime.datetime.now().year}, {author}'
 
-release = '0.0.2'
-version = '0.0.2'
+release = get_distribution("coma").version
+version = release
 
 # -- General configuration
 
