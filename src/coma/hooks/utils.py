@@ -1,8 +1,8 @@
 """Utilities for hooks."""
 import inspect
+from typing import Callable
 
 from boltons.funcutils import wraps
-from typing import Any, Callable, Union
 
 
 SENTINEL = object()  # Needs to be defined here to avoid circular imports.
@@ -27,11 +27,7 @@ def hook(fn: Callable) -> Callable:
     return wrapper
 
 
-def sequence(
-    hook_: Callable,
-    *hooks: Callable,
-    return_all: bool = False,
-) -> Union[list, Any]:
+def sequence(hook_: Callable, *hooks: Callable, return_all: bool = False) -> Callable:
     """Wraps a sequence of hooks into a single callable.
 
     Equivalent to calling all given hooks one at a time in a loop with the

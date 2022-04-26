@@ -2,8 +2,9 @@
 from contextlib import contextmanager
 from typing import Iterator
 
+from coma.hooks.core import MaskHooks
+
 from .initiate import get_initiated
-from ..hooks.core import MaskHooks
 
 
 @contextmanager

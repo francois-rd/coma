@@ -3,9 +3,10 @@ import argparse
 from typing import Callable, Optional
 import warnings
 
-from . import Coma
-from .. import hooks
-from ..hooks.core import Hooks
+from coma import hooks
+from coma.hooks.core import Hooks
+
+from . import Coma, get_instance
 
 
 def initiate(
@@ -46,7 +47,7 @@ def initiate(
         :func:`~coma.core.register.register`
         :func:`~coma.core.forget.forget`
     """
-    coma = Coma.get_instance()
+    coma = get_instance()
     if coma.parser is not None:
         warnings.warn("Coma is already initiated. Ignoring.", stacklevel=2)
         return
@@ -70,7 +71,7 @@ def initiate(
 
 def get_initiated() -> Coma:
     """Returns the ``coma`` singleton, initiating it first if needed."""
-    coma = Coma.get_instance()
+    coma = get_instance()
     if coma.parser is None:
         initiate()
     return coma

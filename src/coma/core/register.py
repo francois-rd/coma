@@ -5,8 +5,9 @@ from typing import Any, Callable, Optional, Union
 
 from boltons.funcutils import wraps
 
+from coma.hooks.core import Hooks
+
 from .initiate import get_initiated
-from ..hooks.core import Hooks
 
 
 def register(

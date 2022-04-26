@@ -4,7 +4,7 @@ See TODO(basic; advanced) for details.
 """
 from typing import List
 
-from ..hooks.core import Hooks
+from coma.hooks.core import Hooks
 
 
 class Coma:
@@ -28,9 +28,9 @@ class Coma:
         self.commands_registered: bool = False
         self.hooks: List[Hooks] = []
 
-    @staticmethod
-    def get_instance() -> "Coma":
-        """Returns the singleton of :class:`~coma.core.Coma`."""
-        if Coma.coma is None:
-            Coma.coma = Coma()
-        return Coma.coma
+
+def get_instance() -> Coma:
+    """Returns the singleton of :class:`~coma.core.Coma`."""
+    if Coma.coma is None:
+        Coma.coma = Coma()
+    return Coma.coma

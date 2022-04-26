@@ -3,11 +3,7 @@ from typing import Callable, Optional
 
 # Lib/dataclasses in Python>=3.7
 # dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
-from dataclasses import (
-    dataclass,
-    fields,
-    replace,
-)
+from dataclasses import dataclass, fields, replace
 
 from .utils import sequence
 
