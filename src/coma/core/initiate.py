@@ -1,51 +1,75 @@
-"""Initiate a coma."""
+"""Initiate ``coma``."""
 import argparse
 from typing import Callable, Optional
 import warnings
 
 from coma import hooks
-from coma.hooks.core import Hooks
+from coma.config import ConfigOrIdAndConfig, to_dict
 
-from . import Coma, get_instance
+from .internal import Coma, Hooks, get_instance
 
 
 def initiate(
+    *configs: ConfigOrIdAndConfig,
     parser: Optional[argparse.ArgumentParser] = None,
-    *,
     parser_hook: Optional[Callable] = hooks.parser_hook.default,
     pre_config_hook: Optional[Callable] = None,
     config_hook: Optional[Callable] = hooks.config_hook.default,
+    post_config_hook: Optional[Callable] = hooks.post_config_hook.default,
     pre_init_hook: Optional[Callable] = None,
     init_hook: Optional[Callable] = hooks.init_hook.default,
+    post_init_hook: Optional[Callable] = None,
     pre_run_hook: Optional[Callable] = None,
     run_hook: Optional[Callable] = hooks.run_hook.default,
     post_run_hook: Optional[Callable] = None,
     **subparsers_kwargs
 ) -> None:
-    """Initiates a coma.
+    """Initiates ``coma``.
 
-    Starts up ``coma`` with an optional argument parser, optional hooks, and
-    optional subparsers keyword arguments.
+    Starts up ``coma`` with optional configurations, an optional argument
+    parser, optional hooks, and optional subparsers keyword arguments.
 
-    Any optional hooks are applied globally to every registered subcommand.
+    Any optional configurations and/or hooks are applied globally to every
+    registered sub-command, unless explicitly forgotten using the
+    :func:`~coma.core.forget.forget` context manager.
+
+    Configurations should be of the form `<conf>` or `(<id>, <conf>)`. See
+    :func:`coma.config.to_dict` for additional details.
+
+    Example::
+
+        @dataclass
+        class Config1:
+            ...
+
+        @dataclass
+        class Config2:
+            ...
+        coma.initiate(Config1, ("a_non_default_id", Config2), ...)
 
     Args:
+        *configs: Global configs, or (id, config) pairs
         parser: An argument parser for Coma. If `None`, an argument parser with
-            default parameters is used
+            default parameters is used.
         parser_hook: See TODO(invoke; protocol) for details on this hook
         pre_config_hook: See TODO(invoke; protocol) for details on this hook
         config_hook: See TODO(invoke; protocol) for details on this hook
+        post_config_hook: See TODO(invoke; protocol) for details on this hook
         pre_init_hook: See TODO(invoke; protocol) for details on this hook
         init_hook: See TODO(invoke; protocol) for details on this hook
+        post_init_hook: See TODO(invoke; protocol) for details on this hook
         pre_run_hook: See TODO(invoke; protocol) for details on this hook
         run_hook: See TODO(invoke; protocol) for details on this hook
         post_run_hook: See TODO(invoke; protocol) for details on this hook
         **subparsers_kwargs: Keyword arguments to pass along to
             :func:`~argparse.ArgumentParser.add_subparsers`
 
+    Raises:
+        KeyError: If configuration identifiers are not unique
+
     See also:
-        :func:`~coma.core.register.register`
-        :func:`~coma.core.forget.forget`
+        * :func:`~coma.core.forget.forget`
+        * :func:`~coma.core.register.register`
     """
     coma = get_instance()
     if coma.parser is not None:
@@ -60,17 +84,20 @@ def initiate(
             parser_hook=parser_hook,
             pre_config_hook=pre_config_hook,
             config_hook=config_hook,
+            post_config_hook=post_config_hook,
             pre_init_hook=pre_init_hook,
             init_hook=init_hook,
+            post_init_hook=post_init_hook,
             pre_run_hook=pre_run_hook,
             run_hook=run_hook,
             post_run_hook=post_run_hook,
         )
     )
+    coma.configs.append(to_dict(*configs))
 
 
 def get_initiated() -> Coma:
-    """Returns the ``coma`` singleton, initiating it first if needed."""
+    """Returns the ``coma`` singleton, initiating it with defaults first if needed."""
     coma = get_instance()
     if coma.parser is None:
         initiate()

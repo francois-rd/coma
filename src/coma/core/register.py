@@ -1,77 +1,115 @@
-"""Register a sub-command that might be invoked upon waking from a coma."""
+"""Register a sub-command that might be invoked upon waking ``coma``."""
 import argparse
-import inspect
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional
 
 from boltons.funcutils import wraps
 
-from coma.hooks.core import Hooks
+from coma.config import ConfigDict, ConfigOrIdAndConfig, to_dict
 
 from .initiate import get_initiated
+from .internal import Hooks
 
 
 def register(
     name: str,
-    command_class_or_function: Callable,
-    config_class: Optional[Union[type, Any]] = None,
-    *,
+    command: Callable,
+    *configs: ConfigOrIdAndConfig,
     parser_hook: Optional[Callable] = None,
     pre_config_hook: Optional[Callable] = None,
     config_hook: Optional[Callable] = None,
+    post_config_hook: Optional[Callable] = None,
     pre_init_hook: Optional[Callable] = None,
     init_hook: Optional[Callable] = None,
+    post_init_hook: Optional[Callable] = None,
     pre_run_hook: Optional[Callable] = None,
     run_hook: Optional[Callable] = None,
     post_run_hook: Optional[Callable] = None,
-    **parser_kwargs
+    **parser_kwargs,
 ) -> None:
-    """Registers a sub-command that might be invoked upon waking from a coma.
+    """Registers a sub-command that might be invoked upon waking ``coma``.
 
-    Registers a sub-command by name with argparse, with optional configs and
-    optional hooks.
+    Registers a sub-command with `argparse`, along with providing optional
+    configurations and hooks.
 
-    Note:
+    .. note::
+
+        Any provided configurations are added to the list of global configurations
+        (rather than replacing them). See :func:`~coma.core.initiate.initiate`.
+
         Any provided hooks are sequentially called after calling global hooks
-        (rather than replacing calls to global hooks).
+        (rather than replacing calls to global hooks). See
+        :func:`~coma.core.initiate.initiate`.
+
+    Configurations should be of the form `<conf>` or `(<id>, <conf>)`. See
+    :func:`coma.config.to_dict` for additional details.
+
+    Examples:
+
+        Register function-based command with no configurations::
+
+            coma.register("cmd", lambda: ...)
+
+        Register function-based command with configurations::
+
+            @dataclass
+            class Config:
+                ...
+            coma.register("cmd", lambda cfg: ..., Config)
+
+        Register class-based command with explicit configuration identifier::
+
+            @dataclass
+            class Config:
+                ...
+            class Command:
+                def __init__(self, cfg):
+                    ...
+                def run(self):
+                    ...
+            coma.register("cmd", Command, ("a_non_default_id", Config))
+
 
     Args:
         name: Any valid sub-command name according to `argparse`
-        command_class_or_function: Typically, any class type or function that
-            implements the sub-command according to the `coma` protocol. See
+        command: Typically, any class type or function that implements the
+            sub-command according to the `coma` protocol. See
             TODO(config; run(); wraps, etc.) for protocol details.
 
-            Note: Can be any callable in more advanced use cases. See
-            TODO(advanced command) for details on advanced use cases.
-        config_class: Typically, any (dataclass) class type that implements the
-            configs for the sub-command.
-
-            Note: Can be any object in more advanced use cases. See
-            TODO(advanced config) for details on advanced use cases.
+            .. note::
+                Can be any callable in more advanced use cases. See
+                TODO(advanced command) for details on advanced use cases.
+        *configs: Local configs, or (id, config) pairs
         parser_hook: See TODO(invoke; protocol) for details on this hook
         pre_config_hook: See TODO(invoke; protocol) for details on this hook
         config_hook: See TODO(invoke; protocol) for details on this hook
+        post_config_hook: See TODO(invoke; protocol) for details on this hook
         pre_init_hook: See TODO(invoke; protocol) for details on this hook
         init_hook: See TODO(invoke; protocol) for details on this hook
+        post_init_hook: See TODO(invoke; protocol) for details on this hook
         pre_run_hook: See TODO(invoke; protocol) for details on this hook
         run_hook: See TODO(invoke; protocol) for details on this hook
         post_run_hook: See TODO(invoke; protocol) for details on this hook
         **parser_kwargs: Keyword arguments to pass along to the constructor of
             the :class:`argparse.ArgumentParser` that handles this sub-command
 
+    Raises:
+        KeyError: If configuration identifiers are not unique
+
     See also:
-        :func:`~coma.core.initiate.initiate`
-        :func:`~coma.core.wake.wake`
+        * :func:`coma.config.to_dict`
+        * :func:`~coma.core.initiate.initiate`
+        * :func:`~coma.core.wake.wake`
     """
-    if inspect.isclass(command_class_or_function):
-        pre_init_command = command_class_or_function
+    if isinstance(command, type):
+        command_ = command
     else:
 
-        @wraps(command_class_or_function)
-        def pre_init_command(*args, **kwargs):
+        @wraps(command)
+        def command_(*args, **kwargs):
             class C:
                 @staticmethod
                 def run():
-                    return command_class_or_function(*args, **kwargs)
+                    return command(*args, **kwargs)
 
             return C()
 
@@ -82,38 +120,42 @@ def register(
             parser_hook=parser_hook,
             pre_config_hook=pre_config_hook,
             config_hook=config_hook,
+            post_config_hook=post_config_hook,
             pre_init_hook=pre_init_hook,
             init_hook=init_hook,
+            post_init_hook=post_init_hook,
             pre_run_hook=pre_run_hook,
             run_hook=run_hook,
             post_run_hook=post_run_hook,
         )
     )
-    _do_register(name, pre_init_command, config_class, subparser, hooks)
+    configs = to_dict(*coma.configs[-1].items(), *configs)
+    _do_register(name, command_, configs, subparser, hooks)
     coma.commands_registered = True
 
 
 def _do_register(
     name: str,
-    pre_init_command: Callable,
-    config_class: Optional[Union[type, Any]],
+    command: Callable,
+    configs: ConfigDict,
     subparser: argparse.ArgumentParser,
     hooks: Hooks,
 ) -> None:
-    """Registers a sub-command with argparse.
+    """Registers a sub-command.
+
+     Registers a sub-command with `argparse` and implements ``coma``'s
+    ``invoke`` protocol. See TODO(invoke protocol) for protocol details.
 
     Args:
         name: Any valid sub-command name according to `argparse`
-        pre_init_command: Typically, a callable wrapped in such a was that it
-            can be called twice: once to initialize and once to run.
+        command: Typically, any class type or function that implements the
+            sub-command according to the `coma` protocol. See
+            TODO(config; run(); wraps, etc.) for protocol details.
 
-            Note: Can be any callable in more advanced use cases. See
-            TODO(advanced command) for details on advanced use cases.
-        config_class: Typically, any (dataclass) class type that implements the
-            configs for the sub-command.
-
-            Note: Can be any object in more advanced use cases. See
-            TODO(advanced config) for details on advanced use cases.
+            .. note::
+                Can be any callable in more advanced use cases. See
+                TODO(advanced command) for details on advanced use cases.
+        configs: A mapping from configuration identifiers to configurations
         subparser: The argument parser handling this sub-command
         hooks: The hooks for this sub-command
     """
@@ -121,64 +163,91 @@ def _do_register(
         hooks.parser_hook(
             name=name,
             parser=subparser,
-            pre_init_command=pre_init_command,
-            config_class=config_class,
+            command=command,
+            configs=configs,
         )
 
-    def invoke(parser_args):
-        """Argparse handler for this sub-command."""
+    def invoke(known_args, unknown_args):
+        # ============ Config ==============
         if hooks.pre_config_hook is not None:
             hooks.pre_config_hook(
                 name=name,
-                parser_args=parser_args,
-                pre_init_command=pre_init_command,
-                config_class=config_class,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command,
+                configs=configs,
             )
-        config = None
+        configs_ = None
         if hooks.config_hook is not None:
-            config = hooks.config_hook(
+            configs_ = hooks.config_hook(
                 name=name,
-                parser_args=parser_args,
-                pre_init_command=pre_init_command,
-                config_class=config_class,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command,
+                configs=configs,
             )
+        if hooks.post_config_hook is not None:
+            configs_ = hooks.post_config_hook(
+                name=name,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command,
+                configs=configs_,
+            )
+
+        # ============ Init ==============
         if hooks.pre_init_hook is not None:
             hooks.pre_init_hook(
                 name=name,
-                parser_args=parser_args,
-                pre_init_command=pre_init_command,
-                config=config,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command,
+                configs=configs_,
             )
-        command = None
+        command_ = None
         if hooks.init_hook is not None:
-            command = hooks.init_hook(
+            command_ = hooks.init_hook(
                 name=name,
-                parser_args=parser_args,
-                pre_init_command=pre_init_command,
-                config=config,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command,
+                configs=configs_,
             )
+        if hooks.post_init_hook is not None:
+            command_ = hooks.post_init_hook(
+                name=name,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command_,
+                configs=configs_,
+            )
+
+        # ============ Run ==============
         if hooks.pre_run_hook is not None:
             hooks.pre_run_hook(
                 name=name,
-                parser_args=parser_args,
-                command=command,
-                config=config,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command_,
+                configs=configs_,
             )
-        ret = None
+        run = None
         if hooks.run_hook is not None:
-            ret = hooks.run_hook(
+            run = hooks.run_hook(
                 name=name,
-                parser_args=parser_args,
-                command=command,
-                config=config,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command_,
+                configs=configs_,
             )
         if hooks.post_run_hook is not None:
             hooks.post_run_hook(
                 name=name,
-                parser_args=parser_args,
-                command=command,
-                config=config,
-                run_return=ret,
+                known_args=known_args,
+                unknown_args=unknown_args,
+                command=command_,
+                configs=configs_,
+                run=run,
             )
 
     subparser.set_defaults(func=invoke)

@@ -1,27 +1,33 @@
-"""Utilities for hooks."""
+"""General hook utilities."""
 import inspect
-from typing import Callable
+from typing import Callable, TypeVar
 
 from boltons.funcutils import wraps
 
 
-SENTINEL = object()  # Needs to be defined here to avoid circular imports.
+_T = TypeVar("_T")
 
 
-def hook(fn: Callable) -> Callable:
-    """Decorator for `coma` hooks.
+def hook(fn: Callable[..., _T]) -> Callable[..., _T]:
+    """Decorator for ``coma`` hooks.
 
     Enables hook definitions with only a subset of all protocol arguments. See
     TODO(invoke; protocol) for details on hook protocols.
+
+    Example::
+
+        @hook
+        def parser_hook(parser):  # "parser" is a subset of the parser hook protocol
+            ...
 
     Args:
         fn: Any callable that implements a subset of a hook protocol
 
     Returns:
-         A protocol-friendly wrapped version of the function
+         A new, protocol-friendly, wrapped version of the function
     """
 
-    def wrapper(**kwargs):
+    def wrapper(**kwargs) -> _T:
         return fn(*[kwargs[arg] for arg in inspect.getfullargspec(fn).args])
 
     return wrapper
@@ -31,10 +37,14 @@ def sequence(hook_: Callable, *hooks: Callable, return_all: bool = False) -> Cal
     """Wraps a sequence of hooks into a single callable.
 
     Equivalent to calling all given hooks one at a time in a loop with the
-    same arguments. The hooks therefore need to have compatible call
+    same arguments. The hooks, therefore, need to have compatible call
     signatures. The best way to achieve this is to decorate each hook with the
-    `@coma.hooks.hook` decorator and ensuring all hooks subset the same
-    protocol. See TODO(invoke; protocol) for details on hook protocols.
+    :func:`~coma.hooks.utils.hook` decorator and ensuring all hooks subset the
+    same protocol. See TODO(invoke; protocol) for details on hook protocols.
+
+    Example::
+
+        coma.initiate(parser_hook=sequence(parser_hook1, parser_hook2))
 
     Args:
         hook_: The first hook in the sequence
@@ -46,7 +56,7 @@ def sequence(hook_: Callable, *hooks: Callable, return_all: bool = False) -> Cal
         If `return_all` is `True`, returns the value of all hooks as a list.
 
     See also:
-        :func:`~coma.hooks.utils.hook`
+        * :func:`~coma.hooks.utils.hook`
     """
 
     @wraps(hook_)
@@ -54,7 +64,6 @@ def sequence(hook_: Callable, *hooks: Callable, return_all: bool = False) -> Cal
         rets = [hook_(*args, **kwargs)] + [h(*args, **kwargs) for h in hooks]
         if return_all:  # Always returns a list even for 1 item.
             return rets
-        else:  # Never returns a list.
-            return rets[-1]
+        return rets[-1]
 
     return wrapper

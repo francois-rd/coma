@@ -1,82 +1,164 @@
-"""Core config hooks."""
-import json
-from typing import Callable, Optional
+"""Core config hooks and utilities."""
+from typing import Callable, List, Optional
 
-# Lib/dataclasses in Python>=3.7
-# dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
-from dataclasses import asdict
+from coma.config import (
+    ConfigDict,
+    ConfigID,
+    default_attr,
+    default_default,
+    to_dict,
+)
+from coma.config.io import dump, Extension, maybe_add_ext, load
 
-from .utils import hook
+from .utils import hook, sequence
 
 
-def factory(
-    attr_name: str = "config_path",
+def single_load_and_write_factory(
+    config_id: ConfigID,
     *,
-    default_filepath: Optional[str] = None,
-    fail_fast_on_fnf: bool = False,
+    parser_attr_name: Optional[str] = None,
+    default_file_path: Optional[str] = None,
+    default_ext: Extension = Extension.YAML,
+    raise_on_fnf: bool = False,
     write_on_fnf: bool = True,
-) -> Callable:
-    """Factory for instantiating a configuration object.
+    resolve: bool = False,
+) -> Callable[..., ConfigDict]:
+    """Factory for creating a config hook instantiating a configuration object.
 
-    If no ``config_class`` is provided, the underlying config hook returns
-    `None`. Otherwise, an attempt is made to instantiate the ``config_class``
-    from configs loaded from file. If this fails due to a ``FileNotFoundError``,
-    then a configuration object may be instantiated using default values and the
-    configurations may be written to file, depending on the values of
-    `fail_fast_on_fnf` and `write_on_fnf`.
+    The created config hook has the following behaviour:
+
+        First, an attempt is made to instantiate the configuration type
+        corresponding to the :obj:`config_id` identifier from file.
+
+            .. note::
+
+                If a file path is provided as a command line argument, that
+                path is used. Otherwise, :obj:`default_file_path` is used as
+                a default. If :obj:`default_file_path` is `None`, a sensible
+                default is derived from :obj:`config_id` instead.
+
+                In any case, if the provided or derived file path has no file
+                extension, the extension :obj:`default_ext` is used as a default.
+
+        If loading the file fails due to a `FileNotFoundError`, then:
+
+            If :obj:`raise_on_fnf` is `True`, the error is re-raised.
+
+            If :obj:`raise_on_fnf` is `False`, a configuration object
+            with default values is instantiated, and then:
+
+                If :obj:`write_on_fnf` is `True`, the newly-instantiated
+                configuration object with default values is written to the file.
+                If :obj:`resolve` is `True`, the underlying OmegaConf handler
+                attempts to resolve variable interpolation before writing.
+
+        The created config hook raises:
+            KeyError: If :obj:`config_id` does not correspond to a known
+                configuration type
+            ValueError: If the file extension is not supported. See
+            :class:`coma.config.io.Extension` for supported types.
+            FileNotFoundError: If :obj:`raise_on_fnf` is `True` and the
+                configuration file was not found
+            Others: As may be raised by the underlying OmegaConf handler
+
+    Example:
+        Fail fast when encountering a `FileNotFoundError`::
+
+            coma.initiate(..., config_hook=single_factory(..., raise_on_fnf=True))
 
     Args:
-        attr_name: The attribute of the configuration file path on the parser
-            args object returned by :func:`argparse.ArgumentParser.parse_args`.
-            See :func:`coma.core.hooks.parser_hook.config_factory` for details.
-        default_filepath: An optional default value for the configuration file
-            path. If `None`, uses the same default as
-            :func:`coma.hooks.parser_hook.config_factory`.
-        fail_fast_on_fnf: If `True`, raises a ``FileNotFoundError`` if the
+        config_id: A configuration identifier
+        parser_attr_name: The :obj:`known_args` attribute representing this
+            configuration's file path parser argument. If `None`, derives a
+            sensible default from :func:`coma.config.default_attr`.
+        default_file_path: An optional default value for the configuration file
+            path. If `None`, derives a sensible default from
+            :func:`coma.config.default_file_path`.
+        default_ext: The extension to use when the provided file path has none
+        raise_on_fnf: If `True`, raises a `FileNotFoundError` if the
             configuration file was not found. If `False`, a configuration object
             with default values is instantiated instead of failing outright.
         write_on_fnf: If the configuration file was not found and
-            `fail_fast_on_fnf` is `False`, then `write_on_fnf` indicates whether
-            to write the configurations to the provided configuration file.
+            :obj:`raise_on_fnf` is `False`, then :obj:`write_on_fnf` indicates
+             whether to write the configurations to the provided file
+        resolve: If about to write configurations to file, then :obj:`resolve`
+            indicates whether the underlying OmegaConf handler attempts to
+            resolve variable interpolation beforehand
 
     Returns:
-        A valid config hook function (assuming args are valid).
-
-    Raises:
-        FileNotFoundError: If `fail_fast_on_fnf` is `True` and the configuration
-            file was not found
-        TypeError: If the configs loaded from file and the ``config_class``
-            provided to the underlying config hook are incompatible
+        A config hook
 
     See also:
-        :func:`coma.hooks.parser_hook.config_factory`
-        TODO(invoke; protocol) for details on config hooks
+        * :func:`coma.config.default_attr`
+        * :func:`coma.config.default_default`
+        * :func:`coma.hooks.parser_hook.single_config_factory`
+        * TODO(invoke; protocol) for details on config hooks
     """
 
     @hook
-    def _hook(name, parser_args, config_class):
-        if config_class is None:
-            return None
-        default_ = default_filepath or f"{name}.json"
-        filename = getattr(parser_args, attr_name, default_) or default_
+    def _hook(known_args, configs: ConfigDict) -> ConfigDict:
+        config = configs[config_id]
+        default_ = default_file_path
+        default_ = default_default(config_id) if default_ is None else default_
+        attr_ = parser_attr_name
+        attr_ = default_attr(config_id) if attr_ is None else attr_
+        file_path = getattr(known_args, attr_, default_) or default_
+        file_path = maybe_add_ext(file_path, default_ext)
         try:
-            with open(filename, "r") as f:
-                return config_class(**json.load(f))
+            config = load(config, file_path)
         except FileNotFoundError:
-            if fail_fast_on_fnf:
+            if raise_on_fnf:
                 raise
-            config = config_class()
+            config = load(config)
             if write_on_fnf:
-                with open(filename, "w") as f:
-                    json.dump(asdict(config), f, indent=4)
-            return config
+                dump(config, file_path, resolve=resolve)
+        return to_dict((config_id, config))
 
     return _hook
 
 
-default = factory()
+def multi_load_and_write_factory(
+    *,
+    default_ext: Extension = Extension.YAML,
+    raise_on_fnf: bool = False,
+    write_on_fnf: bool = True,
+    resolve: bool = False,
+) -> Callable[..., ConfigDict]:
+    """Factory for creating a sequence of config hooks.
+
+    Equivalent to calling :func:`~coma.hooks.config_hook.single_load_and_write_factory`
+    for each configuration in :obj:`configs` with the other arguments passed along.
+
+    See :func:`coma.hooks.config_hook.single_load_and_write_factory` for details.
+    """
+
+    @hook
+    def _hook(known_args, configs: ConfigDict) -> ConfigDict:
+        fns = []
+        for config_id in configs:
+            fns.append(
+                single_load_and_write_factory(
+                    config_id,
+                    default_ext=default_ext,
+                    raise_on_fnf=raise_on_fnf,
+                    write_on_fnf=write_on_fnf,
+                    resolve=resolve,
+                )
+            )
+        configs_list = []
+        if fns:
+            configs_list: List[ConfigDict] = sequence(*fns, return_all=True)(
+                known_args=known_args,
+                configs=configs,
+            )
+        return to_dict(*[(cid, c) for cd in configs_list for cid, c in cd.items()])
+
+    return _hook
+
+
+default = multi_load_and_write_factory()
 """Default config hook function.
 
-See also:
-    TODO(invoke; protocol) for details on config hooks
+An alias for :func:`coma.hooks.config_hook.multi_load_and_write_factory` called
+with default arguments.
 """
