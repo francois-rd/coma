@@ -4,8 +4,8 @@ from typing import Callable, List, Optional
 from coma.config import (
     ConfigDict,
     ConfigID,
-    default_attr,
     default_default,
+    default_dest,
     to_dict,
 )
 from coma.config.io import dump, Extension, maybe_add_ext, load
@@ -70,7 +70,7 @@ def single_load_and_write_factory(
         config_id: A configuration identifier
         parser_attr_name: The :obj:`known_args` attribute representing this
             configuration's file path parser argument. If `None`, derives a
-            sensible default from :func:`coma.config.default_attr`.
+            sensible default from :func:`coma.config.default_dest`.
         default_file_path: An optional default value for the configuration file
             path. If `None`, derives a sensible default from
             :func:`coma.config.default_file_path`.
@@ -89,7 +89,7 @@ def single_load_and_write_factory(
         A config hook
 
     See also:
-        * :func:`coma.config.default_attr`
+        * :func:`coma.config.default_dest`
         * :func:`coma.config.default_default`
         * :func:`coma.hooks.parser_hook.single_config_factory`
         * TODO(invoke; protocol) for details on config hooks
@@ -100,9 +100,9 @@ def single_load_and_write_factory(
         config = configs[config_id]
         default_ = default_file_path
         default_ = default_default(config_id) if default_ is None else default_
-        attr_ = parser_attr_name
-        attr_ = default_attr(config_id) if attr_ is None else attr_
-        file_path = getattr(known_args, attr_, default_) or default_
+        attr = parser_attr_name
+        attr = default_dest(config_id) if attr is None else attr
+        file_path = getattr(known_args, attr, default_) or default_
         file_path = maybe_add_ext(file_path, default_ext)
         try:
             config = load(config, file_path)

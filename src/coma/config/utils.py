@@ -28,12 +28,13 @@ def default_id(config: Any) -> str:
     return config.__name__.lower()
 
 
-def default_attr(config_id: ConfigID) -> str:
-    """Returns the default file path parser argument attribute of :obj:`config_id`.
+def default_dest(config_id: ConfigID) -> str:
+    """Returns the default file path parser argument destination of :obj:`config_id`.
 
-    Returns the attribute of the :func:`argparse.ArgumentParser.parse_known_args`
-    return object representing the default file path parser argument
-    corresponding to :obj:`config_id`.
+    Returns the default value for the :obj:`dest` keyword argument to
+    :class:`argparse.ArgumentParser.add_argument` for the file path parser
+    argument corresponding to :obj:`config_id`. This will also be the attribute
+    of the :func:`argparse.ArgumentParser.parse_known_args` return object.
 
     Args:
         config_id: A configuration identifier

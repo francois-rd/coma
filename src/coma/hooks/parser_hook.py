@@ -6,6 +6,7 @@ from coma.config import (
     ConfigDict,
     ConfigID,
     default_default,
+    default_dest,
     default_flag,
     default_help,
 )
@@ -51,6 +52,7 @@ def single_config_factory(
         kwargs = {
             "type": str,
             "metavar": "FILE",
+            "dest": default_dest(config_id)
             "default": default_default(config_id),
             "help": default_help(config_id),
         }
