@@ -5,8 +5,13 @@ from typing import Any, Dict, Tuple, TypeVar, Union
 
 
 ConfigID = TypeVar("ConfigID")
+"""TODO doc"""
+
 ConfigDict = Dict[ConfigID, Any]
+"""TODO doc"""
+
 ConfigOrIdAndConfig = Union[Any, Tuple[ConfigID, Any]]
+"""TODO doc"""
 
 
 _dict_type = OrderedDict if sys.version_info < (3, 7) else dict
@@ -105,7 +110,7 @@ def to_dict(*configs: ConfigOrIdAndConfig) -> ConfigDict:
 
     .. note::
 
-        For each :func:`~coma.core.register.register`ed sub-command,
+        For each :func:`~coma.core.register.register`\\ ed sub-command,
         configuration identifiers need to be unique for that sub-command.
 
     .. note::

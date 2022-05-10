@@ -24,7 +24,7 @@ def forget(
 ) -> Iterator[None]:
     """Causes ``coma`` to temporarily ignore selected configurations or hooks.
 
-    A context manager that enables :func:`~coma.core.register.register`ing
+    A context manager that enables :func:`~coma.core.register.register`\\ ing
     sub-commands while selectively ignoring configurations or hooks.
 
     Example::

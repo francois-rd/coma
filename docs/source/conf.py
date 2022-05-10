@@ -38,3 +38,8 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for EPUB output
 
 epub_show_urls = 'footnote'
+
+add_module_names = False  # Displays as 'func' rather than 'module.sub.func'.
+autodoc_default_options = {
+    'member-order': 'bysource',  # Module members appear in source order.
+}

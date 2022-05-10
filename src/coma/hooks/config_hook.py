@@ -53,13 +53,17 @@ def single_load_and_write_factory(
                 attempts to resolve variable interpolation before writing.
 
         The created config hook raises:
-            KeyError: If :obj:`config_id` does not correspond to a known
-                configuration type
-            ValueError: If the file extension is not supported. See
-            :class:`coma.config.io.Extension` for supported types.
-            FileNotFoundError: If :obj:`raise_on_fnf` is `True` and the
-                configuration file was not found
-            Others: As may be raised by the underlying OmegaConf handler
+
+            KeyError:
+                If :obj:`config_id` does not correspond to a known configuration type
+            ValueError:
+                If the file extension is not supported. See
+                :class:`coma.config.io.Extension` for supported types.
+            FileNotFoundError:
+                If :obj:`raise_on_fnf` is `True` and the configuration file was
+                not found
+            Others:
+                As may be raised by the underlying OmegaConf handler
 
     Example:
         Fail fast when encountering a `FileNotFoundError`::
@@ -80,7 +84,7 @@ def single_load_and_write_factory(
             with default values is instantiated instead of failing outright.
         write_on_fnf: If the configuration file was not found and
             :obj:`raise_on_fnf` is `False`, then :obj:`write_on_fnf` indicates
-             whether to write the configurations to the provided file
+            whether to write the configurations to the provided file
         resolve: If about to write configurations to file, then :obj:`resolve`
             indicates whether the underlying OmegaConf handler attempts to
             resolve variable interpolation beforehand
