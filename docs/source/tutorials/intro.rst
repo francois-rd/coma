@@ -237,6 +237,8 @@ are useful for enabling runtime validation:
     $ python main.py greet
     Hello World!
 
+.. _multiconfigs:
+
 Multiple Configurations
 -----------------------
 
@@ -315,7 +317,7 @@ We invoke both commands in turn as before:
     $ python main.py leave
     Goodbye World!
 
-Where to go from here?
+Where To Go From Here?
 ----------------------
 
 You now have a solid foundation for writing Python programs with configurable commands! 🎉
@@ -329,6 +331,3 @@ For more advanced use cases, ``coma`` ofers many additional features, including:
 * And more!
 
 Check out the other tutorials to learn more.
-
-Configs can be global (:func:`~coma.core.register.register`\ ed to all
-commands) or local (:func:`~coma.core.register.register`\ ed to a specific command).
