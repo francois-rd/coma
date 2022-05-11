@@ -6,10 +6,9 @@
 Commands
 --------
 
-Let's dive in with a classic :obj:`Hello World!` ``coma`` program:
+Let's dive in with a classic :obj:`Hello World!` program:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     import coma
@@ -36,16 +35,15 @@ Now, let's run this program:
 .. note::
 
     The :func:`~coma.core.wake.wake` function should always follow the last call
-    to :func:`~coma.core.register.register`. :func:`~coma.core.wake.wake` essentially
-    tells ``coma`` "I'm done :func:`~coma.core.register.register`\ ing commands;
-    please invoke whichever one was specified on the command line." In this case,
-    :func:`~coma.core.wake.wake` saw that :obj:`greet` was specified on the command
-    line and it invoked the registered command with a matching name.
+    to :func:`~coma.core.register.register`. Calling :func:`~coma.core.wake.wake`
+    tells ``coma`` that all commands have been :func:`~coma.core.register.register`\ ed.
+    Coma will then attempt to invoke whichever one was specified on the command
+    line. In this example, :obj:`greet` was specified on the command line and so
+    the :func:`~coma.core.register.register`\ ed command with that name was invoked.
 
 In addition to anonymous functions, :obj:`command` can be any Python function:
 
 .. code-block:: python
-    :linenos:
 
     import coma
 
@@ -59,7 +57,6 @@ In addition to anonymous functions, :obj:`command` can be any Python function:
 or any Python class with a no-parameter :obj:`run` method:
 
 .. code-block:: python
-    :linenos:
 
     import coma
 
@@ -78,7 +75,6 @@ Multiple Commands
 Let's extend our previous example:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     import coma
@@ -88,8 +84,8 @@ Let's extend our previous example:
         coma.register("leave", lambda: print("Goodbye!"))
         coma.wake()
 
-This :func:`~coma.core.register.register`\ s two commands. We can call each in
-turn to induce different program behavior:
+This :func:`~coma.core.register.register`\ s two commands. By calling each in
+turn, we induce different program behavior:
 
 .. code-block:: console
 
@@ -101,11 +97,10 @@ turn to induce different program behavior:
 Configurations
 --------------
 
-Commands alone are great, but config integration is what makes ``coma`` truly
-powerful. The simplest ``omegaconf`` config is a dictionary:
+Commands alone are great, but ``omegaconf`` integration is what makes ``coma``
+truly powerful. The simplest ``omegaconf`` config object is a plain dictionary:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     import coma
@@ -116,16 +111,15 @@ powerful. The simplest ``omegaconf`` config is a dictionary:
 
 .. note::
 
-    The command now takes one positional argument, :obj:`cfg`. It will be bound
-    to the config object when the command is invoked.
+    The command now takes one positional argument (:obj:`cfg` in this example).
+    It will be bound to the config object if the command is invoked.
 
 .. note::
 
-    If the command is a Python class, the **constructor** should accept a positional
-    argument, not the :obj:`run` method:
+    If the command is a Python class, it is the **constructor** that should have
+    a positional config argument, not the :obj:`run` method:
 
     .. code-block:: python
-        :linenos:
 
         import coma
 
@@ -141,17 +135,19 @@ powerful. The simplest ``omegaconf`` config is a dictionary:
             coma.wake()
 
     This separation between initialization and invocation is done so that stateful
-    commands can be initialized based on config attributes, which is often useful.
+    commands can be initialized based on config attributes, which is typically
+    more straightforward than delaying part of the initialization until :obj:`run`
+    is called.
 
-With these simple configs, the program as before:
+The program essentially runs as before:
 
 .. code-block:: console
 
     $ python main.py greet
     Hello World!
 
-The only difference is that, by default, ``coma`` saves the config as a YAML file in the current
-working directory:
+The only difference is that, by default, ``coma`` serializes the config to a
+YAML file in the current working directory:
 
 .. code-block:: console
 
@@ -159,19 +155,21 @@ working directory:
     dict.yaml
     main.py
 
-By default, ``coma`` uses the config object's type's name to name the file
-(:obj:`dict` in this example). This can be overridden by explicitly identifying
-the config object using a keyword argument:
+By default, ``coma`` uses the config object's :obj:`type`'s name (:obj:`dict` in
+this example) to identify the config and derive a file name. This can be
+overridden by explicitly identifying the config object using a keyword argument:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     import coma
 
     if __name__ == "__main__":
-        coma.register("greet", lambda cfg: print(cfg.message), greet={"message": "Hello World!"})
+        coma.register("greet", lambda cfg: print(cfg.message),
+                      greet={"message": "Hello World!"})
         coma.wake()
+
+Now the config will be serialized to :obj:`greet.yaml`:
 
 .. code-block:: console
 
@@ -182,20 +180,22 @@ the config object using a keyword argument:
     greet.yaml
     main.py
 
-The config files can be used to hardcode overrides to the default config attribute values:
+Config files can be used to hardcode attribute values that override the default
+config attribute values. For example, changing :obj:`greet.yaml` to:
 
 .. code-block:: yaml
-    :linenos:
     :caption: greet.yaml
 
     message: hardcoded message
+
+leads to the following program execution:
 
 .. code-block:: console
 
     $ python main.py greet
     hardcoded message
 
-The config attributes can also be overridden on the command line using ``omegaconf``'s
+Config attribute values can also be overridden on the command line using ``omegaconf``'s
 `dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_:
 
 .. code-block:: console
@@ -205,14 +205,14 @@ The config attributes can also be overridden on the command line using ``omegaco
 
 .. note::
 
-    File-based configs override the defaults and command line-based configs
-    override both the file-based and the defaults.
+    Serialized configs override default configs and command line-based configs override
+    *both* serialized and default configs: :obj:`default < serialized < command line`.
 
-``omegaconf`` also supports `structured configs <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-structured-config>`_,
-which enables runtime validation:
+``coma`` supports any valid ``omegaconf`` config object. In particular,
+`structured configs <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-structured-config>`_
+are useful for enabling runtime validation:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     from dataclasses import dataclass
@@ -227,6 +227,11 @@ which enables runtime validation:
         coma.register("greet", lambda cfg: print(cfg.message), Config)
         coma.wake()
 
+.. note::
+
+    Because :obj:`Config` has :obj:`type` name :obj:`config`, the config object
+    will be serialized to :obj:`config.yaml`.
+
 .. code-block:: console
 
     $ python main.py greet
@@ -238,7 +243,6 @@ Multiple Configurations
 Commands can take an arbitrary number of configs:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     from dataclasses import dataclass
@@ -259,21 +263,18 @@ Commands can take an arbitrary number of configs:
 
 .. note::
 
-    The command now takes two positional arguments. Each will be bound in the
-    given order to the supplied config objects when the command is invoked.
+    In this example, the command now takes two positional arguments. Each will be bound
+    (in the given order) to the supplied config objects if the command is invoked.
 
 .. code-block:: console
 
     $ python main.py greet
     Hello World!
 
-This example is, admittedly, somewhat contrived. However, multiple configs are
-often useful in practice to separate large configurations into smaller,
-more-manageable, more-maintainable, logically-separated components. Multiple
-configs are also useful when only parts of a config are shared between commands:
+Multiple configs are often useful in practice to separate otherwise-large configs
+into smaller components, especially if some components are shared between commands:
 
 .. code-block:: python
-    :linenos:
     :caption: main.py
 
     from dataclasses import dataclass
@@ -292,6 +293,20 @@ configs are also useful when only parts of a config are shared between commands:
         coma.register("greet", lambda g, r: print(g.message, r.entity), Greeting, Receiver)
         coma.register("leave", lambda r: print("Goodbye", r.entity), Receiver)
         coma.wake()
+
+.. note::
+
+    It is perfectly acceptable for both :obj:`greet` and :obj:`leave` to share
+    the :obj:`Receiver` config: Configs need to be uniquely identified per-command,
+    but not across commands. To disable this sharing (so that each command has its
+    own serialized copy of the config), use unique identifiers:
+
+    .. code-block:: python
+
+        coma.register("greet", ..., Greeting, greet_receiver=Receiver)
+        coma.register("leave", ..., leave_receiver=Receiver)
+
+We invoke both commands in turn as before:
 
 .. code-block:: console
 
