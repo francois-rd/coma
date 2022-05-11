@@ -62,7 +62,7 @@ through the :obj:`subparsers_kwargs` parameter to :func:`~coma.core.initiate.ini
 
 .. _globalconfigs:
 
-Global configs
+Global Configs
 --------------
 
 Configs can be :func:`~coma.core.initiate.initiate`\ d globally to all
@@ -132,7 +132,7 @@ This produces the same overall effect, while being more
     is now supplied first instead of second to :obj:`greet`, the order of
     parameters to :obj:`greet` had to be swapped: :obj:`g, r` becomes :obj:`r, g`.
 
-Global hooks
+Global Hooks
 ------------
 
 ``coma`` behavior can be easily tweaked, replaced, or extended using a
