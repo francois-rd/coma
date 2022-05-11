@@ -104,7 +104,7 @@ def load(config: Any, file_path: Optional[str] = None) -> Any:
 
     if is_json_ext(file_path):
         with open(file_path, "r") as f:
-            dict_config = OmegaConf.create(**json.load(f))
+            dict_config = OmegaConf.create(json.load(f))
     elif is_yaml_ext(file_path):
         dict_config = OmegaConf.load(file_path)
     else:

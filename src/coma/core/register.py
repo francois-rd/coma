@@ -1,10 +1,10 @@
 """Register a sub-command that might be invoked upon waking ``coma``."""
 import argparse
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from boltons.funcutils import wraps
 
-from coma.config import ConfigDict, ConfigOrIdAndConfig, to_dict
+from coma.config import ConfigDict, to_dict
 
 from .initiate import get_initiated
 from .internal import Hooks
@@ -13,7 +13,7 @@ from .internal import Hooks
 def register(
     name: str,
     command: Callable,
-    *configs: ConfigOrIdAndConfig,
+    *configs: Any,
     parser_hook: Optional[Callable] = None,
     pre_config_hook: Optional[Callable] = None,
     config_hook: Optional[Callable] = None,
@@ -24,7 +24,8 @@ def register(
     pre_run_hook: Optional[Callable] = None,
     run_hook: Optional[Callable] = None,
     post_run_hook: Optional[Callable] = None,
-    **parser_kwargs,
+    parser_kwargs: Optional[dict] = None,
+    **id_configs: Any,
 ) -> None:
     """Registers a sub-command that might be invoked upon waking ``coma``.
 
@@ -40,8 +41,9 @@ def register(
         (rather than replacing calls to global hooks). See
         :func:`~coma.core.initiate.initiate`.
 
-    Configurations should be of the form `<conf>` or `(<id>, <conf>)`. See
-    :func:`coma.config.to_dict` for additional details.
+    Configurations can be provided with or without an identifier. In the latter
+    case, an identifier is derived automatically. See :func:`coma.config.to_dict`
+    for additional details.
 
     Examples:
 
@@ -66,7 +68,7 @@ def register(
                     ...
                 def run(self):
                     ...
-            coma.register("cmd", Command, ("a_non_default_id", Config))
+            coma.register("cmd", Command, a_non_default_id=Config)
 
 
     Args:
@@ -78,7 +80,7 @@ def register(
             .. note::
                 Can be any callable in more advanced use cases. See
                 TODO(advanced command) for details on advanced use cases.
-        *configs: Local configs, or (id, config) pairs
+        *configs: Local configurations with default identifiers
         parser_hook: See TODO(invoke; protocol) for details on this hook
         pre_config_hook: See TODO(invoke; protocol) for details on this hook
         config_hook: See TODO(invoke; protocol) for details on this hook
@@ -89,8 +91,9 @@ def register(
         pre_run_hook: See TODO(invoke; protocol) for details on this hook
         run_hook: See TODO(invoke; protocol) for details on this hook
         post_run_hook: See TODO(invoke; protocol) for details on this hook
-        **parser_kwargs: Keyword arguments to pass along to the constructor of
+        parser_kwargs: Keyword arguments to pass along to the constructor of
             the :class:`argparse.ArgumentParser` that handles this sub-command
+        **id_configs: Local configurations with explicit identifiers
 
     Raises:
         KeyError: If configuration identifiers are not unique
@@ -114,6 +117,7 @@ def register(
             return C()
 
     coma = get_initiated()
+    parser_kwargs = {} if parser_kwargs is None else parser_kwargs
     subparser = coma.subparsers.add_parser(name, **parser_kwargs)
     hooks = coma.hooks[-1].merge(
         Hooks(
@@ -129,7 +133,7 @@ def register(
             post_run_hook=post_run_hook,
         )
     )
-    configs = to_dict(*coma.configs[-1].items(), *configs)
+    configs = to_dict(*coma.configs[-1].items(), *configs, *id_configs.items())
     _do_register(name, command_, configs, subparser, hooks)
     coma.commands_registered = True
 

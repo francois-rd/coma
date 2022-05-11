@@ -4,11 +4,11 @@ from typing import Any, Callable, List
 import omegaconf
 from omegaconf import OmegaConf
 
-from .utils import ConfigDict, ConfigID
+from .utils import ConfigDict
 
 
 def override(
-    config_id: ConfigID,
+    config_id: str,
     configs: ConfigDict,
     unknown_args: List[str],
     *,

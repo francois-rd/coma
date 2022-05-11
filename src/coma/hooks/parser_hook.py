@@ -4,7 +4,6 @@ from typing import Callable
 
 from coma.config import (
     ConfigDict,
-    ConfigID,
     default_default,
     default_dest,
     default_flag,
@@ -40,7 +39,7 @@ def factory(*names_or_flags, **kwargs) -> Callable[..., None]:
 
 
 def single_config_factory(
-    config_id: ConfigID, *names_or_flags, **kwargs
+    config_id: str, *names_or_flags, **kwargs
 ) -> Callable[..., None]:
     """Factory for adding a single configuration file path argument.
 
@@ -88,6 +87,7 @@ def single_config_factory(
         kwargs.setdefault("type", str)
         kwargs.setdefault("metavar", "FILE")
         kwargs.setdefault("default", default_default(config_id))
+        kwargs.setdefault("dest", default_dest(config_id))
         kwargs.setdefault("help", default_help(config_id))
         factory(*names_or_flags_, **kwargs)(parser=parser)
 

@@ -2,15 +2,13 @@
 from contextlib import contextmanager
 from typing import Iterator
 
-from coma.config import ConfigID
-
 from .initiate import get_initiated
 from .internal import MaskHooks
 
 
 @contextmanager
 def forget(
-    *config_ids: ConfigID,
+    *config_ids: str,
     parser_hook: bool = False,
     pre_config_hook: bool = False,
     config_hook: bool = False,

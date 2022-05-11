@@ -2,12 +2,12 @@
 import inspect
 from typing import Any, Callable
 
-from coma.config import ConfigDict, ConfigID
+from coma.config import ConfigDict
 
 from .utils import hook
 
 
-def positional_factory(*skips: ConfigID) -> Callable:
+def positional_factory(*skips: str) -> Callable:
     """Factory for initializing a :obj:`command` with some :obj:`configs`.
 
     Initializes a :obj:`command` with the values (i.e., configurations) but not
@@ -37,7 +37,7 @@ def positional_factory(*skips: ConfigID) -> Callable:
     return _hook
 
 
-def keyword_factory(*skips: ConfigID, force: bool = False) -> Callable:
+def keyword_factory(*skips: str, force: bool = False) -> Callable:
     """Factory for initializing a :obj:`command` with some :obj:`configs`.
 
     Initializes a :obj:`command` with the values (i.e., configurations) but not

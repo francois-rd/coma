@@ -1,14 +1,14 @@
 """Core post config hooks and utilities."""
 from typing import Callable, List
 
-from coma.config import ConfigDict, ConfigID, to_dict
+from coma.config import ConfigDict, to_dict
 from coma.config.cli import override
 
 from .utils import hook, sequence
 
 
 def single_cli_override_factory(
-    config_id: ConfigID, cli_override: Callable = override
+    config_id: str, cli_override: Callable = override
 ) -> Callable[..., ConfigDict]:
     """Factory for overriding a configuration's attributes with command line arguments.
 

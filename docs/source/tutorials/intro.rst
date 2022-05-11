@@ -137,7 +137,7 @@ powerful. The simplest ``omegaconf`` config is a dictionary:
                 print(self.cfg.message)
 
         if __name__ == "__main__":
-            coma.register("greet", Cmd)
+            coma.register("greet", Cmd, {"message": "Hello World!"})
             coma.wake()
 
     This separation between initialization and invocation is done so that stateful
@@ -159,7 +159,7 @@ working directory:
     dict.yaml
     main.py
 
-By default, ``coma`` uses the config object's class's name to name the file
+By default, ``coma`` uses the config object's type's name to name the file
 (:obj:`dict` in this example). This can be overridden by explicitly identifying
 the config object using a keyword argument:
 
@@ -200,7 +200,7 @@ The config attributes can also be overridden on the command line using ``omegaco
 
 .. code-block:: console
 
-    $ python main.py greet message:"New Message"
+    $ python main.py greet message="New Message"
     New Message
 
 .. note::
@@ -224,7 +224,7 @@ which enables runtime validation:
         message: str = "Hello World!"
 
     if __name__ == "__main__":
-        coma.register("greet", lambda cfg: print(cfg.message), greet=Config)
+        coma.register("greet", lambda cfg: print(cfg.message), Config)
         coma.wake()
 
 .. code-block:: console

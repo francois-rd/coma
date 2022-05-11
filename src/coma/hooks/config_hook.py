@@ -3,7 +3,6 @@ from typing import Callable, List, Optional
 
 from coma.config import (
     ConfigDict,
-    ConfigID,
     default_default,
     default_dest,
     to_dict,
@@ -14,7 +13,7 @@ from .utils import hook, sequence
 
 
 def single_load_and_write_factory(
-    config_id: ConfigID,
+    config_id: str,
     *,
     parser_attr_name: Optional[str] = None,
     default_file_path: Optional[str] = None,

@@ -1,16 +1,16 @@
 """Initiate ``coma``."""
 import argparse
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 import warnings
 
 from coma import hooks
-from coma.config import ConfigOrIdAndConfig, to_dict
+from coma.config import to_dict
 
 from .internal import Coma, Hooks, get_instance
 
 
 def initiate(
-    *configs: ConfigOrIdAndConfig,
+    *configs: Any,
     parser: Optional[argparse.ArgumentParser] = None,
     parser_hook: Optional[Callable] = hooks.parser_hook.default,
     pre_config_hook: Optional[Callable] = None,
@@ -22,7 +22,8 @@ def initiate(
     pre_run_hook: Optional[Callable] = None,
     run_hook: Optional[Callable] = hooks.run_hook.default,
     post_run_hook: Optional[Callable] = None,
-    **subparsers_kwargs
+    subparsers_kwargs: Optional[dict] = None,
+    **id_configs: Any,
 ) -> None:
     """Initiates ``coma``.
 
@@ -33,8 +34,9 @@ def initiate(
     registered sub-command, unless explicitly forgotten using the
     :func:`~coma.core.forget.forget` context manager.
 
-    Configurations should be of the form `<conf>` or `(<id>, <conf>)`. See
-    :func:`coma.config.to_dict` for additional details.
+    Configurations can be provided with or without an identifier. In the latter
+    case, an identifier is derived automatically. See :func:`coma.config.to_dict`
+    for additional details.
 
     Example::
 
@@ -45,10 +47,10 @@ def initiate(
         @dataclass
         class Config2:
             ...
-        coma.initiate(Config1, ("a_non_default_id", Config2), ...)
+        coma.initiate(Config1, a_non_default_id=Config2, ...)
 
     Args:
-        *configs: Global configs, or (id, config) pairs
+        *configs: Global configurations with default identifiers
         parser: An argument parser for Coma. If `None`, an argument parser with
             default parameters is used.
         parser_hook: See TODO(invoke; protocol) for details on this hook
@@ -61,13 +63,15 @@ def initiate(
         pre_run_hook: See TODO(invoke; protocol) for details on this hook
         run_hook: See TODO(invoke; protocol) for details on this hook
         post_run_hook: See TODO(invoke; protocol) for details on this hook
-        **subparsers_kwargs: Keyword arguments to pass along to
+        subparsers_kwargs: Keyword arguments to pass along to
             :func:`~argparse.ArgumentParser.add_subparsers`
+        **id_configs: Global configurations with explicit identifiers
 
     Raises:
         KeyError: If configuration identifiers are not unique
 
     See also:
+        * :func:`coma.config.to_dict`
         * :func:`~coma.core.forget.forget`
         * :func:`~coma.core.register.register`
     """
@@ -78,6 +82,7 @@ def initiate(
     if parser is None:
         parser = argparse.ArgumentParser()
     coma.parser = parser
+    subparsers_kwargs = {} if subparsers_kwargs is None else subparsers_kwargs
     coma.subparsers = parser.add_subparsers(**subparsers_kwargs)
     coma.hooks.append(
         Hooks(
@@ -93,7 +98,7 @@ def initiate(
             post_run_hook=post_run_hook,
         )
     )
-    coma.configs.append(to_dict(*configs))
+    coma.configs.append(to_dict(*configs, *id_configs.items()))
 
 
 def get_initiated() -> Coma:
