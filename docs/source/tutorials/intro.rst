@@ -134,7 +134,7 @@ truly powerful. The simplest ``omegaconf`` config object is a plain dictionary:
             coma.register("greet", Cmd, {"message": "Hello World!"})
             coma.wake()
 
-    This separation between initialization and invocation is done so that stateful
+    This separation between initialization and execution is done so that stateful
     commands can be initialized based on config attributes, which is typically
     more straightforward than delaying part of the initialization until :obj:`run`
     is called.

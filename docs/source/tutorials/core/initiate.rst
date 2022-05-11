@@ -52,7 +52,7 @@ Now, let's run this program with the :obj:`-h` flag to see the result:
     optional arguments:
       -h, --help  show this help message and exit
 
-You can also provide keyword arguments to override the internal call to
+You can also provide keyword arguments to override the defaults in the internal call to
 `ArgumentParser.add_subparsers <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers>`_
 through the :obj:`subparsers_kwargs` parameter to :func:`~coma.core.initiate.initiate`:
 
@@ -135,10 +135,9 @@ This produces the same overall effect, while being more
 Global Hooks
 ------------
 
-``coma`` behavior can be easily tweaked, replaced, or extended using a
-comprehensive set of hooks. These are covered in great detail
-:doc:`in their own tutorial <../hooks/index>`. Here, the emphasis is on the
-difference between global and local hooks.
+``coma``'s behavior can be easily tweaked, replaced, or extended using hooks.
+These are covered in great detail :doc:`in their own tutorial <../hooks/index>`.
+Here, the emphasis is on the difference between global and local hooks.
 
 As with configs, hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect
 ``coma``'s behavior towards all commands or :func:`~coma.core.register.register`\ ed
