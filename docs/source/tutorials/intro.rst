@@ -1,5 +1,5 @@
-10-Minute Tutorial
-==================
+Introduction
+============
 
 ``coma`` makes it easy to build configurable command-based programs in Python.
 

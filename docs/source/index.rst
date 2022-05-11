@@ -35,7 +35,7 @@ Installation
 Getting Started
 ---------------
 
-Excited? Jump straight into the :doc:`tutorials/intro`.
+Excited? Jump straight into the short :doc:`introductory tutorial <tutorials/intro>`.
 
 Why Coma?
 -------------

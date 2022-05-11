@@ -69,7 +69,7 @@ Configs can be :func:`~coma.core.initiate.initiate`\ d globally to all
 commands or :func:`~coma.core.register.register`\ ed locally to a specific command.
 
 Let's revisit the second of the :ref:`Multiple Configurations <multiconfigs>` examples
-from the :doc:`../intro` to see the difference:
+from the :doc:`introductory tutorial <../intro>` to see the difference:
 
 .. code-block:: python
     :emphasize-lines: 14, 15
@@ -137,7 +137,7 @@ Global hooks
 
 ``coma`` behavior can be easily tweaked, replaced, or extended using a
 comprehensive set of hooks. These are covered in great detail
-:doc:`in their own tutorials <../hooks/index>`. Here, the emphasis is on the
+:doc:`in their own tutorial <../hooks/index>`. Here, the emphasis is on the
 difference between global and local hooks.
 
 As with configs, hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect
