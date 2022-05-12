@@ -136,6 +136,14 @@ be tweaked, replaced, or extended through clever use of hooks. The default hooks
     something else. See :doc:`here <../../references/hooks/index>` to explore all
     factory options.
 
+.. note::
+
+    If you are finding that the factory functions for the **parser hooks**,
+    **main config hooks**, and/or **post config hooks** are insufficient for
+    your use case, consider making use of the many config-related utilities
+    found :doc:`here <../../references/config/index>` to help you in writing
+    your own custom hooks.
+
 Global and Local Hooks
 ----------------------
 
