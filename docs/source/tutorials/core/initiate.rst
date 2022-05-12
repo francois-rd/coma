@@ -97,7 +97,7 @@ Notice how the :obj:`Receiver` config is :func:`~coma.core.register.register`\ e
 ``coma`` with this config so that it is (globally) supplied to all commands:
 
 .. code-block:: python
-    :emphasize-lines: 14, 15, 16
+    :emphasize-lines: 14-16
     :caption: main.py
 
     from dataclasses import dataclass
@@ -149,7 +149,7 @@ that the order of parameters to :obj:`greet` had to be swapped: :obj:`g, r` beca
 to bind configs to parameters differently by writing a custom :obj:`init_hook`:
 
 .. code-block:: python
-    :emphasize-lines: 13, 14, 15, 18
+    :emphasize-lines: 13-15, 18
     :caption: main.py
 
     from dataclasses import dataclass

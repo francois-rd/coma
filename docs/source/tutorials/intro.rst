@@ -54,7 +54,7 @@ In addition to anonymous functions, :obj:`command` can be any Python function:
         coma.register("greet", cmd)
         coma.wake()
 
-or any Python class with a no-parameter :obj:`run` method:
+or any Python class with a no-parameter :obj:`run()` method:
 
 .. code-block:: python
 

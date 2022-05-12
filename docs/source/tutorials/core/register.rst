@@ -1,7 +1,8 @@
 Register
 ========
 
-The meat of working with ``coma`` is the :func:`~coma.core.register.register` function.
+The meat of working with ``coma`` is to :func:`~coma.core.register.register` new
+commands to an :func:`~coma.core.initiate.initiate`\ d coma.
 
 The main use cases, including command naming, command objects, config objects,
 config identifiers, and :func:`~coma.core.register.register`\ ing multiple
