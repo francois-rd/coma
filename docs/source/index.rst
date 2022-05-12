@@ -54,6 +54,7 @@ wonderfully rich feature set (including config groups,
 `which inspired its name <https://hydra.cc/docs/intro/>`_).
 
 .. toctree::
+    :maxdepth: 2
     :caption: Tutorials
 
     tutorials/intro
