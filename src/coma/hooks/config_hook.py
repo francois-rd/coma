@@ -1,12 +1,7 @@
 """Core config hooks and utilities."""
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-from coma.config import (
-    ConfigDict,
-    default_default,
-    default_dest,
-    to_dict,
-)
+from coma.config import default_default, default_dest, to_dict
 from coma.config.io import dump, Extension, maybe_add_ext, load
 
 from .utils import hook, sequence
@@ -21,7 +16,7 @@ def single_load_and_write_factory(
     raise_on_fnf: bool = False,
     write_on_fnf: bool = True,
     resolve: bool = False,
-) -> Callable[..., ConfigDict]:
+) -> Callable[..., Dict[str, Any]]:
     """Factory for creating a config hook instantiating a configuration object.
 
     The created config hook has the following behaviour:
@@ -99,7 +94,7 @@ def single_load_and_write_factory(
     """
 
     @hook
-    def _hook(known_args, configs: ConfigDict) -> ConfigDict:
+    def _hook(known_args, configs: Dict[str, Any]) -> Dict[str, Any]:
         config = configs[config_id]
         default_ = default_file_path
         default_ = default_default(config_id) if default_ is None else default_
@@ -126,7 +121,7 @@ def multi_load_and_write_factory(
     raise_on_fnf: bool = False,
     write_on_fnf: bool = True,
     resolve: bool = False,
-) -> Callable[..., ConfigDict]:
+) -> Callable[..., Dict[str, Any]]:
     """Factory for creating a sequence of config hooks.
 
     Equivalent to calling :func:`~coma.hooks.config_hook.single_load_and_write_factory`
@@ -136,7 +131,7 @@ def multi_load_and_write_factory(
     """
 
     @hook
-    def _hook(known_args, configs: ConfigDict) -> ConfigDict:
+    def _hook(known_args, configs: Dict[str, Any]) -> Dict[str, Any]:
         fns = []
         for config_id in configs:
             fns.append(
@@ -150,7 +145,7 @@ def multi_load_and_write_factory(
             )
         configs_list = []
         if fns:
-            configs_list: List[ConfigDict] = sequence(*fns, return_all=True)(
+            configs_list: List[Dict[str, Any]] = sequence(*fns, return_all=True)(
                 known_args=known_args,
                 configs=configs,
             )

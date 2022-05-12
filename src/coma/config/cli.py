@@ -1,15 +1,13 @@
 from functools import partial
-from typing import Any, Callable, List
+from typing import Any, Callable, Dict, List
 
 import omegaconf
 from omegaconf import OmegaConf
 
-from .utils import ConfigDict
-
 
 def override(
     config_id: str,
-    configs: ConfigDict,
+    configs: Dict[str, Any],
     unknown_args: List[str],
     *,
     sep: str = ":",

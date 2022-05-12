@@ -2,7 +2,6 @@
 from . import cli
 from . import io
 from .utils import (
-    ConfigDict,
     default_default,
     default_dest,
     default_flag,

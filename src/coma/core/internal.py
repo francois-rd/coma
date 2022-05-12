@@ -2,13 +2,12 @@
 
 See TODO(basic; advanced) for details.
 """
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 # Lib/dataclasses in Python>=3.7
 # dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
 from dataclasses import dataclass, fields, replace
 
-from coma.config import ConfigDict
 from coma.hooks import sequence
 
 
@@ -33,7 +32,7 @@ class Coma:
         self.subparsers = None
         self.commands_registered: bool = False
         self.hooks: List[Hooks] = []
-        self.configs: List[ConfigDict] = []
+        self.configs: List[Dict[str, Any]] = []
 
 
 def get_instance() -> Coma:

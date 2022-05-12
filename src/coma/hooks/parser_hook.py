@@ -1,14 +1,8 @@
 """Core parser hooks and utilities."""
 import argparse
-from typing import Callable
+from typing import Any, Callable, Dict
 
-from coma.config import (
-    ConfigDict,
-    default_default,
-    default_dest,
-    default_flag,
-    default_help,
-)
+from coma.config import default_default, default_dest, default_flag, default_help
 
 from .utils import hook, sequence
 
@@ -95,7 +89,7 @@ def single_config_factory(
 
 
 @hook
-def multi_config(parser: argparse.ArgumentParser, configs: ConfigDict) -> None:
+def multi_config(parser: argparse.ArgumentParser, configs: Dict[str, Any]) -> None:
     """Hook for adding all configuration file path arguments.
 
     Equivalent to calling :func:`coma.hooks.parser_hook.single_config_factory`

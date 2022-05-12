@@ -3,9 +3,6 @@ from collections import OrderedDict
 import sys
 from typing import Any, Dict, Tuple, Union
 
-ConfigDict = Dict[str, Any]
-"""TODO doc"""
-
 _dict_type = OrderedDict if sys.version_info < (3, 7) else dict
 
 
@@ -90,7 +87,7 @@ def default_help(config_id: str) -> str:
     return f"{config_id} file path"
 
 
-def to_dict(*configs: Union[Any, Tuple[str, Any]]) -> ConfigDict:
+def to_dict(*configs: Union[Any, Tuple[str, Any]]) -> Dict[str, Any]:
     """Converts configurations provided in raw or tuple format to dictionary format.
 
     :obj:`configs` should be of the form `<conf>` or `(<id>, <conf>)`, where
@@ -105,8 +102,7 @@ def to_dict(*configs: Union[Any, Tuple[str, Any]]) -> ConfigDict:
         configuration identifiers need to be unique for that sub-command.
 
     Returns:
-        Configurations in :class:`ConfigDict` format. That is, a dictionary with
-        `<id>` keys and `<conf>` values.
+        Configurations as a dictionary with `<id>` keys and `<conf>` values.
 
         .. note::
 

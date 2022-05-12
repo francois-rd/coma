@@ -1,8 +1,6 @@
 """Core init hooks and utilities."""
 import inspect
-from typing import Any, Callable
-
-from coma.config import ConfigDict
+from typing import Any, Callable, Dict
 
 from .utils import hook
 
@@ -31,7 +29,7 @@ def positional_factory(*skips: str) -> Callable:
     """
 
     @hook
-    def _hook(command: Callable, configs: ConfigDict) -> Any:
+    def _hook(command: Callable, configs: Dict[str, Any]) -> Any:
         return command(*[c for cid, c in configs.items() if cid not in skips])
 
     return _hook
@@ -60,7 +58,7 @@ def keyword_factory(*skips: str, force: bool = False) -> Callable:
     """
 
     @hook
-    def _hook(command: Callable, configs: ConfigDict) -> Any:
+    def _hook(command: Callable, configs: Dict[str, Any]) -> Any:
         configs = {cid: c for cid, c in configs.items() if cid not in skips}
         if not force:
             args = inspect.getfullargspec(command).args

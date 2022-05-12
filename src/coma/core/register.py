@@ -1,10 +1,10 @@
 """Register a sub-command that might be invoked upon waking ``coma``."""
 import argparse
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 from boltons.funcutils import wraps
 
-from coma.config import ConfigDict, to_dict
+from coma.config import to_dict
 
 from .initiate import get_initiated
 from .internal import Hooks
@@ -141,7 +141,7 @@ def register(
 def _do_register(
     name: str,
     command: Callable,
-    configs: ConfigDict,
+    configs: Dict[str, Any],
     subparser: argparse.ArgumentParser,
     hooks: Hooks,
 ) -> None:
@@ -235,9 +235,9 @@ def _do_register(
                 command=command_,
                 configs=configs_,
             )
-        run = None
+        result = None
         if hooks.run_hook is not None:
-            run = hooks.run_hook(
+            result = hooks.run_hook(
                 name=name,
                 known_args=known_args,
                 unknown_args=unknown_args,
@@ -251,7 +251,7 @@ def _do_register(
                 unknown_args=unknown_args,
                 command=command_,
                 configs=configs_,
-                run=run,
+                result=result,
             )
 
     subparser.set_defaults(func=invoke)
