@@ -43,19 +43,65 @@ In addition to the above, **all** protocol parameters must be:
 Protocol Parameters
 ^^^^^^^^^^^^^^^^^^^
 
-Here, we list all possible protocol parameters.
+.. py:function:: generic_protocol(name, parser, known_args, unknown_args, command, configs, run)
 
-.. note::
+    Here, we list all possible protocol parameters, in the order in which they
+    should be defined in the hook function's signature.
 
-    Not every type of hook uses every protocol parameter. The type-specific
-    protocols are listed in the sections below.
+    .. note::
 
-:name:
-    blah
-:configs:
-    blah
-:etc:
-    blah
+        Not every type of hook uses every protocol parameter. The
+        :ref:`specificprotocols` are listed below. None of these specific
+        differences affect the parameter ordering or naming shown here.
+
+    :param name: The name given to a command when it is
+        :func:`~coma.core.register.register`\ ed.
+    :type name: str
+    :param parser: The :obj:`ArgumentParser` created to handle command line arguments
+        for a specific command when it is :func:`~coma.core.register.register`\ ed.
+    :type parser: argparse.ArgumentParser
+    :param known_args: The :obj:`Namespace` object (i.e., first object) returned by
+        `parse_known_args() <https://docs.python.org/3/library/argparse.html#partial-parsing>`_
+        if a specific command is invoked on the command line.
+    :type known_args: argparse.Namespace
+    :param unknown_args: The :class:`list` object (i.e., second object) returned by
+        `parse_known_args() <https://docs.python.org/3/library/argparse.html#partial-parsing>`_
+        if a specific command is invoked on the command line.
+    :type unknown_args: typing.List[str]
+    :param command: The command object itself that was
+        :func:`~coma.core.register.register`\ ed if it is invoked on the command line.
+
+        .. note::
+
+            If the :func:`~coma.core.register.register`\ ed object was a class,
+            it is left unchanged. If the :func:`~coma.core.register.register`\ ed
+            object was a function, it is implicitly wrapped class. Before the
+            :ref:`main init hook <hookpipeline>`, :obj:`command` is a class
+            object. Afterwards, it is an instance object of that class.
+
+        .. warning::
+
+            Never make decisions based on the :obj:`type` of :obj:`command`, since it
+            may be implicitly wrapped. Instead, use :obj:`name`, which is guaranteed
+            to be unique across all :func:`~coma.core.register.register`\ ed commands.
+    :type command: typing.Callable
+    :param configs: A dictionary of identifier-configuration pairs representing
+        all configs (both global and local) bound to a specific command if it is
+        invoked on the command line.
+
+        .. note::
+
+            Before the :ref:`main config hook <hookpipeline>`, the values in
+            the :obj:`configs` dictionary represent un-initialized config
+            objects. Afterwards, they are initialized config objects.
+    :type configs: coma.config.ConfigDict
+    :param result: The value returned from executing the command if it is
+        invoked on the command line.
+    :type result: typing.Any
+    :return: Some protocols return values; others do not. See the sections below
+        for details on each protocol.
+    :rtype: typing.Any
+
 
 :obj:`@hook` Decorator
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -92,17 +138,17 @@ parameters using keywords.
 
 While this wrapping can always be done manually, a convenience wrapper,
 :func:`~coma.hooks.sequence`, can be used when all hooks share the exact same
-function signature (not just the same protocol!) to abstract away some of the
-minutiae. Compare:
+function signature (or are wrapped in the :obj:`@hook` decorator) to abstract
+away some of the minutiae. Compare:
 
 .. code-block:: python
 
-    coma.register(...,
-        parser_hook=coma.hooks.sequence(
-            coma.hooks.parser_hook.factory("-a", type=int, default=123),
-            coma.hooks.parser_hook.factory("-b", type=int, default=456),
-        )
+    wrapper = coma.hooks.sequence(
+        coma.hooks.parser_hook.factory("-a", type=int, default=123),
+        coma.hooks.parser_hook.factory("-b", type=int, default=456),
     )
+
+    coma.register(..., parser_hook=wrapper)
 
 with:
 
@@ -119,33 +165,40 @@ The former isn't shorter, but it removes the minutiae of adding
 :obj:`(parser=parser)` to each wrapped hook function and removes the need to
 decorate the wrapper function with the :obj:`@hook` decorator.
 
+.. _specificprotocols:
+
+Specific Protocols
+------------------
+
+Here, we list the specific protocol for each type of hook.
+
 Parser Hooks
-------------
+^^^^^^^^^^^^
 
 Pre Config Hooks
-----------------
+^^^^^^^^^^^^^^^^
 
 Config Hooks
-------------
+^^^^^^^^^^^^
 
 Post Config Hooks
------------------
+^^^^^^^^^^^^^^^^^
 
 Pre Init Hooks
---------------
+^^^^^^^^^^^^^^
 
 Init Hooks
-----------
+^^^^^^^^^^
 
 Post Init Hooks
----------------
+^^^^^^^^^^^^^^^
 
 Pre Run Hooks
--------------
+^^^^^^^^^^^^^
 
 Run Hooks
----------
+^^^^^^^^^
 
 Post Run Hooks
---------------
+^^^^^^^^^^^^^^
 

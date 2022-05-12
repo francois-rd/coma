@@ -50,6 +50,8 @@ each is further split into three sub-sub-types:
 
 Altogether, there are 9 **invocation hooks**.
 
+.. _hookpipeline:
+
 Hook Pipeline
 -------------
 
