@@ -205,6 +205,10 @@ Config attribute values can also be overridden on the command line using ``omega
 
 .. note::
 
+    See :func:`coma.config.cli.override` for full details on command line overrides.
+
+.. note::
+
     Serialized configs override default configs and command line-based configs override
     *both* serialized and default configs: :obj:`default < serialized < command line`.
 
