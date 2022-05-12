@@ -131,3 +131,16 @@ be tweaked, replaced, or extended through clever use of hooks. The default hooks
     can be used to change the command execution method name from :obj:`run()` to
     something else. See :doc:`here <../../references/hooks/index>` to explore all
     factory options.
+
+Global and Local Hooks
+----------------------
+
+Hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect ``coma``'s
+behavior towards all commands or :func:`~coma.core.register.register`\ ed locally
+to only affect ``coma``'s behavior towards a specific command.
+
+Local hooks are **appended** to the list of global hooks. Local hooks **do not**
+override global hooks. To override a global hook, use
+:func:`~coma.core.register.register` in conjunction with
+:func:`~coma.core.forget.forget`. See :doc:`here <../core/index/>` for detailed
+tutorials.
