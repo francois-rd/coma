@@ -1,8 +1,8 @@
 from functools import partial
 from typing import Any, Callable, Dict, List
 
-import omegaconf
 from omegaconf import OmegaConf
+from omegaconf.errors import ConfigKeyError
 
 
 def override(
@@ -141,7 +141,7 @@ def override(
     for arg in shared:
         try:
             config = OmegaConf.merge(config, OmegaConf.from_dotlist([arg]))
-        except omegaconf.errors.ConfigKeyError:
+        except ConfigKeyError:
             pass
         else:
             if exclusive:
@@ -149,7 +149,7 @@ def override(
                     if cid != config_id:
                         try:
                             OmegaConf.merge(c, OmegaConf.from_dotlist([arg]))
-                        except omegaconf.errors.ConfigKeyError:
+                        except ConfigKeyError:
                             pass
                         else:
                             raise ValueError(
