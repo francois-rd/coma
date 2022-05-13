@@ -112,7 +112,7 @@ Favoring JSON
 -------------
 
 We can reverse ``coma``'s default preference by setting JSON as the default file
-extension:
+extension through the :obj:`config_hook` of :func:`~coma.core.initiate.initiate`:
 
 .. code-block:: python
     :emphasize-lines: 10-14
