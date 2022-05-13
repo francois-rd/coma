@@ -60,6 +60,7 @@ wonderfully rich feature set (including config groups,
     tutorials/intro
     tutorials/core/index
     tutorials/hooks/index
+    tutorials/examples/index
 
 .. toctree::
     :maxdepth: 3

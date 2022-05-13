@@ -41,6 +41,8 @@ With this alias, :obj:`greet` can now be invoked with just :obj:`gr`:
     $ python main.py gr
     Hello World!
 
+.. _localhooks:
+
 Local Hooks
 -----------
 
