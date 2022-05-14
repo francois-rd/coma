@@ -122,8 +122,8 @@ The default hooks are:
     .. note::
 
         YAML is used for serialization by default (since it is the only format
-        that ``omegaconf`` supports), but ``coma`` also natively supports JSON.
-        See :doc:`here <../examples/json>` for full details on configuration files.
+        that ``omegaconf`` supports), but ``coma`` also natively supports JSON. See
+        :doc:`here <../examples/serialization>` for full details on configuration files.
 :post config:
     The default :obj:`post_config_hook` is :func:`coma.hooks.post_config_hook.default`.
     This hook is responsible for overriding config attribute values with any that are

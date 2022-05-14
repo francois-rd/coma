@@ -1,15 +1,16 @@
-Adding and Using Command Line Arguments
-=======================================
+Command Line Arguments
+======================
 
 Program-Level Arguments
 -----------------------
 
 Using program-level command line arguments is as an easy way to inject
-additional behavior into the program. This example is similar to the one seen
-:ref:`here <localhooks>`. The main difference is using global hooks instead of
-local hooks to avoid repetition.
+additional behavior into a program. This example is similar to the one seen
+:ref:`here <localhooks>`. The main difference is using global hooks instead of local
+hooks to avoid repeating the hook registration for the new :obj:`leave` command:
 
 .. code-block:: python
+    :emphasize-lines: 12, 14
     :caption: main.py
 
     import coma
@@ -30,7 +31,7 @@ local hooks to avoid repetition.
 
 In this example, the :obj:`parser_hook` adds a new :obj:`--dry-run` flag to the
 command line. This flag is used by the :obj:`pre_run_hook` to exit the program
-early (before the command is actually executed) if the flag is given on the
+early (before a command is actually executed) if the flag is given on the
 command line. Because these are global hooks, this behavior is present
 regardless of the command that is invoked:
 
@@ -45,11 +46,14 @@ regardless of the command that is invoked:
     $ python main.py leave --dry-run
     Early exit!
 
+.. _commandlevelarguments:
+
 Command-Level Arguments
 -----------------------
 
-Using command-level command line arguments is as an easy way to give additional
-data to a command without having to define a config for it:
+Using command-level command line arguments is as an easy way to give a command
+additional data or modifiers that, for whatever reason, don't belong in a
+dedicated config object:
 
 .. code-block:: python
     :caption: main.py
@@ -75,13 +79,14 @@ data to a command without having to define a config for it:
         coma.register("greet", lambda: print("Hello World!"))
         coma.wake()
 
-Here, :obj:`greet` functions in accordance with the default ``coma`` behaviour,
-whereas :obj:`numbers` is defined quite differently. First, we define a
-:func:`~coma.hooks.sequence` of :obj:`parser_hook`'s using the factory function
-that adds arguments to the underlying parser object. Next, we define a custom
-:obj:`init_hook` that is aware of how to instantiate the command object. Finally,
-we :func:`~coma.core.forget.forget` the default :obj:`init_hook`, which doesn't
-know how to handle extra command line arguments.
+Here, :obj:`greet` acts in accordance with ``coma``'s default behaviour, whereas
+:obj:`numbers` is defined quite differently. First, we define a
+:func:`~coma.hooks.utils.sequence` for the :obj:`parser_hook` made up of
+:func:`~coma.hooks.parser_hook.factory` calls, each of which simply passes its
+arguments to the underlying parser object. Next, we define a custom
+:obj:`init_hook` that is aware of how to instantiate this non-standard command
+object. Finally, we :func:`~coma.core.forget.forget` the default
+:obj:`init_hook`, which doesn't know how to handle non-standard commands.
 
 With these definitions, we can invoke the program's commands as follows:
 
@@ -95,12 +100,14 @@ With these definitions, we can invoke the program's commands as follows:
     123 321
 
 Using :obj:`coma.SENTINEL`
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
-We used the convenience sentinel :obj:`coma.SENTINEL` in the above example.
-Another way to implement the same functionality would be:
+In the :ref:`previous example <commandlevelarguments>`, we used ``coma``'s
+convenience sentinel object, :obj:`coma.SENTINEL`. Another way to implement the
+same functionality would be:
 
 .. code-block:: python
+    :emphasize-lines: 5, 10
     :caption: main.py
 
     import coma
@@ -122,14 +129,14 @@ Another way to implement the same functionality would be:
         coma.wake()
 
 In terms of final program behavior, these two versions of the program are
-essentially identical, yet the version without the sentinel is shorter. So why
-ever use :obj:`coma.SENTINEL`? The sentinel allows the default value of :obj:`b`
-to be defined only once, rather than twice, which can be less error-prone.
+essentially identical, yet the version without the sentinel is shorter. The
+tradeoff is that the sentinel allows the default value of :obj:`b` to be defined
+only once, rather than twice, which can be less error-prone.
 
 .. note::
 
     It would also be possible to define the default value of :obj:`b` only once
-    by placing its value only in the :obj:`parser_hook`:
+    (in the :obj:`parser_hook`):
 
     .. code-block:: python
 
@@ -137,19 +144,20 @@ to be defined only once, rather than twice, which can be less error-prone.
         ...
         coma.register(..., lambda a, b: print(a, b), ...)
 
-    but this separate the command definition from the definition of :obj:`b`'s
-    default value, which can easily obscure the fact that :obj:`b` even has a
-    default value.
+    The leads to another tradeoff: The full command definition is now spread out
+    in the code, which can obscure the fact that :obj:`b` has a default value.
+
+.. _ontheflyhookredefinition:
 
 On-the-Fly Hook Redefinition
 ----------------------------
 
-Command line arguments can also be used to define hooks on the fly. In this example,
-we have two configs, both of which define the same :obj:`x` attribute. We then
-define a new :obj:`-e` flag, which is used to toggle the :obj:`exclusive` parameter
-of :func:`~coma.config.cli.override_factory`. When present, this flag prevents the
-any command line override involving :obj:`x` from overriding more than one config
-attribute:
+Command line arguments can also be used to redefine hooks on the fly. In this
+example, we have two configs, both of which define the same :obj:`x` attribute.
+We then define a new :obj:`-e` flag, which is used to toggle the :obj:`exclusive`
+parameter of :func:`~coma.config.cli.override_factory`. In short, the presence
+of this flag prevents any command line override involving :obj:`x` from
+overriding more than one config attribute:
 
 .. code-block:: python
     :caption: main.py
@@ -179,15 +187,16 @@ attribute:
         coma.register("multiply", lambda c1, c2: print(c1.x * c2.x), parser_hook=excl)
         coma.wake()
 
-We can use :obj:`x` on the command line to override both configs at once:
+Without the :obj:`-e` flag, we can use :obj:`x` on the command line to override
+*both* configs at once:
 
 .. code-block:: console
 
     $ python main.py multiply x=3
     9
 
-In this case, :obj:`multiply` is essentially implementing :obj:`square`. We can
-prevent this by setting the :obj:`-e` flag:
+This lets :obj:`multiply` is essentially act as :obj:`square`. We can prevent
+this by setting the :obj:`-e` flag:
 
 .. code-block:: console
 
@@ -197,4 +206,4 @@ prevent this by setting the :obj:`-e` flag:
 
 .. note::
 
-    See :ref:`clashingoverrides` for additional details on this example.
+    See :ref:`here <prefixingoverrides>` for additional details on this example.

@@ -1,7 +1,7 @@
-Favoring JSON Over YAML
-=======================
+Config Serialization
+====================
 
-By default, ``coma`` favors YAML over JSON for its config files, since
+By default, ``coma`` favors YAML over JSON for its config serialization, since
 `omegaconf <https://github.com/omry/omegaconf>`_ only supports YAML. However,
 ``coma`` does natively support JSON as well.
 
@@ -26,8 +26,8 @@ To illustrate the default behavior, let's revisit an example from the
         coma.register("greet", lambda cfg: print(cfg.message), Config)
         coma.wake()
 
-Because :obj:`Config` has :obj:`type` name :obj:`config`, the config object will
-be serialized to :obj:`config.yaml` by default:
+Because :obj:`Config` has :obj:`type` name :obj:`config`, it will be serialized
+to :obj:`config.yaml` by default:
 
 .. code-block:: console
 
@@ -51,12 +51,12 @@ for :obj:`Config`:
 .. note::
 
     By default, ``coma`` automatically adds the :obj:`--config-path` flag
-    through the :obj:`parser_hook` of :func:`~coma.core.initiate.initiate`.
+    through the default :obj:`parser_hook` of :func:`~coma.core.initiate.initiate`.
     Specifically, a flag of the form :obj:`--{config_id}-path` is added for
     each global and local config, where :obj:`{config_id}` is the corresponding
     config identifier.
 
-Now we have two competing files. Let's modify each one to distinguish them:
+Now we have two competing config files. Let's modify each one to distinguish them:
 
 .. code-block:: yaml
     :emphasize-lines: 1
@@ -86,7 +86,7 @@ But we can still force ``coma`` to use JSON instead:
     $ python main.py greet --config-path config.json
     Hello JSON!
 
-And if we specify a file path without an extension, ``coma`` will favor YAML:
+If we specify a file path without an extension, ``coma`` will again favor YAML:
 
 .. code-block:: console
 
@@ -94,7 +94,7 @@ And if we specify a file path without an extension, ``coma`` will favor YAML:
     Hello YAML!
 
 Finally, if we delete the YAML file while keeping the JSON file, ``coma`` will
-ignore the existing JSON file (and create a new YAML file instead) unless
+*ignore the existing JSON file* (and create a new YAML file instead) unless
 explicitly given a JSON file extension:
 
 .. code-block:: console
@@ -105,8 +105,8 @@ explicitly given a JSON file extension:
     $ python main.py greet --config-path config.json
     Hello JSON!
 
-In other words, by default ``coma`` natively supports JSON, but YAML always
-takes precedence.
+In summary, by default ``coma`` natively *supports* JSON, but YAML always
+takes *precedence*.
 
 Favoring JSON
 -------------
@@ -136,7 +136,24 @@ extension through the :obj:`config_hook` of :func:`~coma.core.initiate.initiate`
         coma.wake()
 
 
-Now, JSON is favored in all cases, unless a YAML file extension is explicitly provided:
+First, let's ensure that both YAML and JSON config files exist and are differentiated:
+
+.. code-block:: yaml
+    :emphasize-lines: 1
+    :caption: config.yaml
+
+    message: Hello YAML!
+
+.. code-block:: json
+    :emphasize-lines: 2
+    :caption: config.json
+
+    {
+        "message": "Hello JSON!"
+    }
+
+Now, when running the program, we see that JSON is favored in all cases, unless a
+YAML file extension is explicitly provided:
 
 .. code-block:: console
 

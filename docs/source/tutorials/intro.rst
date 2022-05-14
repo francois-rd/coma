@@ -199,7 +199,7 @@ leads to the following program execution:
 
 .. note::
 
-    See :doc:`here <examples/json>` for full details on configuration files.
+    See :doc:`here <examples/serialization>` for full details on configuration files.
 
 Config attribute values can also be overridden on the command line using ``omegaconf``'s
 `dot-list notation <https://omegaconf.readthedocs.io/en/latest/usage.html#from-a-dot-list>`_:
@@ -239,8 +239,8 @@ are useful for enabling runtime validation:
 
 .. note::
 
-    Because :obj:`Config` has :obj:`type` name :obj:`config`, the config object
-    will be serialized to :obj:`config.yaml`.
+    Because :obj:`Config` has :obj:`type` name :obj:`config`, it will be
+    serialized to :obj:`config.yaml`.
 
 .. _multiconfigs:
 

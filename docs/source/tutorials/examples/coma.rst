@@ -1,9 +1,8 @@
-Modifying ``coma`` to Fit Existing Code
-=======================================
+Fitting ``coma`` to Existing Code
+=================================
 
-It is fairly easy to modify ``coma`` to fit the interface of an existing codebase
-(rather than the other way around). For example, suppose we have an existing
-command-like class that has a :obj:`start()` method instead of a :obj:`run()` method:
+In general, there are at least four ways to modify ``coma`` to fit the interface
+of an existing codebase. We highlight these options using the following example:
 
 .. code-block:: python
     :emphasize-lines: 5
@@ -15,14 +14,15 @@ command-like class that has a :obj:`start()` method instead of a :obj:`run()` me
         def start(self):
             print(f"foo = {self.foo}")
 
-In general, there are at least four ways to get ``coma`` to work with existing
-code. Below, we highlight these concepts through the :obj:`StartCommand` example.
+
+In this example, we suppose that an existing command-like class has a
+:obj:`start()` method instead of the default :obj:`run()` method.
 
 Redefining Hooks
 ----------------
 
-First, we can redefine the :obj:`run_hook` of :func:`~coma.core.initiate.initiate`
-to call :obj:`start()` instead of :obj:`run()`:
+The first option is redefining the :obj:`run_hook` of
+:func:`~coma.core.initiate.initiate` to call :obj:`start()` instead of :obj:`run()`:
 
 .. code-block:: python
     :emphasize-lines: 11
@@ -52,7 +52,7 @@ The program now runs as expected:
 
 .. warning::
 
-    Intenally, **function-based** commands will still be wrapped in a class that
+    Internally, **function-based** commands will still be wrapped in a class that
     defines a :obj:`run()` method, regardless of any :obj:`run_hook` redefinition.
     As such, it is generally safer, if more verbose, to locally redefine the
     :obj:`run_hook` using :func:`~coma.core.register.register` and a
@@ -77,13 +77,13 @@ The program now runs as expected:
                               run_hook=coma.hooks.run_hook.factory("start"))
             coma.wake()
 
-    This approach ensures that other commands are not affected. See
+    This ensures that other commands are not affected. See
     :doc:`here <../core/forget>` for details on using :func:`~coma.core.forget.forget`.
 
 Wrapping with Functions
 -----------------------
 
-Second, the incompatible :obj:`StartCommand` can be wrapped in a function-based command:
+The second option is wrapping :obj:`StartCommand` in a function-based command:
 
 .. code-block:: python
     :emphasize-lines: 11
@@ -109,8 +109,8 @@ separation between command initialization and execution.
 Wrapping with Classes
 ---------------------
 
-Third, the incompatible :obj:`StartCommand` can be wrapped in a compatible
-class-based command:
+The third option is wrapping the incompatible :obj:`StartCommand` in a
+compatible class-based command:
 
 .. code-block:: python
     :emphasize-lines: 10-12, 15
@@ -137,11 +137,11 @@ The benefit of this approach is that it maintains the separation between command
 initialization and execution. The drawback is that it is slightly more verbose
 than the function-based wrapper.
 
-Magic Approaches
-----------------
+Adding Interface Elements
+-------------------------
 
-If you're comfortable with a certain level of Python's black magic trickery,
-you have even more options for ensuring interface compatibility:
+The fourth option is adding missing interface elements (in this case, an
+attribute) to :obj:`StartCommand`:
 
 .. code-block:: python
     :emphasize-lines: 11
@@ -157,9 +157,8 @@ you have even more options for ensuring interface compatibility:
             print(f"foo = {self.foo}")
 
     if __name__ == "__main__":
-        setattr(StartCommand, "run", StartCommand.start)
+        StartCommand.run = StartCommand.start
         coma.register("start", StartCommand)
         coma.wake()
 
-This approach can often be the most succinct, but using Python magic is
-sometimes controversial.
+For simple cases, this option is often the most succinct.
