@@ -2,23 +2,23 @@ Register
 ========
 
 The meat of working with ``coma`` is to :func:`~coma.core.register.register` new
-commands to an :func:`~coma.core.initiate.initiate`\ d coma.
+commands with an :func:`~coma.core.initiate.initiate`\ d coma.
 
-The main use cases, including command naming, command objects, config objects,
-config identifiers, and :func:`~coma.core.register.register`\ ing multiple
-commands have all been covered in the :doc:`introductory tutorial <../intro>`.
-
-Here, the emphasis is on local ``argparse`` overrides and local hooks as
-additional use cases.
+The main use cases for :func:`~coma.core.register.register`, including command
+names, command objects, config objects, config identifiers, and
+:func:`~coma.core.register.register`\ ing multiple commands have all been
+covered in the :doc:`introductory tutorial <../intro>`. Here, the emphasis is on
+local ``argparse`` overrides and local hooks as additional use cases.
 
 ``argparse`` Overrides
 ----------------------
 
-By default, ``coma`` uses `ArgumentParser.add_subparsers <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers>`_
+By default, ``coma`` uses `ArgumentParser.add_subparsers().add_parser() <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers>`_
 to create a new `ArgumentParser <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser>`_
-with default parameters for each :func:`~coma.core.register.register`\ ed command.
-However, you can provide keyword arguments to override the defaults in the internal call
-through the :obj:`parser_kwargs` parameter to :func:`~coma.core.register.register`.
+with default parameters for each :func:`~coma.core.register.register`\ ed
+command. However, you can provide keyword arguments to override the default
+parameter values in the internal :obj:`add_parser()` call through the
+:obj:`parser_kwargs` parameter to :func:`~coma.core.register.register`.
 
 For example, suppose you want to add `command aliases <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers>`_.
 This can be achieved through the :obj:`aliases` keyword:
@@ -48,9 +48,8 @@ Local Hooks
 
 ``coma``'s behavior can be easily tweaked, replaced, or extended using hooks.
 These are covered in great detail :doc:`in their own tutorial <../hooks/index>`.
-Here, the emphasis is on the difference between global and local hooks.
-
-As with configs, hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect
+Here, the emphasis is on the difference between global and local hooks: As with
+configs, hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect
 ``coma``'s behavior towards all commands or :func:`~coma.core.register.register`\ ed
 locally to only affect ``coma``'s behavior towards a specific command.
 
@@ -96,9 +95,9 @@ is actually executed) if the flag is given on the command line:
     method of the underlying `ArgumentParser <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser>`_
     bound to this command.
 
-.. note::
+.. warning::
 
     Local hooks are **appended** to the list of global hooks. Local hooks
     **do not** override global hooks. To override a global hook, use
     :func:`~coma.core.register.register` in conjunction with
-    :func:`~coma.core.forget.forget`.
+    :func:`~coma.core.forget.forget`. See :doc:`here <./forget>` for details.

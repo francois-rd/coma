@@ -1,5 +1,5 @@
-Coma Documentation
-==================
+Coma
+====
 
 Configurable **co**\ mmand **ma**\ nagement for humans.
 
@@ -21,7 +21,7 @@ Key Features
 
 ``coma`` makes it easy to build configurable command-based programs in Python by:
 
-* Removing the boilerplate of `argparse <https://docs.python.org/3/library/argparse.html>`_, while retaining full ``argparse`` interoperability and customizability for complex use cases.
+* Removing the boilerplate of `argparse <https://docs.python.org/3/library/argparse.html>`_ while retaining full ``argparse`` interoperability and customizability for complex use cases.
 * Providing a comprehensive set of `hooks <https://en.wikipedia.org/wiki/Hooking>`_ to easily tweak, replace, or extend ``coma``.
 * Integrating with `omegaconf <https://github.com/omry/omegaconf>`_'s extremely rich and powerful configuration management features.
 

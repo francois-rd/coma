@@ -98,7 +98,8 @@ Configurations
 --------------
 
 Commands alone are great, but ``omegaconf`` integration is what makes ``coma``
-truly powerful. The simplest ``omegaconf`` config object is a plain dictionary:
+truly powerful. The simplest way to create an ``omegaconf`` config object is
+with a plain dictionary:
 
 .. code-block:: python
     :caption: main.py
@@ -117,7 +118,7 @@ truly powerful. The simplest ``omegaconf`` config object is a plain dictionary:
 .. note::
 
     If the command is a Python class, it is the **constructor** that should have
-    a positional config argument, not the :obj:`run` method:
+    a positional config argument, not the :obj:`run()` method:
 
     .. code-block:: python
 
@@ -134,10 +135,10 @@ truly powerful. The simplest ``omegaconf`` config object is a plain dictionary:
             coma.register("greet", Cmd, {"message": "Hello World!"})
             coma.wake()
 
-    This separation between initialization and execution is done so that stateful
-    commands can be initialized based on config attributes, which is typically
-    more straightforward than delaying part of the initialization until :obj:`run`
-    is called.
+    This separation between initialization and execution is done so that
+    stateful commands can be initialized based on config attributes, which is
+    typically more straightforward than delaying part of the initialization
+    until :obj:`run()` is called.
 
 The program essentially runs as before:
 
@@ -146,8 +147,8 @@ The program essentially runs as before:
     $ python main.py greet
     Hello World!
 
-The only difference is that, by default, ``coma`` serializes the config to a
-YAML file in the current working directory:
+The only difference is that, by default, ``coma`` serializes the config object
+to a YAML file in the current working directory:
 
 .. code-block:: console
 
@@ -156,8 +157,9 @@ YAML file in the current working directory:
     main.py
 
 By default, ``coma`` uses the config object's :obj:`type`'s name (:obj:`dict` in
-this example) to identify the config and derive a file name. This can be
-overridden by explicitly identifying the config object using a keyword argument:
+this example) to create an **identifier** for the config, and this identifier is
+then used derive a default file name. The default identifier can be overridden
+by explicitly identifying the config object using a keyword argument:
 
 .. code-block:: python
     :caption: main.py
@@ -196,7 +198,7 @@ leads to the following program execution:
     hardcoded message
 
 Config attribute values can also be overridden on the command line using ``omegaconf``'s
-`dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_:
+`dot-list notation <https://omegaconf.readthedocs.io/en/latest/usage.html#from-a-dot-list>`_:
 
 .. code-block:: console
 
@@ -205,7 +207,7 @@ Config attribute values can also be overridden on the command line using ``omega
 
 .. note::
 
-    See :func:`coma.config.cli.override` for full details on command line overrides.
+    See :doc:`here <examples/cli>` for full details on command line overrides.
 
 .. note::
 
@@ -246,7 +248,7 @@ are useful for enabling runtime validation:
 Multiple Configurations
 -----------------------
 
-Commands can take an arbitrary number of configs:
+``coma`` enables commands to take an arbitrary number of independent configs:
 
 .. code-block:: python
     :caption: main.py
@@ -302,15 +304,15 @@ into smaller components, especially if some components are shared between comman
 
 .. note::
 
-    It is perfectly acceptable for both :obj:`greet` and :obj:`leave` to share
-    the :obj:`Receiver` config: Configs need to be uniquely identified per-command,
-    but not across commands. To disable this sharing (so that each command has its
-    own serialized copy of the config), use unique identifiers:
+    Configs need to be uniquely identified per-command, but not across commands,
+    so it is perfectly acceptable for both :obj:`greet` and :obj:`leave` to
+    share the :obj:`Receiver` config. To disable this sharing (so that each
+    command has its own serialized copy of the config), use unique identifiers:
 
     .. code-block:: python
 
-        coma.register("greet", ..., Greeting, greet_receiver=Receiver)
-        coma.register("leave", ..., leave_receiver=Receiver)
+        coma.register("greet", ..., Greeting, greet=Receiver)
+        coma.register("leave", ..., leave=Receiver)
 
 We invoke both commands in turn as before:
 
@@ -321,12 +323,13 @@ We invoke both commands in turn as before:
     $ python main.py leave
     Goodbye World!
 
-Where To Go From Here?
-----------------------
+Next Steps
+----------
 
-You now have a solid foundation for writing Python programs with configurable commands! 🎉
+🎉 You now have a solid foundation for writing Python programs with configurable
+commands! 🎉
 
-For more advanced use cases, ``coma`` ofers many additional features, including:
+For more advanced use cases, ``coma`` offers many additional features, including:
 
 * Customizing the underlying ``argparse`` objects.
 * Adding command line arguments and flags to your program.

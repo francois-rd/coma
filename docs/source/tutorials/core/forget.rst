@@ -2,38 +2,39 @@ Forget
 ======
 
 :func:`~coma.core.forget.forget` is a context manager designed for more advanced
-use cases. It enables you to selectively forget global configs or hooks from
-when a coma was :func:`~coma.core.initiate.initiate`\ d.
+use cases. It enables you to selectively forget global configs or hooks from an
+:func:`~coma.core.initiate.initiate`\ d coma.
 
 Forgetting Global Hooks
 -----------------------
 
 ``coma``'s behavior can be easily tweaked, replaced, or extended using hooks.
 These are covered in great detail :doc:`in their own tutorial <../hooks/index>`.
-Here, the emphasis is on the difference between global and local hooks.
+Here, the emphasis is on the difference between global and local hooks. Hooks
+can be :func:`~coma.core.initiate.initiate`\ d globally to affect ``coma``'s
+behavior towards all commands or :func:`~coma.core.register.register`\ ed
+locally to only affect ``coma``'s behavior towards a specific command.
 
-Hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect ``coma``'s
-behavior towards all commands or :func:`~coma.core.register.register`\ ed locally
-to only affect ``coma``'s behavior towards a specific command.
+.. warning::
 
-Local hooks are **appended** to the list of global hooks. Local hooks **do not**
-override global hooks. To override a global hook, use
-:func:`~coma.core.register.register` in conjunction with
-:func:`~coma.core.forget.forget`.
+    Local hooks are **appended** to the list of global hooks. Local hooks
+    **do not** override global hooks. When a local hook is being
+    :func:`~coma.core.register.register`\ ed, the corresponding global hook can
+    only be replaced using :func:`~coma.core.forget.forget`.
 
 For example, suppose we have a class-based command with a :obj:`handle()` method
 instead of the :obj:`run()` method that ``coma`` expects by default:
 
 .. code-block:: python
 
-    class Command:
+    class HandleCommand:
         def handle(self):
             print("Hello Handle!")
 
 In order to use this command, we need to tell ``coma`` to:
 
-* Stop looking for :obj:`run()`. We will use :func:`~coma.core.forget.forget` for this.
-* Start looking for :obj:`handle()` instead. We will :func:`~coma.core.register.register` a local hook for this.
+* Stop looking for :obj:`run()`. We will :func:`~coma.core.forget.forget` the existing global hook that does this.
+* Start looking for :obj:`handle()` instead. We will :func:`~coma.core.register.register` a new local hook to do this.
 
 .. code-block:: python
     :caption: main.py
@@ -89,7 +90,6 @@ from the :doc:`introductory tutorial <../intro>` to see how we can implement it
 differently with :func:`~coma.core.forget.forget`:
 
 .. code-block:: python
-    :emphasize-lines: 14, 15
     :caption: main.py
 
     from dataclasses import dataclass
@@ -109,10 +109,11 @@ differently with :func:`~coma.core.forget.forget`:
         coma.register("leave", lambda r: print("Goodbye", r.entity), Receiver)
         coma.wake()
 
-Notice how the :obj:`Receiver` config is :func:`~coma.core.register.register`\ ed
-(locally) to both commands. Instead, we can :func:`~coma.core.initiate.initiate`
-``coma`` with both configs so that they are (globally) supplied to all commands,
-then :func:`~coma.core.forget.forget` the :obj:`Greeting` config just for :obj:`leave`:
+Notice how, in the original example, the :obj:`Receiver` config is
+:func:`~coma.core.register.register`\ ed (locally) to both commands. Instead, we
+can :func:`~coma.core.initiate.initiate` a coma with both configs so that they
+are (globally) supplied to all commands, then :func:`~coma.core.forget.forget`
+the :obj:`Greeting` config just for the :obj:`leave` command:
 
 .. code-block:: python
     :emphasize-lines: 14-17
