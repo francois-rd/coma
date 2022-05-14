@@ -202,7 +202,7 @@ leads to the following program execution:
     See :doc:`here <examples/serialization>` for full details on configuration files.
 
 Config attribute values can also be overridden on the command line using ``omegaconf``'s
-`dot-list notation <https://omegaconf.readthedocs.io/en/latest/usage.html#from-a-dot-list>`_:
+`dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_:
 
 .. code-block:: console
 
