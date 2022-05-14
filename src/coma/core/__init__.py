@@ -1,7 +1,4 @@
-"""Implementation of the core ``coma`` user interface.
-
-See TODO(basic; advanced) for details.
-"""
+"""Implementation of the core ``coma`` user interface."""
 from .forget import forget
 from .initiate import initiate
 from .register import register

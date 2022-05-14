@@ -1,4 +1,4 @@
-"""Register a sub-command that might be invoked upon waking ``coma``."""
+"""Register a command that might be invoked upon waking from a coma."""
 import argparse
 from typing import Any, Callable, Dict, Optional
 
@@ -27,22 +27,19 @@ def register(
     parser_kwargs: Optional[dict] = None,
     **id_configs: Any,
 ) -> None:
-    """Registers a sub-command that might be invoked upon waking ``coma``.
+    """Registers a command that might be invoked upon waking from a coma.
 
-    Registers a sub-command with `argparse`, along with providing optional
-    configurations and hooks.
+    Registers a command with `ArgumentParser.add_subparsers().add_parser()`_,
+    along with providing optional local configs and optional local hooks.
 
     .. note::
 
-        Any provided configurations are added to the list of global configurations
-        (rather than replacing them). See :func:`~coma.core.initiate.initiate`.
+        Any provided local configs are **appended** to the list of global configs
+        (rather than replacing them). See :func:`~coma.core.initiate.initiate`
+        and :func:`~coma.core.forget.forget` for more details.
 
-        Any provided hooks are sequentially called after calling global hooks
-        (rather than replacing calls to global hooks). See
-        :func:`~coma.core.initiate.initiate`.
-
-    Configurations can be provided with or without an identifier. In the latter
-    case, an identifier is derived automatically. See :func:`coma.config.to_dict`
+    Configs can be provided with or without an identifier. In the latter case,
+    an identifier is derived automatically. See :func:`~coma.config.utils.to_dict`
     for additional details.
 
     Examples:
@@ -72,37 +69,36 @@ def register(
 
 
     Args:
-        name: Any valid sub-command name according to `argparse`
-        command: Typically, any class type or function that implements the
-            sub-command according to the `coma` protocol. See
-            TODO(config; run(); wraps, etc.) for protocol details.
-
-            .. note::
-                Can be any callable in more advanced use cases. See
-                TODO(advanced command) for details on advanced use cases.
-        *configs: Local configurations with default identifiers
-        parser_hook: See TODO(invoke; protocol) for details on this hook
-        pre_config_hook: See TODO(invoke; protocol) for details on this hook
-        config_hook: See TODO(invoke; protocol) for details on this hook
-        post_config_hook: See TODO(invoke; protocol) for details on this hook
-        pre_init_hook: See TODO(invoke; protocol) for details on this hook
-        init_hook: See TODO(invoke; protocol) for details on this hook
-        post_init_hook: See TODO(invoke; protocol) for details on this hook
-        pre_run_hook: See TODO(invoke; protocol) for details on this hook
-        run_hook: See TODO(invoke; protocol) for details on this hook
-        post_run_hook: See TODO(invoke; protocol) for details on this hook
-        parser_kwargs: Keyword arguments to pass along to the constructor of
-            the :class:`argparse.ArgumentParser` that handles this sub-command
-        **id_configs: Local configurations with explicit identifiers
+        name (str): Any (unique) valid command name according to ``argparse``
+        command (typing.Callable): A command class or function
+        *configs (typing.Any): Local configs with default identifiers
+        parser_hook (typing.Callable): An optional local parser hook
+        pre_config_hook (typing.Callable): An optional local pre config hook
+        config_hook (typing.Callable): An optional local config hook
+        post_config_hook (typing.Callable): An optional local post config hook
+        pre_init_hook (typing.Callable): An optional local pre init hook
+        init_hook (typing.Callable): An optional local init hook
+        post_init_hook (typing.Callable): An optional local post init hook
+        pre_run_hook (typing.Callable): An optional local pre run hook
+        run_hook (typing.Callable): An optional local run hook
+        post_run_hook (typing.Callable): An optional local post run hook
+        parser_kwargs (typing.Dict[str, typing.Any]): Keyword arguments to pass
+            along to the constructor of the sub-:obj:`ArgumentParser` created
+            for :obj:`command`
+        **id_configs (typing.Any): Local configs with explicit identifiers
 
     Raises:
-        ValueError: If :obj:`name` is already registered
-        KeyError: If configuration identifiers are not unique
+        ValueError: If :obj:`name` is not unique
+        KeyError: If config identifiers are not unique
 
     See also:
-        * :func:`coma.config.to_dict`
         * :func:`~coma.core.initiate.initiate`
+        * :func:`~coma.core.forget.forget`
         * :func:`~coma.core.wake.wake`
+        * :func:`~coma.config.utils.to_dict`
+
+    .. _ArgumentParser.add_subparsers().add_parser():
+        https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers
     """
     coma = get_initiated()
     if name in coma.names:
@@ -149,23 +145,17 @@ def _do_register(
     subparser: argparse.ArgumentParser,
     hooks: Hooks,
 ) -> None:
-    """Registers a sub-command.
+    """Registers a command.
 
-     Registers a sub-command with `argparse` and implements ``coma``'s
-    ``invoke`` protocol. See TODO(invoke protocol) for protocol details.
+     Registers a command with ``argparse`` and implements ``coma``'s hook protocol.
 
     Args:
-        name: Any valid sub-command name according to `argparse`
-        command: Typically, any class type or function that implements the
-            sub-command according to the `coma` protocol. See
-            TODO(config; run(); wraps, etc.) for protocol details.
-
-            .. note::
-                Can be any callable in more advanced use cases. See
-                TODO(advanced command) for details on advanced use cases.
-        configs: A mapping from configuration identifiers to configurations
-        subparser: The argument parser handling this sub-command
-        hooks: The hooks for this sub-command
+        name (str): Any (unique) valid command name according to ``argparse``
+        command (typing.Callable): A command class or function
+        configs (typing.Dict[str, typing.Any]): A mapping from config
+            identifiers to configs
+        subparser (argparse.ArgumentParser): The :obj:`ArgumentParser` for this command
+        hooks: The hooks for this command
     """
     if hooks.parser_hook is not None:
         hooks.parser_hook(

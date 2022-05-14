@@ -1,16 +1,17 @@
-"""Wake ``coma``."""
+"""Wake from a coma."""
 import warnings
 
 from .initiate import get_initiated
 
 
 def wake(args=None, namespace=None) -> None:
-    """Wakes ``coma``.
+    """Wakes from a coma.
 
-    Parses command line arguments and invokes the appropriate sub-command.
+    Parses command line arguments and invokes the appropriate command using the
+    :func:`~coma.core.register.register`\\ ed hooks.
 
     Example:
-        Use `sys.argv` as source of command line arguments.
+        Use :obj:`sys.argv` as source of command line arguments.
 
         .. code-block:: python
 
@@ -23,11 +24,14 @@ def wake(args=None, namespace=None) -> None:
             coma.wake(args=...)
 
     Args:
-        args: Passed to :func:`~argparse.ArgumentParser.parse_args`
-        namespace: Passed to :func:`~argparse.ArgumentParser.parse_args`
+        args: Passed to `ArgumentParser.parse_known_args()`_
+        namespace: Passed to `ArgumentParser.parse_known_args()`_
 
     See also:
         * :func:`~coma.core.register.register`
+
+    .. _ArgumentParser.parse_known_args():
+        https://docs.python.org/3/library/argparse.html#partial-parsing
     """
     coma = get_initiated()
     known_args, unknown_args = coma.parser.parse_known_args(args, namespace)

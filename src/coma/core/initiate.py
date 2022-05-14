@@ -1,4 +1,4 @@
-"""Initiate ``coma``."""
+"""Initiate a coma."""
 import argparse
 from typing import Any, Callable, Optional
 import warnings
@@ -25,17 +25,19 @@ def initiate(
     subparsers_kwargs: Optional[dict] = None,
     **id_configs: Any,
 ) -> None:
-    """Initiates ``coma``.
+    """Initiates a coma.
 
-    Starts up ``coma`` with optional configurations, an optional argument
-    parser, optional hooks, and optional subparsers keyword arguments.
+    Starts up ``coma`` with an optional argument parser, optional global
+    configs, optional global hooks, and optional subparsers keyword arguments.
 
-    Any optional configurations and/or hooks are applied globally to every
-    registered sub-command, unless explicitly forgotten using the
-    :func:`~coma.core.forget.forget` context manager.
+    .. note::
 
-    Configurations can be provided with or without an identifier. In the latter
-    case, an identifier is derived automatically. See :func:`coma.config.to_dict`
+        Any optional configs and/or hooks are applied **globally** to every
+        :func:`~coma.core.register.register`\\ ed command, unless explicitly
+        forgotten using the :func:`~coma.core.forget.forget` context manager.
+
+    Configs can be provided with or without an identifier. In the latter case,
+    an identifier is derived automatically. See :func:`~coma.config.utils.to_dict`
     for additional details.
 
     Example::
@@ -47,33 +49,36 @@ def initiate(
         @dataclass
         class Config2:
             ...
-        coma.initiate(Config1, a_non_default_id=Config2, ...)
+        coma.initiate(Config1, a_non_default_id=Config2, pre_run_hook=...)
 
     Args:
-        *configs: Global configurations with default identifiers
-        parser: An argument parser for Coma. If `None`, an argument parser with
-            default parameters is used.
-        parser_hook: See TODO(invoke; protocol) for details on this hook
-        pre_config_hook: See TODO(invoke; protocol) for details on this hook
-        config_hook: See TODO(invoke; protocol) for details on this hook
-        post_config_hook: See TODO(invoke; protocol) for details on this hook
-        pre_init_hook: See TODO(invoke; protocol) for details on this hook
-        init_hook: See TODO(invoke; protocol) for details on this hook
-        post_init_hook: See TODO(invoke; protocol) for details on this hook
-        pre_run_hook: See TODO(invoke; protocol) for details on this hook
-        run_hook: See TODO(invoke; protocol) for details on this hook
-        post_run_hook: See TODO(invoke; protocol) for details on this hook
-        subparsers_kwargs: Keyword arguments to pass along to
-            :func:`~argparse.ArgumentParser.add_subparsers`
-        **id_configs: Global configurations with explicit identifiers
+        *configs (typing.Any): Global configs with default identifiers
+        parser (argparse.ArgumentParser): Top-level :obj:`ArgumentParser`. If
+            :obj:`None`, an :obj:`ArgumentParser` with default parameters is used.
+        parser_hook (typing.Callable): An optional global parser hook
+        pre_config_hook (typing.Callable): An optional global pre config hook
+        config_hook (typing.Callable): An optional global config hook
+        post_config_hook (typing.Callable): An optional global post config hook
+        pre_init_hook (typing.Callable): An optional global pre init hook
+        init_hook (typing.Callable): An optional global init hook
+        post_init_hook (typing.Callable): An optional global post init hook
+        pre_run_hook (typing.Callable): An optional global pre run hook
+        run_hook (typing.Callable): An optional global run hook
+        post_run_hook (typing.Callable): An optional global post run hook
+        subparsers_kwargs (typing.Dict[str, typing.Any]): Keyword arguments to
+            pass along to `ArgumentParser.add_subparsers()`_
+        **id_configs (typing.Any): Global configs with explicit identifiers
 
     Raises:
-        KeyError: If configuration identifiers are not unique
+        KeyError: If config identifiers are not unique
 
     See also:
-        * :func:`coma.config.to_dict`
         * :func:`~coma.core.forget.forget`
         * :func:`~coma.core.register.register`
+        * :func:`~coma.config.utils.to_dict`
+
+    .. _ArgumentParser.add_subparsers():
+        https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers
     """
     coma = get_instance()
     if coma.parser is not None:

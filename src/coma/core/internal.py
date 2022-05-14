@@ -1,7 +1,4 @@
-"""Core implementation of the ``coma`` user interface.
-
-See TODO(basic; advanced) for details.
-"""
+"""Backend of ``coma`` implementation."""
 from typing import Any, Callable, Dict, List, Optional
 
 # Lib/dataclasses in Python>=3.7
@@ -15,18 +12,21 @@ class Coma:
     """Singleton class for ``coma``.
 
     Attributes:
-        parser (:class:`argparse.ArgumentParser`): The argument parser to use
+        parser (argparse.ArgumentParser): The :obj:`ArgumentParser` to use
         subparsers: The special action object returned by
-            :func:`~argparse.ArgumentParser.add_subparsers`
-        names: The list of names of :func:`~coma.core.register.register`\\ ed commands
-        hooks: A stack of :class:`Hooks`
-        configs: A stack of :obj:`coma.config.ConfigDict`
+            `ArgumentParser.add_subparsers()`_
+        names (typing.List[str]): The list of names of
+            :func:`~coma.core.register.register`\\ ed commands
+        hooks (list): A stack of hooks
+        configs (typing.List[typing.Dict]): A stack of configs dictionaries
+
+    .. _ArgumentParser.add_subparsers():
+        https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers
     """
 
     coma: "Coma" = None
 
     def __init__(self):
-        """See :class:`~coma.core.Coma`."""
         self.parser = None
         self.subparsers = None
         self.names: List[str] = []
@@ -35,7 +35,7 @@ class Coma:
 
 
 def get_instance() -> Coma:
-    """Returns the singleton of :class:`Coma`."""
+    """Returns the ``coma`` singleton."""
     if Coma.coma is None:
         Coma.coma = Coma()
     return Coma.coma
@@ -43,7 +43,7 @@ def get_instance() -> Coma:
 
 @dataclass
 class MaskHooks:
-    """Whether a given hook should be masked or not when copying a :class:`Hooks`."""
+    """Whether a given hook should be masked or not when copying hooks."""
 
     parser_hook: bool = False
 
@@ -98,9 +98,11 @@ class Hooks:
         return replace(self, **kwargs)
 
     def merge(self, other: "Hooks") -> "Hooks":
-        """Merges two :class:`Hooks` together.
+        """Merges two hooks together.
 
-        Creates a :func:`~coma.hooks.utils.sequence` if necessary.
+        .. note::
+
+            Creates a :func:`~coma.hooks.utils.sequence` if necessary.
 
         Args:
              other: Another Hooks object

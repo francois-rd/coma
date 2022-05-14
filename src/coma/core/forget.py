@@ -1,4 +1,4 @@
-"""Cause ``coma`` to temporarily ignore selected configurations or hooks."""
+"""Temporarily forget selected global configs or hooks while in a coma."""
 from contextlib import contextmanager
 from typing import Iterator
 
@@ -20,10 +20,10 @@ def forget(
     run_hook: bool = False,
     post_run_hook: bool = False,
 ) -> Iterator[None]:
-    """Causes ``coma`` to temporarily ignore selected configurations or hooks.
+    """Temporarily forget selected global configs or hooks while in a coma.
 
     A context manager that enables :func:`~coma.core.register.register`\\ ing
-    sub-commands while selectively ignoring configurations or hooks.
+    commands while selectively forgetting global configs or hooks.
 
     Example::
 
@@ -32,35 +32,35 @@ def forget(
 
     .. note::
 
-        Configurations are referenced by identifier whereas hooks are referenced
-        by type. For configurations that were provided without an explicit
-        identifier to :func:`~coma.core.initiate.initiate`, the automatically-
-        derived identifier can be retrieved using :func:`~coma.config.default_id`.
+        Configs are referenced by identifier whereas hooks are referenced by
+        type. For configs that were :func:`~coma.core.initiate.initiate`\\ d or
+        :func:`~coma.core.register.register`\\ ed without an explicit identifier,
+        the automatically-derived identifier can be retrieved programmatically
+        using :func:`~coma.config.utils.default_id`.
 
     Args:
-        *config_ids: Configurations identifiers of configurations to forget
-        parser_hook: Whether to ignore this global hook (if any)
-        pre_config_hook: Whether to ignore this global hook (if any)
-        config_hook: Whether to ignore this global hook (if any)
-        post_config_hook: Whether to ignore this global hook (if any)
-        pre_init_hook: Whether to ignore this global hook (if any)
-        init_hook: Whether to ignore this global hook (if any)
-        post_init_hook: Whether to ignore this global hook (if any)
-        pre_run_hook: Whether to ignore this global hook (if any)
-        run_hook: Whether to ignore this global hook (if any)
-        post_run_hook: Whether to ignore this global hook (if any)
+        *config_ids (str): Identifiers of global configs to temporarily forget
+        parser_hook (bool): Whether to ignore the global parser hook (if any)
+        pre_config_hook (bool): Whether to ignore the global pre config hook (if any)
+        config_hook (bool): Whether to ignore the global config hook (if any)
+        post_config_hook (bool): Whether to ignore the global post config hook (if any)
+        pre_init_hook (bool): Whether to ignore the global pre init hook (if any)
+        init_hook (bool): Whether to ignore the global init hook (if any)
+        post_init_hook (bool): Whether to ignore the global post init hook (if any)
+        pre_run_hook (bool): Whether to ignore the global pre run hook (if any)
+        run_hook (bool): Whether to ignore the global run hook (if any)
+        post_run_hook (bool): Whether to ignore the global post run hook (if any)
 
     Returns:
-        A Generator yielding a single `None`
+        A generator yielding a single :obj:`None`
 
     Raises:
-        KeyError: If any provided configuration identifier does not correspond
-            to a known configuration.
+        KeyError: If any provided config identifier does not match to a known config
 
     See also:
-        * :func:`~coma.config.default_id`
         * :func:`~coma.core.initiate.initiate`
         * :func:`~coma.core.register.register`
+        * :func:`~coma.config.utils.default_id`
     """
     coma = get_initiated()
     masked_hooks = coma.hooks[-1].copy(
