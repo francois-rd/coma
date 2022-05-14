@@ -1,32 +1,32 @@
 Protocols
 =========
 
-As seen in the :doc:`./intro`, ``coma`` uses a hook pipeline, both to implement
-its default behavior and to enable customization. To makes this work, the
-various hooks must follow a pre-defined protocol for their function signature
-(for both the parameters and the return type).
-
-Introduction
-------------
+``coma`` uses a :ref:`hook pipeline <hookpipeline>`, both to implement its
+default behavior and to enable customization. To make this work, the various
+:ref:`types of hook <typesofhooks>` must each follow a pre-defined protocol
+(i.e., function signature) for both their parameters and their return value.
 
 The hook protocols are fairly similar across all hook types, but there are a
 number of variations depending on the type. We begin by enumerating the shared
 aspects of the various protocols.
 
 Function Signature
-^^^^^^^^^^^^^^^^^^
+------------------
 
 All protocols require the corresponding hook function signatures to define
-`positional-or-keyword <https://docs.python.org/3/library/inspect.html#inspect.Parameter>`_
+`positional-or-keyword <https://docs.python.org/3/library/inspect.html#inspect.Parameter.kind>`_
 parameters. For example, we can define and invoke some (hypothetical) hook function as:
 
 .. code-block:: python
 
     def some_hook(a, b, c):
         ...
+
     some_hook(a=..., b=..., c=...)
 
-This is fine because the hook function parameters are defined as positional-or-keyword.
+This is fine because the hook function parameters are defined as
+positional-or-keyword. These requirement is needed because hook parameters are
+bound positionally by keyword.
 
 .. note::
 
@@ -36,14 +36,14 @@ This is fine because the hook function parameters are defined as positional-or-k
 
 In addition to the above, **all** protocol parameters must be:
 
-    * Defined in the hook function's signature.
-    * Ordered correctly in the hook function's signature.
-    * Named (i.e., spelled) correctly in the hook function's signature.
+    * **Defined** in the hook function's signature.
+    * **Ordered** correctly in the hook function's signature.
+    * **Named** (i.e., spelled) correctly in the hook function's signature.
 
 .. _protocolparameters:
 
 Protocol Parameters
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 .. py:function:: generic_protocol(name, parser, known_args, unknown_args, command, configs, result)
 
@@ -52,15 +52,17 @@ Protocol Parameters
 
     .. note::
 
-        Not every type of hook uses every protocol parameter. The
-        :ref:`specificprotocols` are listed below. None of these specific
-        differences affect the parameter ordering or naming shown here.
+        Not every type of hook uses every protocol parameter. The protocols
+        specific to each hook type are listed :ref:`below <specificprotocols>`.
+        **None of these specific differences affect the parameter ordering or naming shown here.**
 
     :param name: The name given to a command when it is
         :func:`~coma.core.register.register`\ ed.
     :type name: str
-    :param parser: The :obj:`ArgumentParser` created to handle command line arguments
-        for a specific command when it is :func:`~coma.core.register.register`\ ed.
+    :param parser: The :obj:`ArgumentParser` created to add command line arguments
+        for a specific command when it is :func:`~coma.core.register.register`\ ed
+        and subsequently parse actual command line arguments if the command is
+        invoked on the command line.
     :type parser: argparse.ArgumentParser
     :param known_args: The :obj:`Namespace` object (i.e., first object) returned by
         `parse_known_args() <https://docs.python.org/3/library/argparse.html#partial-parsing>`_
@@ -78,8 +80,9 @@ Protocol Parameters
             If the :func:`~coma.core.register.register`\ ed object was a class,
             it is left unchanged. If the :func:`~coma.core.register.register`\ ed
             object was a function, it is implicitly wrapped in a class. Before
-            the :ref:`main init hook <hookpipeline>`, :obj:`command` is a class
-            object. Afterwards, it is an instance object of that class.
+            the :ref:`main init hook <hookpipeline>`, :obj:`command` is assumed
+            to be a class object. Afterwards, it is assumed to be an instance
+            object of that class.
 
         .. warning::
 
@@ -93,26 +96,26 @@ Protocol Parameters
 
         .. note::
 
-            Before the :ref:`main config hook <hookpipeline>`, the values in
-            the :obj:`configs` dictionary represent un-initialized config
-            objects. Afterwards, they are initialized config objects.
+            Before the :ref:`main config hook <hookpipeline>`, the values in the
+            :obj:`configs` dictionary are assumed to be uninitialized config
+            objects. Afterwards, they are assumed to be initialized config objects.
     :type configs: typing.Dict[str, typing.Any]
     :param result: The value returned from executing the command if it is
         invoked on the command line.
     :type result: typing.Any
-    :return: Some protocols return values; others do not. See the sections below
-        for details on each protocol.
+    :return: Some protocols return values; others do not. See
+        :ref:`below <specificprotocols>` for details on each protocol.
     :rtype: typing.Any
 
 
 :obj:`@hook` Decorator
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
-For many hooks, only a subset of the corresponding protocol parameters is needed
-to implement its logic. It can therefore be cumbersome to define a function with
+For many hooks, only a subset of the corresponding protocol parameters are needed
+to implement their logic. It can therefore be cumbersome to define a function with
 multiple unused parameters just to satisfy the hook protocol. The :obj:`@hook`
-decorator solves this problem, as it allows hook functions to be defined with
-a subset of the protocol parameters. For example:
+decorator (:func:`coma.hooks.hook`) solves this problem, as it allows hook
+functions to be defined with a subset of the protocol parameters. For example:
 
 .. code-block:: python
 
@@ -130,13 +133,12 @@ other protocol parameters.
     such as having the correct ordering and spelling of parameters, remain active.
 
 :obj:`sequence()` Function
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
-Technically, each hook type in the hook pipeline accepts at most one function.
-However, it is often beneficial to decompose a large hook function into a
-series of smaller ones. These component functions must then be wrapped with
-a higher-order function that executes them in order, while binding all
-parameters using keywords.
+Each :ref:`type of hook <typesofhooks>` must be implemented as a single function.
+However, it is often beneficial to decompose a large hook function into a series of
+smaller ones. These component functions must then be wrapped with a higher-order
+function that executes them in order, while binding all parameters using keywords.
 
 While this wrapping can always be done manually, a convenience wrapper,
 :func:`~coma.hooks.sequence`, can be used when all hooks share the exact same
@@ -164,7 +166,7 @@ with:
     coma.register(..., parser_hook=wrapper)
 
 The former isn't shorter, but it removes the minutiae of adding
-:obj:`(parser=parser)` to each wrapped hook function and removes the need to
+``(parser=parser)`` to each wrapped hook function and removes the need to
 decorate the wrapper function with the :obj:`@hook` decorator.
 
 .. _specificprotocols:
@@ -172,121 +174,122 @@ decorate the wrapper function with the :obj:`@hook` decorator.
 Specific Protocols
 ------------------
 
-Here, we list the specific protocol for each :ref:`type of hook <typesofhooks>`.
-See :ref:`protocolparameters` for details on each parameter.
+Here, we list the specific protocol and intended semantics for each
+:ref:`type of hook <typesofhooks>`. See :ref:`protocolparameters` for details on
+each parameter.
 
-Parser Hooks
-^^^^^^^^^^^^
+Parser
+^^^^^^
 
 .. py:function:: parser_hook_protocol(name, parser, command, configs)
 
-    This protocol adds command line arguments using :obj:`parser`.
+    :Semantics: This protocol adds command line arguments using :obj:`parser`.
 
-    :return: The return value of parser hooks (if any) is always ignored.
+    :return: The return value of a parser hook (if any) is always ignored.
     :rtype: None
 
-Pre Config Hooks
-^^^^^^^^^^^^^^^^
+Pre Config
+^^^^^^^^^^
 
 .. py:function:: pre_config_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol is the first invocation protocol to be executed.
+    :Semantics: This protocol is the first invocation hook to be executed.
 
-    :return: The return value of pre config hooks (if any) is always ignored.
+    :return: The return value of a pre config hook (if any) is always ignored.
     :rtype: None
 
-Config Hooks
-^^^^^^^^^^^^
+Config
+^^^^^^
 
 .. py:function:: config_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    The values in the :obj:`configs` dictionary represent un-initialized config
-    objects. This protocol ensures that they are returned as initialized objects
-    **in the same order**.
+    :Semantics: The values in the :obj:`configs` dictionary represent uninitialized
+        config objects. This protocol initializes them and returns them
+        **in the same order**.
 
-    :return: The return value of config hooks is an initialized configs dictionary.
+    :return: The return value of a config hook is an initialized configs dictionary.
     :rtype: typing.Dict[str, typing.Any]
 
-Post Config Hooks
-^^^^^^^^^^^^^^^^^
+Post Config
+^^^^^^^^^^^
 
 .. py:function:: post_config_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol takes the initialized configs objects and returns these same
-    objects (possibly modified) **in the same order**.
+    :Semantics: This protocol takes the initialized configs objects and returns
+        these same objects (possibly modified in some way) **in the same order**.
 
     :return: The return value of post config hooks is the configs dictionary.
     :rtype: typing.Dict[str, typing.Any]
 
-Pre Init Hooks
-^^^^^^^^^^^^^^
+Pre Init
+^^^^^^^^
 
 .. py:function:: pre_init_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol is executed after the config protocols and before the main
-    init protocol.
+    :Semantics: This protocol's hook is executed after all the config hooks and
+        before the main init hook.
 
-    :return: The return value of pre init hooks (if any) is always ignored.
+    :return: The return value of a pre init hook (if any) is always ignored.
     :rtype: None
 
-Init Hooks
-^^^^^^^^^^
+Init
+^^^^
 
 .. py:function:: init_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol instantiates :obj:`command` using the :obj:`configs`,
-    returning the resulting instance object.
+    :Semantics: This protocol instantiates :obj:`command` using the
+        :obj:`configs`, returning the resulting instance object.
 
-    .. note::
+        .. note::
 
-        If the :func:`~coma.core.register.register`\ ed object was a class, it
-        is left unchanged. If the :func:`~coma.core.register.register`\ ed
-        object was a function, it is implicitly wrapped in a class. Either way,
-        the :obj:`command` parameter to this protocol will be a class object.
+            If the :func:`~coma.core.register.register`\ ed command object was a class,
+            it was left unchanged. If the :func:`~coma.core.register.register`\ ed
+            command object was a function, it was implicitly wrapped in a class.
+            Either way, :obj:`command` will be a class object.
 
-    :return: The return value of init hooks is an instantiated command object.
+    :return: The return value of an init hook is an instantiated command object.
     :rtype: typing.Any
 
-Post Init Hooks
-^^^^^^^^^^^^^^^
+Post Init
+^^^^^^^^^
 
 .. py:function:: post_init_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol takes the instantiated command object and returns the same
-    object (possibly modified).
+    :Semantics: This protocol takes the instantiated command object and returns
+        the same object (possibly modified in some way).
 
-    :return: The return value of post init hooks is the command object.
+    :return: The return value of a post init hook is the instantiated command object.
     :rtype: typing.Any
 
-Pre Run Hooks
-^^^^^^^^^^^^^
+Pre Run
+^^^^^^^
 
 .. py:function:: pre_run_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol is executed after the config and init protocols and before the
-    main run protocol.
+    :Semantics: This protocol's hook is executed after all the config and init
+        hooks and before the main run hook.
 
-    :return: The return value of pre run hooks (if any) is always ignored.
+    :return: The return value of a pre run hook (if any) is always ignored.
     :rtype: None
 
-Run Hooks
-^^^^^^^^^
+Run
+^^^
 
 .. py:function:: run_hook_protocol(name, known_args, unknown_args, command, configs)
 
-    This protocol executes the instantiated :obj:`command` object, then returns
-    the result.
+    :Semantics: This protocol executes the instantiated :obj:`command` object,
+        then returns the resulting value.
 
-    :return: The return value of run hooks is the result of executing the
-        command object.
+    :return: The return value of a run hook is the value resulting from
+        executing the instantiated command object.
     :rtype: typing.Any
 
-Post Run Hooks
-^^^^^^^^^^^^^^
+Post Run
+^^^^^^^^
 
 .. py:function:: post_run_hook_protocol(name, known_args, unknown_args, command, configs, result)
 
-    This protocol is the last invocation protocol to be executed.
+    :Semantics: This protocol is the last invocation hook to be executed.
 
-    :return: The return value of post run hooks (if any) is always ignored.
+    :return: The return value of a post run hook (if any) is always ignored.
     :rtype: None
