@@ -31,8 +31,8 @@ At the highest level, hooks belong to one of two types:
 
     .. warning::
 
-        For function-based commands, the function is internally wrapped in a
-        class, and it is this wrapper class that an init hook will receive.
+        For function-based commands, the function is internally wrapped in
+        another object, and it is this wrapper object that an init hook receives.
 :run:
     A run hook is meant to execute or surround the execution of the command.
 
@@ -132,9 +132,8 @@ The default hooks are:
 :pre init:
     N/A
 :main init:
-    The default :obj:`init_hook` is :func:`coma.hooks.init_hook.default`. This
-    hook initializes the command object by providing its constructor with all
-    configs, in order, as positional arguments.
+    The default :obj:`init_hook` is :func:`coma.hooks.init_hook.default`. This hook
+    initializes the command object using all configs, in order, as positional arguments.
 :post init:
     N/A
 :pre run:

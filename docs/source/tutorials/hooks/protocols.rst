@@ -79,10 +79,8 @@ Protocol Parameters
 
             If the :func:`~coma.core.register.register`\ ed object was a class,
             it is left unchanged. If the :func:`~coma.core.register.register`\ ed
-            object was a function, it is implicitly wrapped in a class. Before
-            the :ref:`main init hook <hookpipeline>`, :obj:`command` is assumed
-            to be a class object. Afterwards, it is assumed to be an instance
-            object of that class.
+            object was a function, it is implicitly wrapped in another object. The
+            :ref:`main init hook <hookpipeline>` is meant to instantiate :obj:`command`.
 
         .. warning::
 
@@ -244,8 +242,9 @@ Init
 
             If the :func:`~coma.core.register.register`\ ed command object was a class,
             it was left unchanged. If the :func:`~coma.core.register.register`\ ed
-            command object was a function, it was implicitly wrapped in a class.
-            Either way, :obj:`command` will be a class object.
+            command object was a function, it was implicitly wrapped in another
+            object. Either way, :obj:`command` acts as though it is a class object
+            that can be instantiated.
 
     :return: The return value of an init hook is an instantiated command object.
     :rtype: typing.Any
