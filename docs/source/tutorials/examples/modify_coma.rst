@@ -77,8 +77,8 @@ The program now runs as expected:
                               run_hook=coma.hooks.run_hook.factory("start"))
             coma.wake()
 
-    This approach ensures that other commands are not affected.
-
+    This approach ensures that other commands are not affected. See
+    :doc:`here <../core/forget>` for details on using :func:`~coma.core.forget.forget`.
 
 Wrapping with Functions
 -----------------------
