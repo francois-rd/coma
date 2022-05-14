@@ -1,4 +1,4 @@
-"""Interface between ``coma`` and ``omegaconf``."""
+"""All config utilities."""
 from . import cli
 from . import io
 from .utils import (

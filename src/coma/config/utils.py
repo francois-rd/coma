@@ -1,4 +1,4 @@
-"""Config utilities."""
+"""General config utilities."""
 from collections import OrderedDict
 import sys
 from typing import Any, Dict, Tuple, Union
@@ -9,10 +9,10 @@ _dict_type = OrderedDict if sys.version_info < (3, 7) else dict
 def default_id(config: Any) -> str:
     """Returns the default identifier of :obj:`config`.
 
-    The default identifier is derived from :obj:`config`'s type's name.
+    The default identifier is derived from :obj:`config`'s :obj:`type` name.
 
     Args:
-        config: Any configuration type or object
+        config: Any valid ``omegaconf`` config
 
     Returns:
         The default identifier of :obj:`config`
@@ -26,15 +26,21 @@ def default_dest(config_id: str) -> str:
     """Returns the default file path parser argument destination of :obj:`config_id`.
 
     Returns the default value for the :obj:`dest` keyword argument to
-    :class:`argparse.ArgumentParser.add_argument` for the file path parser
-    argument corresponding to :obj:`config_id`. This will also be the attribute
-    of the :func:`argparse.ArgumentParser.parse_known_args` return object.
+    `add_argument()`_ that will define the file path parser argument
+    corresponding to :obj:`config_id`. This will also be the attribute
+    of the :obj:`namespace` return object (first return value) of
+    `parse_known_args()`_.
 
     Args:
-        config_id: A configuration identifier
+        config_id: A config identifier
 
     Returns:
         The default file path parser argument attribute of :obj:`config_id`
+
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
+    .. _parse_known_args():
+        https://docs.python.org/3/library/argparse.html#partial-parsing
     """
     return f"{config_id}_path"
 
@@ -43,14 +49,17 @@ def default_default(config_id: str) -> str:
     """Returns the default file path parser argument default value for :obj:`config_id`.
 
     Returns the default value for the :obj:`default` keyword argument to
-    :class:`argparse.ArgumentParser.add_argument` for the file path parser
-    argument corresponding to :obj:`config_id`.
+    `add_argument()`_ that will define the file path parser argument
+    corresponding to :obj:`config_id`.
 
     Args:
-        config_id: A configuration identifier
+        config_id: A config identifier
 
     Returns:
         The default file path parser argument default value for :obj:`config_id`
+
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
     return f"{config_id}"
 
@@ -59,14 +68,17 @@ def default_flag(config_id: str) -> str:
     """Returns the default file path parser argument flag value for :obj:`config_id`.
 
     Returns the default value for the :obj:`names_or_flags` variadic argument to
-    :class:`argparse.ArgumentParser.add_argument` for the file path parser
-    argument corresponding to :obj:`config_id`.
+    `add_argument()`_ that will define the file path parser argument
+    corresponding to :obj:`config_id`.
 
     Args:
-        config_id: A configuration identifier
+        config_id: A config identifier
 
     Returns:
         The default file path parser argument flag value for :obj:`config_id`
+
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
     return f"--{config_id}-path"
 
@@ -75,41 +87,45 @@ def default_help(config_id: str) -> str:
     """Returns the default file path parser argument help value for :obj:`config_id`.
 
     Returns the default value for the :obj:`help` keyword argument to
-    :class:`argparse.ArgumentParser.add_argument` for the file path parser
-    argument corresponding to :obj:`config_id`.
+    `add_argument()`_ that will define the file path parser argument
+    corresponding to :obj:`config_id`.
 
     Args:
-        config_id: A configuration identifier
+        config_id: A config identifier
 
     Returns:
         The default file path parser argument help value for :obj:`config_id`
+
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
     return f"{config_id} file path"
 
 
 def to_dict(*configs: Union[Any, Tuple[str, Any]]) -> Dict[str, Any]:
-    """Converts configurations provided in raw or tuple format to dictionary format.
+    """Converts configs provided in raw format to dictionary format.
 
-    :obj:`configs` should be of the form `<conf>` or `(<id>, <conf>)`, where
-    `<conf>` represents a configuration and `<id>` is any string identifier for
-    the configuration. If `<id>` is omitted, an identifier is derived from
-    `<conf>`'s type name using :func:`~coma.config.default_id`. That is,
-    specifying just `<conf>` is a shorthand for `(default_id(<conf>), <conf>)`.
+    :obj:`configs` should be of the form :obj:`<conf>` or :obj:`(<id>, <conf>)`,
+    where :obj:`<conf>` represents a config and :obj:`<id>` is any identifier
+    for the config. If :obj:`<id>` is omitted, an identifier is derived from
+    :obj:`<conf>`'s :obj:`type` name using
+    :func:`~coma.config.utils.default_id`. That is, specifying just
+    :obj:`<conf>` is a shorthand for ``(default_id(<conf>), <conf>)``.
 
     .. note::
 
-        For each :func:`~coma.core.register.register`\\ ed sub-command,
-        configuration identifiers need to be unique for that sub-command.
+        For each :func:`~coma.core.register.register`\\ ed command, both global
+        and local config identifiers need to be unique for that command.
 
     Returns:
-        Configurations as a dictionary with `<id>` keys and `<conf>` values.
+        Configs as a dictionary with :obj:`<id>` keys and :obj:`<conf>` values.
 
         .. note::
 
-            The dictionary is guaranteed to be insertion-ordered, even in Python < 3.7.
+            The dictionary is guaranteed to be insertion-ordered (even in Python < 3.7).
 
     See also:
-        * :func:`~coma.config.default_id`
+        * :func:`~coma.config.utils.default_id`
         * :func:`~coma.core.initiate.initiate`
         * :func:`~coma.core.register.register`
     """
