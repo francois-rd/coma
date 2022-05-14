@@ -197,6 +197,10 @@ leads to the following program execution:
     $ python main.py greet
     hardcoded message
 
+.. note::
+
+    See :doc:`here <examples/json>` for full details on configuration files.
+
 Config attribute values can also be overridden on the command line using ``omegaconf``'s
 `dot-list notation <https://omegaconf.readthedocs.io/en/latest/usage.html#from-a-dot-list>`_:
 
@@ -237,11 +241,6 @@ are useful for enabling runtime validation:
 
     Because :obj:`Config` has :obj:`type` name :obj:`config`, the config object
     will be serialized to :obj:`config.yaml`.
-
-.. code-block:: console
-
-    $ python main.py greet
-    Hello World!
 
 .. _multiconfigs:
 
