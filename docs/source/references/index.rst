@@ -19,6 +19,6 @@ Module Attributes
 
 .. autofunction:: coma.core.register.register
 
-.. autofunction:: coma.core.wake.wake
-
 .. autofunction:: coma.core.forget.forget
+
+.. autofunction:: coma.core.wake.wake
