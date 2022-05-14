@@ -55,7 +55,7 @@ def forget(
         A generator yielding a single :obj:`None`
 
     Raises:
-        KeyError: If any provided config identifier does not match to a known config
+        KeyError: If any provided config identifier does not match any known config
 
     See also:
         * :func:`~coma.core.initiate.initiate`
