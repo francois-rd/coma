@@ -31,7 +31,7 @@ def wake(args=None, namespace=None) -> None:
     """
     coma = get_initiated()
     known_args, unknown_args = coma.parser.parse_known_args(args, namespace)
-    if coma.commands_registered:
+    if coma.names:
         known_args.func(known_args, unknown_args)
     else:
-        warnings.warn("Waking from Coma with no commands.", stacklevel=2)
+        warnings.warn("Waking from a coma with no commands registered.", stacklevel=2)

@@ -96,6 +96,7 @@ def register(
         **id_configs: Local configurations with explicit identifiers
 
     Raises:
+        ValueError: If :obj:`name` is already registered
         KeyError: If configuration identifiers are not unique
 
     See also:
@@ -103,6 +104,10 @@ def register(
         * :func:`~coma.core.initiate.initiate`
         * :func:`~coma.core.wake.wake`
     """
+    coma = get_initiated()
+    if name in coma.names:
+        raise ValueError(f"Command name is already registered: {name}")
+
     if isinstance(command, type):
         command_ = command
     else:
@@ -116,7 +121,6 @@ def register(
 
             return C()
 
-    coma = get_initiated()
     parser_kwargs = {} if parser_kwargs is None else parser_kwargs
     subparser = coma.subparsers.add_parser(name, **parser_kwargs)
     hooks = coma.hooks[-1].merge(
@@ -135,7 +139,7 @@ def register(
     )
     configs = to_dict(*coma.configs[-1].items(), *configs, *id_configs.items())
     _do_register(name, command_, configs, subparser, hooks)
-    coma.commands_registered = True
+    coma.names.append(name)
 
 
 def _do_register(

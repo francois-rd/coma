@@ -18,8 +18,7 @@ class Coma:
         parser (:class:`argparse.ArgumentParser`): The argument parser to use
         subparsers: The special action object returned by
             :func:`~argparse.ArgumentParser.add_subparsers`
-        commands_registered (bool): Whether at least one sub-command was
-            successfully added using `subparsers`
+        names: The list of names of :func:`~coma.core.register.register`\\ ed commands
         hooks: A stack of :class:`Hooks`
         configs: A stack of :obj:`coma.config.ConfigDict`
     """
@@ -30,7 +29,7 @@ class Coma:
         """See :class:`~coma.core.Coma`."""
         self.parser = None
         self.subparsers = None
-        self.commands_registered: bool = False
+        self.names: List[str] = []
         self.hooks: List[Hooks] = []
         self.configs: List[Dict[str, Any]] = []
 
