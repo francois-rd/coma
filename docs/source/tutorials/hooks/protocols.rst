@@ -112,8 +112,8 @@ Protocol Parameters
 For many hooks, only a subset of the corresponding protocol parameters are needed
 to implement their logic. It can therefore be cumbersome to define a function with
 multiple unused parameters just to satisfy the hook protocol. The :obj:`@hook`
-decorator (:func:`coma.hooks.hook`) solves this problem, as it allows hook
-functions to be defined with a subset of the protocol parameters. For example:
+decorator (link: :func:`~coma.hooks.utils.hook`) solves this problem, as it allows
+hook functions to be defined with a subset of the protocol parameters. For example:
 
 .. code-block:: python
 
@@ -139,7 +139,7 @@ smaller ones. These component functions must then be wrapped with a higher-order
 function that executes them in order, while binding all parameters using keywords.
 
 While this wrapping can always be done manually, a convenience wrapper,
-:func:`~coma.hooks.sequence`, can be used when all hooks share the exact same
+:func:`~coma.hooks.utils.sequence`, can be used when all hooks share the exact same
 function signature (or are wrapped in the :obj:`@hook` decorator) to abstract
 away some of the minutiae. Compare:
 
