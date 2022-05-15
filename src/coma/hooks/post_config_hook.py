@@ -1,4 +1,4 @@
-"""Core post config hooks and utilities."""
+"""Post config hook utilities, factories, and defaults."""
 from typing import Any, Callable, Dict, List
 
 from coma.config import to_dict
@@ -10,29 +10,30 @@ from .utils import hook, sequence
 def single_cli_override_factory(
     config_id: str, cli_override: Callable = override
 ) -> Callable[..., Dict[str, Any]]:
-    """Factory for overriding a configuration's attributes with command line arguments.
+    """Factory for creating a post config hook that overrides a config's attributes.
 
-    Overriding is achieved by calling :obj:`cli_override`, which, by default,
-    is :func:`coma.config.cli.override`. Slight alternatives to can be created
-    using :func:`coma.config.cli.override_factory`. Alternatively, a user-
-    provided function can also be used.
+    Overriding with command line arguments is achieved by calling :obj:`cli_override`,
+    which is :func:`~coma.config.cli.override` by default. Slight alternatives
+    can be created using :func:`~coma.config.cli.override_factory`.
+    Alternatively, a custom function can also be used.
 
     Example:
-        Change separator to "~"::
+
+        Change separator to :obj:`"~"`::
 
             coma.initiate(..., post_config_hook=override_factory(sep="~"))
 
     Args:
-        config_id: A configuration identifier
-        cli_override: Function to override config attributes with command line args
+        config_id (str): A config identifier
+        cli_override (typing.Callable): Function to override config attributes
+            with command line arguments
 
     Returns:
         A post config hook
 
     See also:
-        * :func:`coma.config.cli.override_factory`
-        * :func:`coma.hooks.config_hook.single_load_and_write_factory`
-        * TODO(invoke; protocol) for details on config hooks
+        * :func:`~coma.config.cli.override_factory`
+        * :func:`~coma.hooks.config_hook.single_load_and_write_factory`
     """
 
     @hook
@@ -45,13 +46,12 @@ def single_cli_override_factory(
 def multi_cli_override_factory(
     cli_override: Callable = override,
 ) -> Callable[..., Dict[str, Any]]:
-    """Overrides multiple configs' attributes with corresponding command line arguments.
+    """Factory for creating a post config hook that overrides attributes of all configs.
 
     Equivalent to calling
-    :func:`~coma.hooks.post_config_hook.single_cli_override_factory`
-    for each configuration with :obj:`cli_override` passed along.
-
-    See :func:`coma.hooks.post_config_hook.single_cli_override_factory` for details.
+    :func:`~coma.hooks.post_config_hook.single_cli_override_factory` for each
+    config with :obj:`cli_override` passed along. See
+    :func:`~coma.hooks.post_config_hook.single_cli_override_factory` for details.
     """
 
     @hook
@@ -71,6 +71,6 @@ def multi_cli_override_factory(
 default = multi_cli_override_factory()
 """Default post config hook.
 
-An alias for :func:`coma.hooks.post_config_hook.multi_cli_override_factory`
-called with default arguments.
+An alias for calling :func:`~coma.hooks.post_config_hook.multi_cli_override_factory`
+with default arguments.
 """

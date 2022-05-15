@@ -1,4 +1,4 @@
-"""Core parser hooks and utilities."""
+"""Parser hook utilities, factories, and defaults."""
 import argparse
 from typing import Any, Callable, Dict
 
@@ -8,21 +8,24 @@ from .utils import hook, sequence
 
 
 def factory(*names_or_flags, **kwargs) -> Callable[..., None]:
-    """Factory for a parser hook adding an :class:`argparse.ArgumentParser` argument.
+    """Factory for creating a parser hook that adds an ``argparse`` argument.
+
+    Creates a parser hook that add an argument to the :obj:`ArgumentParser` of
+    the hook protocol.
 
     Example::
 
         coma.initiate(..., parser_hook=factory('-l', '--lines', type=int))
 
     Args:
-        *names_or_flags: See :func:`argparse.ArgumentParser.add_argument`
-        **kwargs: Passed to :func:`argparse.ArgumentParser.add_argument`
+        *names_or_flags: Passed to `add_argument()`_
+        **kwargs: Passed to `add_argument()`_
 
     Returns:
         A parser hook
 
-    See also:
-        * TODO(invoke; protocol) for details on parser hooks
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
 
     @hook
@@ -35,10 +38,10 @@ def factory(*names_or_flags, **kwargs) -> Callable[..., None]:
 def single_config_factory(
     config_id: str, *names_or_flags, **kwargs
 ) -> Callable[..., None]:
-    """Factory for adding a single configuration file path argument.
+    """Factory for creating a parser hook that adds a single config file path argument.
 
-    If no arguments are provided, the following defaults are used for adding a
-    argument to an :class:`argparse.ArgumentParser`::
+    If no arguments are provided, the following defaults are used for
+    `add_argument()`_::
 
         from coma.config import default_default, default_flag, default_help
         names_or_flags = [default_flag(config_id)]
@@ -58,21 +61,24 @@ def single_config_factory(
         @dataclass
         class Config:
             ...
+
         cfg_id = default_id(Config)
         parser_hook = single_config_factory(cfg_id, metavar=cfg_id.upper())
         coma.register(..., parser_hook=parser_hook)
 
     Args:
-        config_id: A configuration identifier
-        *names_or_flags: See :func:`~argparse.ArgumentParser.add_argument`
-        **kwargs: Passed to :func:`~argparse.ArgumentParser.add_argument`
+        config_id (str): A config identifier
+        *names_or_flags: Passed to `add_argument()`_
+        **kwargs: Passed to `add_argument()`_
 
     Returns:
         A parser hook
 
     See also:
-        * :func:`coma.hooks.config_hook.single_load_and_write_factory`
-        * TODO(invoke; protocol) for details on parser hooks
+        * :func:`~coma.hooks.config_hook.single_load_and_write_factory`
+
+    .. _add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
 
     @hook
@@ -90,28 +96,27 @@ def single_config_factory(
 
 @hook
 def multi_config(parser: argparse.ArgumentParser, configs: Dict[str, Any]) -> None:
-    """Hook for adding all configuration file path arguments.
+    """Parser hook for adding all config file path arguments.
 
-    Equivalent to calling :func:`coma.hooks.parser_hook.single_config_factory`
-    for each configuration in :obj:`configs`.
+    Equivalent to calling :func:`~coma.hooks.parser_hook.single_config_factory`
+    for each config in :obj:`configs`.
 
-    Automatically adds file path arguments for all :obj:`configs` to an
-    :class:`argparse.ArgumentParser`.
+    Automatically adds file path arguments for all :obj:`configs` using :obj:`parser`.
 
     Example::
 
         @dataclass
         class Config:
             ...
-        coma.initiate(..., parser_hook=multi_config_parser_hook)
+
+        coma.initiate(..., parser_hook=multi_config)
 
     Args:
-        parser: See TODO(invoke; protocol) for details on this hook
-        configs: See TODO(invoke; protocol) for details on this hook
+        parser: The parser parameter of the parser hook protocol
+        configs: The configs parameter of the parser hook protocol
 
     See also:
-        * :func:`coma.hooks.parser_hook.single_config_factory`
-        * TODO(invoke; protocol) for details on parser hooks
+        * :func:`~coma.hooks.parser_hook.single_config_factory`
     """
     fns = [single_config_factory(cid) for cid in configs]
     if fns:
@@ -121,5 +126,5 @@ def multi_config(parser: argparse.ArgumentParser, configs: Dict[str, Any]) -> No
 default = multi_config
 """Default parser hook.
 
-An alias for :func:`coma.hooks.parser_hook.multi_config`.
+An alias for :func:`~coma.hooks.parser_hook.multi_config`.
 """
