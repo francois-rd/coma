@@ -132,8 +132,9 @@ The default hooks are:
 :pre init:
     N/A
 :main init:
-    The default :obj:`init_hook` is :func:`coma.hooks.init_hook.default`. This hook
-    initializes the command object using all configs, in order, as positional arguments.
+    The default :obj:`init_hook` is :func:`coma.hooks.init_hook.default`. This
+    hook instantiates the command object by invoking it with all configs given,
+    in order, as positional arguments.
 :post init:
     N/A
 :pre run:
