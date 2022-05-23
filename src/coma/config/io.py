@@ -161,10 +161,12 @@ def dump(config: Any, file_path: str, *, resolve: bool = False) -> None:
         https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#variable-interpolation
     """
     if is_json_ext(file_path):
+        Path(file_path).resolve().parent.mkdir(parents=True, exist_ok=True)
         as_dict = OmegaConf.to_container(config, resolve=resolve, enum_to_str=True)
         with open(file_path, "w") as f:
             json.dump(as_dict, f, indent=4)
     elif is_yaml_ext(file_path):
+        Path(file_path).resolve().parent.mkdir(parents=True, exist_ok=True)
         OmegaConf.save(config, file_path, resolve=resolve)
     else:
         raise ValueError(f"Config only supports YAML and JSON formats: {file_path}")
