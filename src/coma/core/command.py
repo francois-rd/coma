@@ -73,7 +73,19 @@ def command(
     :obj:`coma.register()` must be made instead.
 
     Args:
-        All args are passed directly to :func:`~coma.core.register.register`.
+        name (str): Passed directly to :func:`~coma.core.register.register`.
+        parser_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        pre_config_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        config_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        post_config_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        pre_init_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        init_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        post_init_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        pre_run_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        run_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        post_run_hook (typing.Callable): See :func:`~coma.core.register.register`.
+        parser_kwargs (typing.Dict[str, typing.Any]): See
+            :func:`~coma.core.register.register`.
 
     See also:
         * :func:`~coma.core.forget.forget`
