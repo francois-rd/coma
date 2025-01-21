@@ -1,4 +1,5 @@
 """Temporarily forget selected global configs or hooks while in a coma."""
+
 from contextlib import contextmanager
 from typing import Iterator
 

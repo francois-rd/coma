@@ -1,4 +1,5 @@
 """Wake from a coma."""
+
 import warnings
 
 from .initiate import get_initiated
@@ -34,8 +35,19 @@ def wake(args=None, namespace=None) -> None:
         https://docs.python.org/3/library/argparse.html#partial-parsing
     """
     coma = get_initiated()
+    for registration in coma.stored_registrations:
+        registration()
     known_args, unknown_args = coma.parser.parse_known_args(args, namespace)
     if coma.names:
-        known_args.func(known_args, unknown_args)
+        try:
+            known_args.func(known_args, unknown_args)
+        except AttributeError as e:
+            if any("func" in arg for arg in e.args):
+                message = (
+                    "Waking from a coma with no command given on the command line."
+                )
+                warnings.warn(message, stacklevel=2)
+            else:
+                raise
     else:
         warnings.warn("Waking from a coma with no commands registered.", stacklevel=2)

@@ -1,4 +1,5 @@
 """Run hook utilities, factories, and defaults."""
+
 from typing import Callable
 
 from .utils import hook

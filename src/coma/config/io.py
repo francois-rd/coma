@@ -1,4 +1,5 @@
 """Utilities for serializing configs to file."""
+
 from enum import auto, Enum
 import json
 from pathlib import Path
@@ -10,15 +11,15 @@ from omegaconf import OmegaConf
 class Extension(Enum):
     """Supported config serialization file extensions:
 
-        =========== ==============
-        Value       Meaning
-        =========== ==============
-        :obj:`YAML` :obj:`".yaml"`
-        ----------- --------------
-        :obj:`YML`  :obj:`".yml"`
-        ----------- --------------
-        :obj:`JSON` :obj:`".json"`
-        =========== ==============
+    =========== ==============
+    Value       Meaning
+    =========== ==============
+    :obj:`YAML` :obj:`".yaml"`
+    ----------- --------------
+    :obj:`YML`  :obj:`".yml"`
+    ----------- --------------
+    :obj:`JSON` :obj:`".json"`
+    =========== ==============
     """
 
     YAML = auto()

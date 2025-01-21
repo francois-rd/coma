@@ -1,11 +1,12 @@
 """Backend of ``coma`` implementation."""
+
 from typing import Any, Callable, Dict, List, Optional
 
 # Lib/dataclasses in Python>=3.7
 # dataclasses from https://pypi.org/project/dataclasses/ in Python>=3.6,<3.7
 from dataclasses import dataclass, fields, replace
 
-from coma.hooks import sequence
+from ..hooks import sequence
 
 
 class Coma:
@@ -25,6 +26,7 @@ class Coma:
     """
 
     coma: "Coma" = None
+    stored_registrations: List[Callable] = []
 
     def __init__(self):
         self.parser = None
@@ -39,6 +41,31 @@ def get_instance() -> Coma:
     if Coma.coma is None:
         Coma.coma = Coma()
     return Coma.coma
+
+
+def store_registration(registration: Callable[[], None]) -> None:
+    """
+    Stores :func:`~coma.core.register.register` calls for later invocation. This allows
+    calls to the :func:`~coma.core.command.command` decorator (which internally calls
+    :obj:`coma.register()`) to occur anywhere in a codebase without getting in the way
+    of :func:`~coma.core.initiate.initiate` (which must be called before any calls to
+    :obj:`coma.register()` to have any effect).
+
+    Args:
+        registration: A no-argument wrapper around a :obj:`coma.register()` call.
+
+    Example:
+
+        .. code-block:: python
+
+            store_registration(lambda: coma.register(...))
+
+    See also:
+        * :func:`~coma.core.command.command`
+        * :func:`~coma.core.initiate.initiate`
+        * :func:`~coma.core.register.register`
+    """
+    Coma.stored_registrations.append(registration)
 
 
 @dataclass

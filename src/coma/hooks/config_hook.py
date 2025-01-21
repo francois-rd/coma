@@ -1,8 +1,11 @@
 """Config hook utilities, factories, and defaults."""
+
 from typing import Any, Callable, Dict, List, Optional
 
-from coma.config import default_default, default_dest, to_dict
-from coma.config.io import dump, Extension, maybe_add_ext, load
+from omegaconf.errors import ValidationError
+
+from ..config import default_default, default_dest, to_dict
+from ..config.io import dump, Extension, maybe_add_ext, load
 
 from .utils import hook, sequence
 
@@ -41,7 +44,7 @@ def single_load_and_write_factory(
             If :obj:`raise_on_fnf` is :obj:`True`, the error is re-raised.
 
             If :obj:`raise_on_fnf` is :obj:`False`, a config object with default
-            values is initializes, and then:
+            values is initialized, and then:
 
                 If :obj:`write_on_fnf` is :obj:`True`, the newly-initialized
                 config object with default values is written to the file.
@@ -96,6 +99,14 @@ def single_load_and_write_factory(
         * :func:`~coma.hooks.parser_hook.single_config_factory`
     """
 
+    def try_load(config: Any, file_path=None) -> Any:
+        try:
+            return load(config, file_path)
+        except ValidationError:
+            raise ValueError(
+                f"Config '{config_id}' of type '{config}' is not OmegaConf compatible."
+            )
+
     @hook
     def _hook(known_args, configs: Dict[str, Any]) -> Dict[str, Any]:
         config = configs[config_id]
@@ -106,11 +117,11 @@ def single_load_and_write_factory(
         file_path = getattr(known_args, attr, default_) or default_
         file_path = maybe_add_ext(file_path, default_ext)
         try:
-            config = load(config, file_path)
+            config = try_load(config, file_path)
         except FileNotFoundError:
             if raise_on_fnf:
                 raise
-            config = load(config)
+            config = try_load(config)
             if write_on_fnf:
                 dump(config, file_path, resolve=resolve)
         return to_dict((config_id, config))

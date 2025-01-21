@@ -1,8 +1,9 @@
 """Parser hook utilities, factories, and defaults."""
+
 import argparse
 from typing import Any, Callable, Dict
 
-from coma.config import default_default, default_dest, default_flag, default_help
+from ..config import default_default, default_dest, default_flag, default_help
 
 from .utils import hook, sequence
 

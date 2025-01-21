@@ -1,10 +1,11 @@
 """Register a command that might be invoked upon waking from a coma."""
+
 import argparse
 from typing import Any, Callable, Dict, Optional
 
 from boltons.funcutils import wraps
 
-from coma.config import to_dict
+from ..config import to_dict
 
 from .initiate import get_initiated
 from .internal import Hooks
@@ -92,6 +93,7 @@ def register(
         KeyError: If config identifiers are not unique
 
     See also:
+        * :func:`~coma.core.command.command`
         * :func:`~coma.core.initiate.initiate`
         * :func:`~coma.core.forget.forget`
         * :func:`~coma.core.wake.wake`

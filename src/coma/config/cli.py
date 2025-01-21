@@ -1,4 +1,5 @@
 """Utilities for overriding config attributes with command line arguments."""
+
 from functools import partial
 from typing import Any, Callable, Dict, List
 
@@ -11,7 +12,7 @@ def override(
     configs: Dict[str, Any],
     unknown_args: List[str],
     *,
-    sep: str = ":",
+    sep: str = "::",
     exclusive: bool = False,
     raise_on_no_matches: bool = True,
     raise_on_many_matches: bool = True,
@@ -36,7 +37,7 @@ def override(
         in dot-list notation to the config corresponding to :obj:`config_id`. These
         shared config overrides **are not consumed**, and so can be used to override
         multiple configs without duplication. However, this powerful feature can
-        also be error prone. To disable it, set :obj:`exclusive` to :obj:`True`. This
+        also be error-prone. To disable it, set :obj:`exclusive` to :obj:`True`. This
         raises a :obj:`ValueError` if shared overrides match more than one config.
 
         .. note::
@@ -73,11 +74,11 @@ def override(
                 ...
                 coma.register("add_student", AddStudent, Person, School)
 
-            Invoking on the command line:
+            Invoking on the command line (assuming :obj:`sep` is '::'):
 
             .. code-block:: console
 
-                $ python main.py add_student p:name="..." s:name="..."
+                $ python main.py add_student p::name="..." s::name="..."
 
     Args:
         config_id (str): A config identifier for the config to target
@@ -174,7 +175,7 @@ def override(
 
 def override_factory(
     *,
-    sep: str = ":",
+    sep: str = "::",
     exclusive: bool = False,
     raise_on_no_matches: bool = True,
     raise_on_many_matches: bool = True,

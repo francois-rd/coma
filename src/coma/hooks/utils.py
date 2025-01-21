@@ -1,4 +1,5 @@
 """General hook utilities."""
+
 import functools
 import inspect
 from typing import Callable, TypeVar

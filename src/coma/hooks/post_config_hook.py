@@ -1,8 +1,9 @@
 """Post config hook utilities, factories, and defaults."""
+
 from typing import Any, Callable, Dict, List
 
-from coma.config import to_dict
-from coma.config.cli import override
+from ..config import to_dict
+from ..config.cli import override
 
 from .utils import hook, sequence
 

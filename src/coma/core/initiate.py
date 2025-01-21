@@ -1,10 +1,11 @@
 """Initiate a coma."""
+
 import argparse
 from typing import Any, Callable, Optional
 import warnings
 
-from coma import hooks
-from coma.config import to_dict
+from .. import hooks
+from ..config import to_dict
 
 from .internal import Coma, Hooks, get_instance
 
