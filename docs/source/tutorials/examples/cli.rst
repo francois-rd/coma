@@ -57,11 +57,11 @@ using the prefix delimiter (``::``):
     config overrides. See :ref:`here <objectoverride>` for an example of dictionary
     config overrides. See :func:`~coma.config.cli.override_factory` and
     :func:`~coma.hooks.post_config_hook.multi_cli_override_factory` for setting a
-    custom prefix delimiter. In particular, setting the custom delimiter to ``:``
+    custom prefix delimiter. In particular, setting the custom delimiter back to ``:``
     enables backwards compatibility with version ``<2.0.0`` assuming dictionary
     overrides are not required.
 
-By default, ``coma`` also supports prefix abbreviations: A prefix can be abbreviated
+By default, ``coma`` also supports prefix abbreviations. A prefix can be abbreviated
 as long as the abbreviation is unambiguous (i.e., matches only one config identifier):
 
 .. code-block:: python
@@ -110,8 +110,8 @@ existing dict keys) or merges (for new dict keys) with the default values.
     See :ref:`here <https://stackoverflow.com/questions/61315623/omegaconf-can-i-influence-how-lists-are-merged>`
     for an answer directly from ``omegaconf``'s developer.
 
-Consider the following example, where :obj:`x` has type :obj:`list` with default value
-:obj:`[1, 2]` and :obj:`y` has type :obj:`dict` with default value
+Consider the following example, where :obj:`l` has type :obj:`list` with default value
+:obj:`[1, 2]` and :obj:`d` has type :obj:`dict` with default value
 :obj:`{'a' : {'b': 3}}`.
 
 .. code-block:: python
@@ -155,6 +155,7 @@ as follows:
     l:
     - 3
     - 4
+    - 5
     d:
       a:
         b: 3
@@ -257,9 +258,9 @@ grows), which the dot-list notation does not directly support. Compare:
 
 .. note::
 
-    Deletion of dictionary entries is not currently supported. In the following example,
-    ``omegaconf`` merges the empty dictionary with the default dictionary (i.e., the
-    default is left unchanged):
+    Deletion of dictionary entries is not currently supported. In the following,
+    ``omegaconf`` simply merges the empty dictionary with the default dictionary (i.e.,
+    the default is left unchanged):
 
     .. code-block:: console
 
