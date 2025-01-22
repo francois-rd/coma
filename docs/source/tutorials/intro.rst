@@ -73,7 +73,7 @@ declaration time using the :obj:`@command` (link: :func:`~coma.core.command.comm
 convenience decorator:
 
 .. code-block:: python
-    :emphasize-lines: 4, 9
+    :emphasize-lines: 1, 4, 9
     :caption: main.py
 
     from coma import command

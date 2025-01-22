@@ -42,7 +42,7 @@ a config identifier and type pair in the registration. As such, we can use the
 :obj:`@command` decorator to remove the boilerplate registration:
 
 .. code-block:: python
-    :emphasize-lines: 14, 22
+    :emphasize-lines: 3, 14, 22
     :caption: main.py
 
     from dataclasses import dataclass
@@ -78,14 +78,14 @@ advanced use case). For such advanced uses cases, an explicit call to
 .. note::
 
     When the command is defined as a class instead of a function, it is the signature
-    of the class's __init__() method that must match the registration format.
+    of the class's :obj:`__init__()` method that must match the registration format.
 
 Just like :func:`~coma.core.register.register`, the :obj:`@command` decorator accepts
 local hooks and parser keywords arguments. These are passed directly to
 :func:`~coma.core.register.register` without modification or processing:
 
 .. code-block:: python
-    :emphasize-lines: 6-19, 24
+    :emphasize-lines: 8-18
     :caption: main.py
 
     from dataclasses import dataclass
@@ -111,7 +111,6 @@ local hooks and parser keywords arguments. These are passed directly to
         print("Hello World!")
 
     if __name__ == "__main__":
-        # Removed call to coma.register()
         coma.wake()
 
 .. warning::
@@ -119,4 +118,6 @@ local hooks and parser keywords arguments. These are passed directly to
     Be aware that, under the hood, the :obj:`@command` decorator *delays* the call to
     :func:`~coma.core.register.register` until *after* the call to
     :func:`~coma.core.initiate.initiate`. This should not cause issues, but may lead to
-    unintended side effects when mucking around with Python's ``inspect`` module.
+    unintended side effects if mucking around with Python's ``inspect`` module on the
+    ``Coma`` singleton object (which you should *not* do unless you really know what
+    you are doing).
