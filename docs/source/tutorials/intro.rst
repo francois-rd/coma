@@ -68,6 +68,31 @@ or any Python class with a no-parameter :obj:`run()` method:
         coma.register("greet", Cmd)
         coma.wake()
 
+For simple use cases, commands can also be :func:`~coma.core.register.register`\ ed at
+declaration time using the :obj:`@command` (link: :func:`~coma.core.command.command`)
+convenience decorator:
+
+.. code-block:: python
+    :emphasize-lines: 4, 9
+    :caption: main.py
+
+    from coma import command
+    import coma
+
+    @command("greet")
+    def cmd():
+        print("Hello World!")
+
+    if __name__ == "__main__":
+        # Removed call to coma.register()
+        coma.wake()
+
+.. note::
+
+    Most tutorials in this documentation stick to using explicit calls to
+    :func:`~coma.core.register.register` for simplicity. See :doc:`here <core/command>`
+    for full details on the :obj:`@command` convenience decorator.
+
 Multiple Commands
 -----------------
 
