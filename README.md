@@ -28,3 +28,10 @@ pip install coma
 
 The [documentation](https://coma.readthedocs.io/) on ReadTheDocs includes a short
 **introductory tutorial** and much more! 
+
+## Changelog
+
+From version 1.0.1:
+* Add `@command` decorator
+* Changed default prefix separator from `:` to `::` to avoid conflict with dictionary notation
+* Minor improvements and bug fixes
