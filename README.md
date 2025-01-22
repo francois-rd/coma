@@ -9,8 +9,6 @@ Configurable **co**mmand **ma**nagement for humans.
 
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/francois-rd/coma/)
 [![Documentation Status](https://readthedocs.org/projects/coma/badge/?version=latest)](http://coma.readthedocs.io/?badge=latest)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/francois-rd/coma.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/francois-rd/coma/alerts/)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/francois-rd/coma.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/francois-rd/coma/context:python)
 
 ## Key Features
 
