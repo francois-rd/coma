@@ -4,4 +4,4 @@ from .command import command
 from .forget import forget
 from .initiate import initiate
 from .register import register
-from .wake import wake
+from .wake import WakeException, wake

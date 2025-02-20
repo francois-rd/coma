@@ -31,6 +31,9 @@ The [documentation](https://coma.readthedocs.io/) on ReadTheDocs includes a shor
 
 ## Changelog
 
+From version 2.0.1:
+* Changed `coma.wake()` from `warnings`-based to `Exception`-based error handling.  
+
 From version 1.0.1:
 * Add `@command` decorator
 * Changed default prefix separator from `:` to `::` to avoid conflict with dictionary notation

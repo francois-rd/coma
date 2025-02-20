@@ -1,8 +1,12 @@
 """Wake from a coma."""
 
-import warnings
-
 from .initiate import get_initiated
+
+
+class WakeException(Exception):
+    """Raised when :func:`~coma.core.wake.wake` fails."""
+
+    pass
 
 
 def wake(args=None, namespace=None) -> None:
@@ -31,6 +35,9 @@ def wake(args=None, namespace=None) -> None:
     See also:
         * :func:`~coma.core.register.register`
 
+    Raises:
+        :func:`~coma.core.wake.WakeException`: When failing to wake from a coma.
+
     .. _ArgumentParser.parse_known_args():
         https://docs.python.org/3/library/argparse.html#partial-parsing
     """
@@ -43,11 +50,10 @@ def wake(args=None, namespace=None) -> None:
             known_args.func(known_args, unknown_args)
         except AttributeError as e:
             if any("func" in arg for arg in e.args):
-                message = (
+                raise WakeException(
                     "Waking from a coma with no command given on the command line."
                 )
-                warnings.warn(message, stacklevel=2)
             else:
-                raise
+                raise WakeException("Failed to wake.")
     else:
-        warnings.warn("Waking from a coma with no commands registered.", stacklevel=2)
+        raise WakeException("Waking from a coma with no commands registered.")
