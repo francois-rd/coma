@@ -29,7 +29,7 @@ Running this program without providing command line arguments works because
 
 
 Finally, :func:`~coma.core.wake.wake` raises a
-:class:`~coma.core.wake.ComaWakeException` when encountering a waking problem.
+:class:`~coma.core.wake.WakeException` when encountering a waking problem.
 The main use case is to simply leave the exception unhandled as it gives useful
 warnings (e.g., about missing command line arguments). A more advanced use case
 involves catching the exception to wake with a default command:
@@ -44,7 +44,7 @@ involves catching the exception to wake with a default command:
         coma.register("default", lambda: print("Default command."))
         try:
             coma.wake()
-        except coma.ComaWakeException:
+        except coma.WakeException:
             coma.wake(["default"])
 
 Running this program without providing command line arguments simulates running
