@@ -24,3 +24,5 @@ Module Attributes
 .. autofunction:: coma.core.forget.forget
 
 .. autofunction:: coma.core.wake.wake
+
+.. autoclass:: coma.core.wake::WakeException
