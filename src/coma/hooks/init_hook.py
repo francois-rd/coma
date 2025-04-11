@@ -1,70 +1,40 @@
-"""Init hook utilities, factories, and defaults."""
+"""Init hook default factory."""
 
-import inspect
-from typing import Any, Callable, Dict
+from typing import Optional
 
-from .utils import hook
+from .base import Hook, InvocationData
+from ..config import InstanceKey, OverridePolicy
 
 
-def positional_factory(*skips: str) -> Callable:
-    """Factory for creating an init hook that instantiates a command with some configs.
+def default_factory(
+    policy: OverridePolicy = OverridePolicy.RAISE,
+    instance_key: Optional[InstanceKey] = None,
+) -> Hook:
+    """
+    Factory for creating an invocation hook with :obj:`init_hook` semantics.
 
-    Instantiates the command object by invoking it with all configs given as
-    positional arguments.
-
-    .. note::
-
-        This works because the hook protocol assumes the configs dictionary is
-        insertion-ordered.
+    Essentially, creates and returns a hook function as a lightweight wrapper around
+    :meth:`~coma.config.cli.ParamData.call_on()` called on the current value of the
+    :attr:`~coma.hooks.base.InvocationData.command` object with the given :obj:`policy`
+    and :obj:`instance_key`.
 
     Args:
-        *skips (str): Undesired configs can be skipped by providing the
-            appropriate config identifiers
+        policy (:class:`~coma.config.cli.OverridePolicy`): Policy for dealing with
+            any command-line argument whose name clashes with command parameters.
+        instance_key (:data:`~coma.config.base.InstanceKey`, optional): Which
+            :class:`~coma.config.base.Config` instance to use (across all given
+            :obj:`Config`s), or :meth:`~coma.config.base.Config.get_latest()` if
+            :obj:`None`.
 
     Returns:
-        An init hook
+        :data:`~coma.hooks.base.Hook`: A hook with :obj:`init_hook` semantics.
+
+    See also:
+        * :func:`coma.hooks.config_hook.default_factory()`
+        * :func:`coma.hooks.run_hook.default_factory()`
     """
 
-    @hook
-    def _hook(command: Callable, configs: Dict[str, Any]) -> Any:
-        return command(*[c for cid, c in configs.items() if cid not in skips])
+    def hook(data: InvocationData) -> None:
+        data.command = data.parameters.call_on(data.command, policy, instance_key)
 
-    return _hook
-
-
-def keyword_factory(*skips: str, force: bool = False) -> Callable:
-    """Factory for creating an init hook that instantiates a command with some configs.
-
-    Instantiates the command object by invoking it with all configs given as keyword
-    arguments based on matching parameter names in the command's function signature.
-
-    Args:
-        *skips (str): Undesired configs can be skipped by providing the
-            appropriate config identifiers
-        force (bool): For all un-skipped configs, whether to forcibly pass them
-            to the command object, even if no parameter names in the command's
-            function signature match a particular config identifier. In this
-            case, :obj:`TypeError` will be raised unless the command's function
-            signature includes variadic keyword arguments.
-
-    Returns:
-        An init hook
-    """
-
-    @hook
-    def _hook(command: Callable, configs: Dict[str, Any]) -> Any:
-        configs = {cid: c for cid, c in configs.items() if cid not in skips}
-        if not force:
-            args = inspect.getfullargspec(command).args
-            configs = {cid: c for cid, c in configs.items() if cid in args}
-        return command(**configs)
-
-    return _hook
-
-
-default = positional_factory()
-"""Default init hook.
-
-An alias for calling :func:`coma.hooks.init_hook.positional_factory` with
-default arguments.
-"""
+    return hook

@@ -1,131 +1,101 @@
-"""Parser hook utilities, factories, and defaults."""
+"""Parser hook factories and defaults."""
 
-import argparse
-from typing import Any, Callable, Dict
+from typing import Any
 
-from ..config import default_default, default_dest, default_flag, default_help
-
-from .utils import hook, sequence
+from .base import Hook, ParserData
+from ..config import ConfigID
 
 
-def factory(*names_or_flags, **kwargs) -> Callable[..., None]:
-    """Factory for creating a parser hook that adds an ``argparse`` argument.
+def add_argument_factory(*names_or_flags: str, **kwargs: Any) -> Hook:
+    """
+    Factory for creating a parser hook that adds an ``argparse`` argument.
 
-    Creates a parser hook that add an argument to the :obj:`ArgumentParser` of
-    the hook protocol.
+    Essentially, creates and returns a hook function as a lightweight wrapper around
+    :obj:`ArgumentParser`.`add_argument()`_ called on the current value of the
+    :attr:`~coma.hooks.base.ParserData.parser` object with the given
+    :obj:`names_or_flags` and :obj:`kwargs`.
 
-    Example::
+    .. note::
 
-        coma.initiate(..., parser_hook=factory('-l', '--lines', type=int))
+        The value of :attr:`~coma.hooks.base.ParserData.parser` is assumed to be
+        the sub-parser attached to the command currently being executed. Adding
+        arguments to the global parser should be done directly on the :obj:`parser`
+        object passed to :func:`~coma.core.wake.wake()`.
+
+    Example:
+
+        Add a command line flag specifying how many lines the command should read::
+
+            coma.command(..., parser_hook=argument_factory('-l', '--lines', type=int))
 
     Args:
-        *names_or_flags: Passed to `add_argument()`_
-        **kwargs: Passed to `add_argument()`_
+        *names_or_flags (str): Passed to `add_argument()`_.
+        **kwargs (Any): Passed to `add_argument()`_.
 
     Returns:
-        A parser hook
+        :data:`~coma.hooks.base.Hook`: A hook with :obj:`parser_hook` semantics.
+
+    See also:
+        * :func:`~coma.hooks.parser_hook.default_factory`
 
     .. _add_argument():
         https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
 
-    @hook
-    def _hook(parser: argparse.ArgumentParser) -> None:
-        parser.add_argument(*names_or_flags, **kwargs)
+    def hook(data: ParserData) -> None:
+        data.parser.add_argument(*names_or_flags, **kwargs)
 
-    return _hook
+    return hook
 
 
-def single_config_factory(
-    config_id: str, *names_or_flags, **kwargs
-) -> Callable[..., None]:
-    """Factory for creating a parser hook that adds a single config file path argument.
+def default_factory(*config_ids: ConfigID) -> Hook:
+    """
+    Factory for creating a parser hook that adds a file path argument for each
+    given :obj:`ConfigID` via `add_argument()`_.
 
-    If no arguments are provided, the following defaults are used for
-    `add_argument()`_::
+    Equivalent to calling :meth:`~coma.config.io.PersistenceManager.add_path_argument()`
+    for each :obj:`ConfigID` in :obj:`config_ids` with default parameters.
 
-        from coma.config import default_default, default_flag, default_help
-        names_or_flags = [default_flag(config_id)]
-        kwargs = {
-            "type": str,
-            "metavar": "FILE",
-            "dest": default_dest(config_id)
-            "default": default_default(config_id),
-            "help": default_help(config_id),
-        }
+    .. note::
 
-    Any of these defaults can be overridden by providing alternative arguments.
-    Additional arguments beyond these can also be provided.
+        If :obj:`config_ids` is empty, defaults to **all** registered configs for
+        the command being executed. In other words, only specify :obj:`config_ids`
+        explicitly to **limit** the factory to only those configs.
 
-    Example::
+    .. note::
 
-        @dataclass
-        class Config:
-            ...
+        Any config identifier in :obj:`config_ids` corresponding to a config that
+        :meth:`~coma.config.cli.ParamData.is_non_serializable()` is skipped, as
+        these can never be initialized from or serialized to a file.
 
-        cfg_id = default_id(Config)
-        parser_hook = single_config_factory(cfg_id, metavar=cfg_id.upper())
-        coma.register(..., parser_hook=parser_hook)
+    Example:
+
+        Add a file path argument only for :obj:`main_cfg` and not :obj:`no_path_cfg`::
+
+            @dataclass
+            class MainConfig:
+                ...
+
+            @coma.command(parser_hook=default_factory("main_cfg"))
+            def my_cmd(main_cfg: MainConfig, no_path_cfg: dict):
+                ...
 
     Args:
-        config_id (str): A config identifier
-        *names_or_flags: Passed to `add_argument()`_
-        **kwargs: Passed to `add_argument()`_
+        *config_ids (:data:`~coma.config.base.ConfigID`): Configs for which to
+            create a file path argument parser hook. If empty, do so for **all**
+            configs registered with the command currently being executed.
 
     Returns:
-        A parser hook
+        :data:`~coma.hooks.base.Hook`: A hook with :obj:`parser_hook` semantics.
 
     See also:
-        * :func:`~coma.hooks.config_hook.single_load_and_write_factory`
-
-    .. _add_argument():
-        https://docs.python.org/3/library/argparse.html#the-add-argument-method
+        * :func:`coma.hooks.config_hook.initialize_factory()`
+        * :func:`coma.hooks.config_hook.default_factory()`
     """
 
-    @hook
-    def _hook(parser: argparse.ArgumentParser) -> None:
-        names_or_flags_ = names_or_flags or [default_flag(config_id)]
-        kwargs.setdefault("type", str)
-        kwargs.setdefault("metavar", "FILE")
-        kwargs.setdefault("default", default_default(config_id))
-        kwargs.setdefault("dest", default_dest(config_id))
-        kwargs.setdefault("help", default_help(config_id))
-        factory(*names_or_flags_, **kwargs)(parser=parser)
+    def hook(data: ParserData) -> None:
+        for config_id in config_ids or data.parameters.get_all_configs():
+            if data.parameters.is_serializable(config_id):
+                data.persistence_manager.add_path_argument(data.parser, config_id)
 
-    return _hook
-
-
-@hook
-def multi_config(parser: argparse.ArgumentParser, configs: Dict[str, Any]) -> None:
-    """Parser hook for adding all config file path arguments.
-
-    Equivalent to calling :func:`~coma.hooks.parser_hook.single_config_factory`
-    for each config in :obj:`configs`.
-
-    Automatically adds file path arguments for all :obj:`configs` using :obj:`parser`.
-
-    Example::
-
-        @dataclass
-        class Config:
-            ...
-
-        coma.initiate(..., parser_hook=multi_config)
-
-    Args:
-        parser: The parser parameter of the parser hook protocol
-        configs: The configs parameter of the parser hook protocol
-
-    See also:
-        * :func:`~coma.hooks.parser_hook.single_config_factory`
-    """
-    fns = [single_config_factory(cid) for cid in configs]
-    if fns:
-        sequence(*fns)(parser=parser)
-
-
-default = multi_config
-"""Default parser hook.
-
-An alias for :func:`~coma.hooks.parser_hook.multi_config`.
-"""
+    return hook
