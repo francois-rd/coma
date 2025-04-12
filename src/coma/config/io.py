@@ -285,18 +285,18 @@ class PersistenceManager:
         """
         Adds a file path argument for :obj:`config_id` to :obj:`parser`.
 
-        Specifically, calls :obj:`parser`.`add_argument()`_ with the parameters
-        :meth:`~coma.config.io.PersistenceManager.register()`ed for :obj:`config_id`.
+        Specifically, calls `add_argument()`_ on :obj:`parser` with the parameters
+        :meth:`~coma.config.io.PersistenceManager.register()` ed for :obj:`config_id`.
         If :obj:`config_id` is unregistered, or if any of the following parameters
         are missing from the registration, sensible defaults are used instead when
-        calling :obj:`parser`.`add_argument()`::
+        calling `add_argument()`_::
 
-            names_or_flags: based on :obj:`config_id`
+            names_or_flags: based on 'config_id'
             type: str
             metavar: "FILE"
-            dest: :obj:`config_id`
-            default: based on :obj:`config_id` + extension
-            help: based on :obj:`config_id`
+            dest: config_id
+            default: based on 'config_id' + 'extension'
+            help: based on 'config_id'
 
         Additional parameters beyond these can also be registered.
 
@@ -333,8 +333,8 @@ class PersistenceManager:
         Retrieves the file path for :obj:`config_id` from :obj:`known_args`.
 
         Assumes that :obj:`known_args` is the :obj:`namespace` return object
-        (first return value) of `parse_known_args()`_ from the :obj:`parser` on
-        which a file path for :obj:`config_id` was added using
+        (the **first** return value) of `parse_known_args()`_ from the :obj:`parser`
+        on which a file path for :obj:`config_id` was added using
         :meth:`~coma.config.io.PersistenceManager.add_path_argument()`. However,
         a sensible default is returned even if no such prior call occurred.
 
@@ -342,7 +342,7 @@ class PersistenceManager:
             config_id (:data:`~coma.config.base.ConfigID`): The config identifier
                 for which to retrieve a file path from :obj:`known_args`.
             known_args (typing.Any): Typically, the :obj:`namespace` return object
-                (first return value) of `parse_known_args()`_.
+                (the **first** return value) of `parse_known_args()`_.
 
         Returns:
             str: The retrieved file path for :obj:`config_id`.
