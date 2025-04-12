@@ -60,7 +60,7 @@ class Config:
         back_end (typing.Any): The backing construct of the config. Must be an
             ``omegaconf``-supported type, which means either a ``list`` object, a
             ``dict`` object, or a ``dataclass`` type or object.
-        instances (dict[InstanceKey, typing.Any]): The
+        instances (dict[:data:`~coma.config.base.InstanceKey`, typing.Any]): The
             collection of instance variants of :obj:`back_end` mapped by variant keys.
     """
 

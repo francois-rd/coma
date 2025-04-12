@@ -47,7 +47,9 @@ class OverrideProtocol(Protocol):
 
     Protocol::
 
-        Callable[[:class:`~coma.config.cli.OverrideData`, :data:`~coma.config.base.InstanceKey`], None]
+        Callable[[OverrideData, InstanceKey], None]
+
+    with :class:`~coma.config.cli.OverrideData` and :data:`~coma.config.base.InstanceKey`
     """
 
     def __call__(
@@ -434,9 +436,9 @@ class ParamData:
     signature, manipulating these, and calling the Callable using the result.
 
     Attributes:
-         configs (:data:`~coma.config.base.Configs`): The configs pulled from
+        configs (:data:`~coma.config.base.Configs`): The configs pulled from
             the Callable's signature.
-         supplemental_configs (:data:`~coma.config.base.Configs`): Any additional
+        supplemental_configs (:data:`~coma.config.base.Configs`): Any additional
             configs to manipulate that don't appear in the Callable's signature and
             won't be called on it. Helpful for providing additional information in
             the manipulation process.
