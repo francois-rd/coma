@@ -9,7 +9,7 @@ def default_factory(attr_name: str = "run") -> Hook:
 
     Essentially, the attribute :obj:`attr_name` of the current value of the
     :attr:`~coma.hooks.base.HookData.command` object is called with no arguments,
-    and its result is stored in :attr:`~coma.hooks.base.InvocationData.result`.
+    and its result is stored in :attr:`coma.hooks.base.InvocationData.result`.
 
     .. warning::
 

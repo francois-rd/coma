@@ -30,7 +30,7 @@ def add_argument_factory(*names_or_flags: str, **kwargs: Any) -> Hook:
 
     Args:
         *names_or_flags (str): Passed to :obj:`add_argument()`.
-        **kwargs (Any): Passed to :obj:`add_argument()`.
+        **kwargs (typing.Any): Passed to :obj:`add_argument()`.
 
     Returns:
         :data:`~coma.hooks.base.Hook`: A hook with :obj:`parser_hook` semantics.
