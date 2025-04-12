@@ -488,6 +488,9 @@ class ParamData:
         Args:
             include_inline (bool): Whether the inline config is also returned.
                 Ignored if an inline config does not exist.
+
+        Returns:
+            :data:`~coma.config.base.Configs`: All configs, possibly including inline.
         """
         configs = {**self.configs, **self.supplemental_configs}
         if include_inline and self.inline_config is not None:
@@ -498,7 +501,7 @@ class ParamData:
         """
         Returns whether :obj:`config_id` corresponds to a serializable config.
         All configs are serializable except for variadic positional (:obj:`*args`),
-        variadic keyword (:obj:`**kwargs`), and the special :obj:`inline` config.
+        variadic keyword (:obj:`**kwargs`), and the special :obj:`inline_config`.
 
         Args:
             config_id (:data:`~coma.config.base.ConfigID`): A config identifier.
@@ -527,7 +530,7 @@ class ParamData:
 
         Returns:
             dict[:data:`~coma.config.base.Identifier`, typing.Any]: A mapping
-                between the selected identifiers and their associated value.
+            between the selected identifiers and their associated value.
 
         Raises:
             KeyError: If :obj:`default` is not specified, and data does not exist
@@ -552,7 +555,7 @@ class ParamData:
 
         Returns:
             :data:`~coma.config.base.Configs`: A mapping between the selected config
-                identifiers and their associated configs.
+            identifiers and their associated configs.
 
         Raises:
             KeyError: If :obj:`default` is not specified, and a config does not exist
@@ -579,7 +582,7 @@ class ParamData:
 
         Returns:
             typing.Any: The data associated with :obj:`identifier`, or :obj:`default`
-                if no such data exists and :obj:`default` is given.
+            if no such data exists and :obj:`default` is given.
 
         Raises:
             KeyError: If :obj:`default` is not given, and data for :obj:`identifier`
@@ -616,8 +619,8 @@ class ParamData:
 
         Returns:
             :class:`~coma.config.base.Config`: The config associated with
-                :obj:`config_id`, or :obj:`default` if no such config exists
-                and :obj:`default` is given.
+            :obj:`config_id`, or :obj:`default` if no such config exists
+            and :obj:`default` is given.
 
         Raises:
             KeyError: If :obj:`default` is not given, and a config for :obj:`config_id`
