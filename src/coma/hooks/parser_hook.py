@@ -10,14 +10,14 @@ def add_argument_factory(*names_or_flags: str, **kwargs: Any) -> Hook:
     """
     Factory for creating a parser hook that adds an ``argparse`` argument.
 
-    Essentially, creates and returns a hook function as a lightweight wrapper around
-    :obj:`ArgumentParser`.`add_argument()`_ called on the current value of the
-    :attr:`~coma.hooks.base.ParserData.parser` object with the given
+    Essentially, creates and returns a hook function as a lightweight wrapper
+    around `ArgumentParser.add_argument()`_ called on the current value of the
+    :attr:`coma.hooks.base.ParserData.parser` object with the given
     :obj:`names_or_flags` and :obj:`kwargs`.
 
     .. note::
 
-        The value of :attr:`~coma.hooks.base.ParserData.parser` is assumed to be
+        The value of :obj:`parser` is assumed to be
         the sub-parser attached to the command currently being executed. Adding
         arguments to the global parser should be done directly on the :obj:`parser`
         object passed to :func:`~coma.core.wake.wake()`.
@@ -29,16 +29,16 @@ def add_argument_factory(*names_or_flags: str, **kwargs: Any) -> Hook:
             coma.command(..., parser_hook=argument_factory('-l', '--lines', type=int))
 
     Args:
-        *names_or_flags (str): Passed to `add_argument()`_.
-        **kwargs (Any): Passed to `add_argument()`_.
+        *names_or_flags (str): Passed to :obj:`add_argument()`.
+        **kwargs (Any): Passed to :obj:`add_argument()`.
 
     Returns:
         :data:`~coma.hooks.base.Hook`: A hook with :obj:`parser_hook` semantics.
 
     See also:
-        * :func:`~coma.hooks.parser_hook.default_factory`
+        * :func:`coma.hooks.parser_hook.default_factory()`
 
-    .. _add_argument():
+    .. _ArgumentParser.add_argument():
         https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
 
@@ -54,7 +54,8 @@ def default_factory(*config_ids: ConfigID) -> Hook:
     given :obj:`ConfigID` via `add_argument()`_.
 
     Equivalent to calling :meth:`~coma.config.io.PersistenceManager.add_path_argument()`
-    for each :obj:`ConfigID` in :obj:`config_ids` with default parameters.
+    for each :data:`~coma.config.base.ConfigID` in :obj:`config_ids` with default
+    parameters.
 
     .. note::
 
@@ -64,9 +65,9 @@ def default_factory(*config_ids: ConfigID) -> Hook:
 
     .. note::
 
-        Any config identifier in :obj:`config_ids` corresponding to a config that
-        :meth:`~coma.config.cli.ParamData.is_non_serializable()` is skipped, as
-        these can never be initialized from or serialized to a file.
+        Any config identifier in :obj:`config_ids` corresponding to a config where
+        :meth:`~coma.config.cli.ParamData.is_serializable()` is :obj:`False` is
+        skipped, as these can never be initialized from or serialized to a file.
 
     Example:
 
