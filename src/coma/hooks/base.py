@@ -47,7 +47,7 @@ of :obj:`DEFAULT` in said sequence will be replaced by the ``coma`` default.
 
 SHARED = HookSentinels.SHARED
 """
-Sentinel for marking that a hook to :deco:`~coma.core.command.command` ought be
+Sentinel for marking that a hook to :func:`~coma.core.command.command` ought be
 be replaced at runtime with the runtime value of the corresponding hook from
 :func:`~coma.core.wake.wake()`.
 
@@ -180,8 +180,8 @@ class Pipe:
     Recursively composes functions, which can then be invoked with a single call.
 
     Args:
-        *fns (typing.Union[:data:`~coma.hooks.base.Hook`, typing.Sequence[:data:`~coma.hooks.base.Hook`]]):
-            The :data:`~coma.hooks.base.Hook`s to recursively compose (in order).
+        *fns (Union[:data:`~coma.hooks.base.Hook`, Sequence[:data:`~coma.hooks.base.Hook`]]):
+            The :data:`~coma.hooks.base.Hook` s to recursively compose (in order).
     """
 
     def __init__(self, *fns: Union[Hook, Sequence[Hook]]):

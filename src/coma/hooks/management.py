@@ -36,7 +36,7 @@ class Hooks:
         the :obj:`command_hooks` (which take precedence) are able to override this base.
 
         Specifically, each hook in :obj:`command_hooks` can be either a plain
-        :data:`~coma.hooks.base.HookOrSentinels` or a :obj:`typing.Sequence`
+        :data:`~coma.hooks.base.HookOrSentinels` or a :obj:`Sequence`
         thereof. If plain, the hook is transformed as below. If a sequence, each
         item in that sequence is recursively transformed as below, with the result
         being a new sequence of transformed items in the same order.
@@ -44,15 +44,15 @@ class Hooks:
         Transformation process for a plain hook item in :obj:`command_hooks`:
 
             1. If the hook is :obj:`None` (not :func:`~coma.hooks.base.identity`),
-                then set the merged hook to :obj:`identity` regardless of the value
-                of the corresponding hook in :obj:`shared_hooks`.
+            then set the merged hook to :obj:`identity` regardless of the value
+            of the corresponding hook in :obj:`shared_hooks`.
             2. If the hook is the :data:`~coma.hooks.base.SHARED` sentinel, then set
-                the merged hook to the corresponding hook from :obj:`shared_hooks`.
+            the merged hook to the corresponding hook from :obj:`shared_hooks`.
             3. If the hook is the :data:`~coma.hooks.base.DEFAULT` sentinel, then set
-                the merged hook to the corresponding default hook regardless of the
-                value of the corresponding hook in :obj:`shared_hooks`.
+            the merged hook to the corresponding default hook regardless of the
+            value of the corresponding hook in :obj:`shared_hooks`.
             4. For all other values of hook (including :obj:`identity`), set the
-                merged hook to said value (unchanged).
+               merged hook to said value (unchanged).
 
         When case (2) applies, the corresponding hook in :obj:`shared_hooks` is also
         recursively transformed according to this process, that a shared hook
