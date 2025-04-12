@@ -7,7 +7,6 @@ from ..config import Parameters
 from ..hooks.base import CommandName, HookData
 from ..hooks.management import Hooks
 
-
 T = TypeVar("T", bound=HookData)
 
 
@@ -46,7 +45,7 @@ class Coma:
         Registers a new command via its data.
 
         Args:
-            data (:class:`~coma.core.singleton.RegistrationData): The command
+            data (:class:`~coma.core.singleton.RegistrationData`): The command
                 registration data.
 
         Raises:

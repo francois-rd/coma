@@ -1,8 +1,8 @@
 """Wake from a coma."""
 
-from typing import Any, Callable, Optional, Sequence
 import argparse
 import sys
+from typing import Any, Callable, Optional, Sequence
 
 from .singleton import Coma, RegistrationData
 from ..hooks.base import AugmentedHook, InvocationData, ParserData, DEFAULT
@@ -47,13 +47,13 @@ def wake(
         small tweaks on the core default behavior. ``coma`` has very few baked in
         assumptions. Nearly all behavior can be drastically changed with user-defined
         hooks. For detailed tutorials and usage examples of both the default behavior
-        and implementation of user-defined hooks, see: https://coma.readthedocs.io/.
+        and implementation of user-defined hooks, see the extensive online docs.
 
     All hooks default to the :data:`~coma.hooks.base.DEFAULT` sentinel, which means
     they get replaced at runtime with the corresponding pre-defined default hook.
-    Setting a hook to :obj:`None` disables it. THe :data:`~coma.hooks.base.SHARED`
+    Setting a hook to :obj:`None` disables it. The :data:`~coma.hooks.base.SHARED`
     sentinel is not allowed in :obj:`wake()` since it would lead to infinite regress.
-    See :deco:`~coma.core.command.command` for usage of :obj:`SHARED`.
+    See :func:`~coma.core.command.command()` for usage of :obj:`SHARED`.
 
     .. note::
 
@@ -65,19 +65,19 @@ def wake(
 
     .. note::
 
-        A command is only registered (via :deco:`~coma.core.command.command`) if module
-        in which the command is declared is imported at runtime. This is standard Python
-        behavior: non-imported code is not interpreted by the VM and not available at
-        runtime. This is a bit obscured by the behind-the-scenes magic done by
-        :deco:`~coma.core.command.command`. But this magic only works if the command
-        code runs (via being imported) at some point before the call to :obj:`wake()`.
+        A command is only registered (via :func:`~coma.core.command.command()`)
+        if the module in which the command is declared is imported at runtime. This
+        is standard Python behavior: non-imported code is not interpreted by the VM
+        and not available at runtime. This is a bit obscured by the behind-the-scenes
+        magic done by :obj:`command()`. But this magic only works if the command code
+        runs (via being imported) at some point before the call to :obj:`wake()`.
 
         One way to achieve this is by having a :obj:`from . import module` statement
         in the top-level :obj:`__init__.py` for **every** module with a command. That
-        forces each command module to be interpreted by the Python VM. Alternatively,
-        a common pattern is to put all lightweight (one-line) :obj:`@command` wrappers
-        around calls to the main/workhorse functions in a single module (that also
-        calls :obj:`wake()` file). Finally, a third alternative is to pass all commands
+        forces each command module to be imported. Alternatively, a common pattern is
+        to put lightweight (one-line) :obj:`command()` wrappers around calls to the
+        main/workhorse functions all in a single module (typically, the same module
+        that calls :obj:`wake()`). Finally, a third alternative is to pass all commands
         scattered throughout a codebase to :obj:`*import_commands`. The contents of
         :obj:`*import_commands` is **fully** ignored by :obj:`wake()`. However, it
         forces the Python VM to import each of the provided modules, thus registering
@@ -102,7 +102,7 @@ def wake(
             forcibly import commands scattered throughout a codebase.
         cli_args (:obj:`typing.Sequence[str]`, optional): Command line arguments to
             use with :obj:`parser`. If :obj:`None`, :obj:`sys.argv` is used instead.
-        cli_namespace (:obj:`typing.Any`, optional): The namespace object to pass
+        cli_namespace (typing.Any, optional): The namespace object to pass
             to `parse_known_args()`_. If :obj:`None`, use the ``argparse`` default.
         parser_hook (:data:`~coma.hooks.base.AugmentedHook`): An optional shared
             hook with parser hook semantics.
@@ -137,7 +137,7 @@ def wake(
 
     See also:
         * https://coma.readthedocs.io/ for detailed tutorials and examples.
-        * :deco:`~coma.core.command.command`
+        * :func:`~coma.core.command.command()`
 
     .. _ArgumentParser.add_subparsers():
         https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers

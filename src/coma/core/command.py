@@ -1,7 +1,7 @@
 """Register a command that might be invoked upon waking from a coma."""
 
-from typing import Any, Callable, Optional, Sequence, Union
 from inspect import signature
+from typing import Any, Callable, Optional, Sequence, Union
 
 from boltons.funcutils import wraps
 
@@ -49,7 +49,7 @@ def command(
     Registers a command that might be invoked upon waking from a coma.
 
     Registers a command with `ArgumentParser.add_subparsers().add_parser()`_ using
-    the given registration data (name, hooks, config allowances, persistence manager,
+    the given registration data (name, hooks, config declarations, persistence manager,
     and supplemental configs) and the given parser kwargs.
 
     .. note::
@@ -60,7 +60,7 @@ def command(
         small tweaks on the core default behavior. ``coma`` has very few baked in
         assumptions. Nearly all behavior can be drastically changed with user-defined
         hooks. For detailed tutorials and usage examples of both the default behavior
-        and implementation of user-defined hooks, see: https://coma.readthedocs.io/.
+        and implementation of user-defined hooks, see the extensive online docs.
 
     Usage modes:
 
@@ -68,21 +68,13 @@ def command(
 
         .. code-block:: python
 
-            @dataclass
-            class SomeConfig:
-                ...
-
             @command(name="command_name", ...)
-            def my_cmd(main_cfg: SomeConfig, **extra_cli_configs):
+            def my_cmd(...):
                 ...
 
         As a normal function call:
 
         .. code-block:: python
-
-            @dataclass
-            class SomeConfig:
-                ...
 
             def my_cmd(main_cfg: SomeConfig, **extra_cli_configs):
                 ...
@@ -95,14 +87,16 @@ def command(
 
             @coma.command(name="command_name", ...)
             class MyCmd(...):
-                ...
+                def run(self):
+                    ...
 
         or:
 
         .. code-block:: python
 
             class MyCmd(...):
-                ...
+                def run(self):
+                    ...
 
             coma.command(name="command_name", cmd=MyCmd, ...)
 
@@ -112,12 +106,12 @@ def command(
 
         .. note::
 
-            Throughout, we refer to "the command", which applies regardless of usage
-            mode and regardless of whether the command object is a function or a class
-            (:obj:`my_cmd` or :obj:`MyCmd`, respectively, in the above examples). The
-            "command signature" refers directly to the function signature if the
-            command is a function, or the signature of the :obj:`__init__()` method
-            if the command is a class.
+            Throughout, we refer to ***"the command"***, which applies regardless of
+            usage mode (decorator or procedural) and regardless of whether the command
+            object is a function or a class (:obj:`my_cmd` or :obj:`MyCmd`,
+            respectively, in the above examples). The **"command signature"** refers
+            directly to the function signature if the command is a function, or to the
+            signature of the :obj:`__init__()` method if the command is a class.
 
         .. note::
 
@@ -131,7 +125,7 @@ def command(
     Details:
 
         The command's signature is inspected to infer and separate
-        :class:`~coma.config.base.Config`s from other parameters. A rich set of
+        :class:`~coma.config.base.Config` s from other parameters. A rich set of
         options exist for declaring which parameters are config or regular parameters.
         See :class:`~coma.config.cli.ParamData` for details.
 
@@ -195,15 +189,14 @@ def command(
             :meth:`~coma.config.cli.ParamData.from_signature()`.
         persistence_manager (:class:`~coma.config.io.PersistenceManager`, optional):
             Manager for the serializing of configs. If :obj:`None`, a manager with
-            default parameters is used. See :obj:`PersistenceManager` for details.
+            default parameters is used.
         parser_kwargs (:data:`~coma.config.base.Parameters`, optional): Keyword
-            arguments passed along to the :obj:`__init__()` of the :obj:`ArgumentParser`
-             sub-parser that will be created just for this command.
+             arguments passed along to the :obj:`ArgumentParser` sub-parser that
+             will be created just for this command.
         supplemental_configs: Additional configs not present in the command signature.
             Not affected by any of the above allowance criteria.
 
     See also:
-        * https://coma.readthedocs.io/ for detailed tutorials and examples.
         * :class:`~coma.config.io.PersistenceManager`
         * :class:`~coma.config.cli.ParamData`
         * :func:`~coma.core.wake.wake()`
@@ -212,6 +205,8 @@ def command(
         https://en.wikipedia.org/wiki/Template_method_pattern
     .. _hooks:
         https://en.wikipedia.org/wiki/Hooking
+    .. _ArgumentParser.add_subparsers().add_parser():
+        https://docs.python.org/3/library/argparse.html#sub-commands
     """
 
     def decorator(cmd_: Callable):
