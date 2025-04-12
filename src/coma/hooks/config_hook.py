@@ -36,7 +36,7 @@ def initialize_factory(config_id: ConfigID, raise_on_fnf: bool = False) -> Hook:
 
     The initialization leverages :func:`~coma.config.io.initialize()`. The
     :obj:`file_path` parameter to :obj:`initialize()` is derived by calling
-    :meth:`coma.config.io.PersistenceManager.get_file_path()` on the current
+    :meth:`~coma.config.io.PersistenceManager.get_file_path()` on the current
     value of the :attr:`~coma.hooks.base.HookData.persistence_manager`
     object, **except** if :obj:`config_id` corresponds to a config where
     :meth:`~coma.config.cli.ParamData.is_serializable()` is :obj:`False`,
@@ -111,7 +111,7 @@ def write_factory(
     The serialization leverages :func:`~coma.config.io.write()`, with
     :obj:`instance_key` and :obj:`resolve` passed directly to it. The
     :obj:`file_path` parameter to :obj:`write()` is derived by calling
-    :meth:`coma.config.io.PersistenceManager.get_file_path()` on the current
+    :meth:`~coma.config.io.PersistenceManager.get_file_path()` on the current
     value of the :attr:`~coma.hooks.base.HookData.persistence_manager`
     object, **except** if :obj:`config_id` corresponds to a config where
     :meth:`~coma.config.cli.ParamData.is_serializable()` is :obj:`False`,
