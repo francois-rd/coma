@@ -41,9 +41,13 @@ _Inline = Sequence[Union[ParamID, tuple[ParamID, Callable[[], Any]]]]
 
 class OverrideProtocol(Protocol):
     """
-    Protocol for the function signature of :meth:`~coma.config.cli.Override.__call__()`.
+    Protocol for the function signature of :meth:`coma.config.cli.Override.__call__()`.
     To make use of other default ``coma`` components, user-defined alternative
     implementation should adhere to this same protocol.
+
+    Protocol::
+
+        Callable[[:class:`~coma.config.cli.OverrideData`, :data:`~coma.config.base.InstanceKey`], None]
     """
 
     def __call__(
@@ -108,7 +112,7 @@ class OverrideData:
             See :class:`~coma.config.cli.Override` for details.
         unknown_args (list[str]): The list of unknown command line arguments,
             some of which may specify overrides for this :obj:`config_id` config.
-            Typically, this is the second return value of `parse_known_args()`_.
+            Typically, this is the **second** return value of `parse_known_args()`_.
 
     .. _parse_known_args():
         https://docs.python.org/3/library/argparse.html#partial-parsing
@@ -136,14 +140,15 @@ class _OverrideData(OverrideData):
 
 
 @dataclass
-class Override:
+class Override(OverrideProtocol):
     """
     Attempts to override a config instance's attributes with command line arguments.
 
     Attributes:
         sep (str): The prefix separation string to use. Can be any string, though
-            some options (such as "=", ":", "{", "}", "[", "]", ",", "'", '"', ".",
-            "$") will likely cause parsing errors. Use these with extreme caution.
+            some options (such as :obj:`"="`, :obj:`":"`, :obj:`"{"`, :obj:`"}"`,
+            :obj:`"["`, :obj:`"]"`, :obj:`","`, :obj:`"'"`, :obj:`'"'`, :obj:`"."`,
+            :obj:`"$"`, etc.) will likely cause parsing errors. Use these with caution.
         exclusive_prefixed (bool): Whether prefixed overrides should match at
             most one config.
         exclusive_shared (bool): Whether shared overrides should match at
@@ -180,17 +185,15 @@ class Override:
 
             If the config is not `structured`_, ``omegaconf`` will happily add
             *any* attributes to it. To prevent this, ensure that the config is
-            structured (by instantiating it from a ``dataclass`` underlying type
+            structured (by instantiating it from a ``dataclass`` backend type
             or by using `structured()`_ or `set_struct()`_ on a ``dict``-based config).
 
         Finally, prefixes can be shortened to any leading substring. For example,
-        'long' or even just 'l' matches against the config identifier 'long_config_id'.
-        By default, prefixes have to be unambiguous (i.e., have to match against only
-        one config identifier). To disable this, set
+        :obj:`'long'` or even just :obj:`'l'` matches against the config identifier
+        :obj:`'long_config_id'`. By default, prefixes have to be unambiguous (i.e.,
+        have to match against at most one config identifier). To disable this, set
         :attr:`~coma.config.cli.Override.exclusive_prefixed` to :obj:`False`. Then,
-        *all* matching configs to a given prefix will be overridden. For example,
-        the prefix 'a' will match against both 'a_long_config_id' and
-        'another_config_id'. *Be cautious*.
+        *all* matching configs to a given prefix will be overridden. *Be cautious*.
 
     To toggle whether each command line argument should itself be unique,
     set :attr:`~coma.config.cli.Override.unique_overrides` accordingly.
@@ -209,10 +212,11 @@ class Override:
         Regardless of their ordering as command line arguments, **all** prefixed
         overrides are processed **before** all shared overrides. This is not a
         problem when :obj:`unique_overrides` is :obj:`False`, but can lead to an
-        unexpected outcome when it is :obj:`True`. For example,  :obj:`"x=1"` and
-        :obj:`"prefix::x=2"` will lead to a final value of :obj:`x == 1`. To avoid
-        this unexpected outcome, makes sure to place all prefixed command line
-        arguments before all shared arguments, or disable shared arguments entirely.
+        unexpected outcome when it is :obj:`True`. For example,  :obj:`"x=1"`
+        *followed by* :obj:`"prefix::x=2"` will lead to a final value of :obj:`x == 1`.
+        To avoid this unexpected outcome, makes sure to place all prefixed command line
+        arguments before all shared arguments, or disable shared arguments entirely by
+        setting :attr:`~coma.config.cli.Override.exclusive_shared` to :obj:`False`.
 
     Examples:
 
@@ -234,7 +238,7 @@ class Override:
                         ...
 
         Invoking on the command line (assuming :attr:`~coma.config.cli.Override.sep`
-        is '::'):
+        is :obj:`"::"`):
 
             .. code-block:: console
 
@@ -452,8 +456,9 @@ class ParamData:
             is either in :obj:`configs` or in :obj:`other_parameters`.
 
     See also:
-        * :meth:`~coma.config.cli.ParamData.from_signature()`, for specifics on
-            how the above attributes are inferred from the Callable's signature.
+        * :meth:`~coma.config.cli.ParamData.from_signature()`:
+            For specifics on how the above attributes are inferred from the
+            Callable's signature.
     """
 
     DEFAULT_INLINE_ID: ClassVar[ConfigID] = "inline"
