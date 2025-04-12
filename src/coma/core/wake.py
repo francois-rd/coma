@@ -100,7 +100,7 @@ def wake(
             with default parameters is used instead.
         *import_commands (typing.Any): **Fully** ignored. Optional mechanism to
             forcibly import commands scattered throughout a codebase.
-        cli_args (:obj:`typing.Sequence[str]`, optional): Command line arguments to
+        cli_args (typing.Sequence[str], optional): Command line arguments to
             use with :obj:`parser`. If :obj:`None`, :obj:`sys.argv` is used instead.
         cli_namespace (typing.Any, optional): The namespace object to pass
             to `parse_known_args()`_. If :obj:`None`, use the ``argparse`` default.
@@ -136,7 +136,7 @@ def wake(
         Others: As may be raised by ``argparse`` or any of the hooks or commands.
 
     See also:
-        * https://coma.readthedocs.io/ for detailed tutorials and examples.
+        * The online docs for detailed tutorials and examples.
         * :func:`~coma.core.command.command()`
 
     .. _ArgumentParser.add_subparsers():

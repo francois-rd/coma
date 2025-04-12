@@ -184,9 +184,9 @@ def command(
             in the command signature (if any) as a dict config or as a regular parameter.
         inline_identifier (:data:`~coma.config.base.ConfigID`): The config
             identifier to use for the inline config.
-        inline (typing.Sequence): The parameters in the command signature to
-            mark as inline config parameters (if any). For details, see
-            :meth:`~coma.config.cli.ParamData.from_signature()`.
+        inline (typing.Sequence, of str or tuple[str, Callable]): The parameters in the
+            command signature to mark as inline config parameters (if any). See
+            :meth:`~coma.config.cli.ParamData.from_signature()` for details.
         persistence_manager (:class:`~coma.config.io.PersistenceManager`, optional):
             Manager for the serializing of configs. If :obj:`None`, a manager with
             default parameters is used.
@@ -197,6 +197,7 @@ def command(
             Not affected by any of the above allowance criteria.
 
     See also:
+        * The online docs for detailed tutorials and examples.
         * :class:`~coma.config.io.PersistenceManager`
         * :class:`~coma.config.cli.ParamData`
         * :func:`~coma.core.wake.wake()`
