@@ -849,13 +849,16 @@ class ParamData:
                     *args is: ()
                     *kwargs is: {'x': 1, 'y': 2}
 
-            Notice that
+            In the example above, notice that:
+
                 1. The list-like argument :obj:`'z'` is not in :obj:`*args` because
                 :obj:`*args` is not a config.
 
-                2. :obj:`**kwargs` includes both dict-like arguments.
+                2. :obj:`**kwargs` includes both dict-like
+                arguments.
 
-                3. :obj:`out_file` is overridden.
+                3. :obj:`out_file` is
+                overridden.
 
                 4. :obj:`out_file` is prefixed with the reserved config identifier
                 :obj:`"inline"` to prevent :obj:`**kwargs` from also containing an
