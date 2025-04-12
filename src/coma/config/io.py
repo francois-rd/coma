@@ -294,7 +294,7 @@ class PersistenceManager:
             names_or_flags: based on 'config_id'
             type: str
             metavar: "FILE"
-            dest: config_id
+            dest: 'config_id'
             default: based on 'config_id' + 'extension'
             help: based on 'config_id'
 
