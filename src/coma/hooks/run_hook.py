@@ -8,24 +8,24 @@ def default_factory(attr_name: str = "run") -> Hook:
     Factory for creating a run hook that executes a command.
 
     Essentially, the attribute :obj:`attr_name` of the current value of the
-    :attr:`~coma.hooks.base.InvocationData.command` object is called with no arguments,
+    :attr:`~coma.hooks.base.HookData.command` object is called with no arguments,
     and its result is stored in :attr:`~coma.hooks.base.InvocationData.result`.
 
     .. warning::
 
         If the command, at the time of registration via
-        :deco:`~coma.core.command.command`, was a function (not a class), it is
-        internally wrapped in a class that **always** has a 'run' method. As such,
-        changing :obj:`attr_name` to anything else than 'run' will fail for
+        :func:`~coma.core.command.command()`, was a function (not a class), it is
+        internally wrapped in a class that **always** has a :obj:`run()` method. As
+        such, changing :obj:`attr_name` to anything else than :obj:`"run"` will fail for
         function-type commands and should **only** be changed for class-type commands.
 
     Example:
 
-        Change the run method name from 'run' to 'start'::
+        Change the run method name from :obj:`"run"` to :obj:`"__call__"`::
 
-            @coma.command(run_hook=default_factory("start"))
+            @coma.command(run_hook=default_factory("__call__"))
             class Command:
-                def start(self):
+                def __call__(self):
                     ...
 
     Args:

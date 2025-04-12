@@ -51,9 +51,9 @@ def add_argument_factory(*names_or_flags: str, **kwargs: Any) -> Hook:
 def default_factory(*config_ids: ConfigID) -> Hook:
     """
     Factory for creating a parser hook that adds a file path argument for each
-    given :obj:`ConfigID` via `add_argument()`_.
+    given :obj:`ConfigID` via `ArgumentParser.add_argument()`_.
 
-    Equivalent to calling :meth:`~coma.config.io.PersistenceManager.add_path_argument()`
+    Equivalent to calling :meth:`coma.config.io.PersistenceManager.add_path_argument()`
     for each :data:`~coma.config.base.ConfigID` in :obj:`config_ids` with default
     parameters.
 
@@ -92,6 +92,9 @@ def default_factory(*config_ids: ConfigID) -> Hook:
     See also:
         * :func:`coma.hooks.config_hook.initialize_factory()`
         * :func:`coma.hooks.config_hook.default_factory()`
+
+    .. _ArgumentParser.add_argument():
+        https://docs.python.org/3/library/argparse.html#the-add-argument-method
     """
 
     def hook(data: ParserData) -> None:

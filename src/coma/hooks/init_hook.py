@@ -23,7 +23,7 @@ def default_factory(
             any command-line argument whose name clashes with command parameters.
         instance_key (:data:`~coma.config.base.InstanceKey`, optional): Which
             :class:`~coma.config.base.Config` instance to use (across all given
-            :obj:`Config`s), or :meth:`~coma.config.base.Config.get_latest()` if
+            :obj:`Config` s), or :meth:`~coma.config.base.Config.get_latest()` if
             :obj:`None`.
 
     Returns:

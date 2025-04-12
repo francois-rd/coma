@@ -18,9 +18,11 @@ from ..config import (
 
 OverrideProtocolOrSentinels = Union[OverrideProtocol, GeneralSentinel, None]
 """
-Callable to override config attributes with command line arguments, or :obj:`SENTINEL`
-to use :class:`~coma.config.cli.Override` with default parameters, or :obj:`None` to
-disable overriding altogether.
+Callable to override config attributes with command line arguments, or
+:data:`~coma.hooks.base.SENTINEL` to use :class:`~coma.config.cli.Override`
+with default parameters, or :obj:`None` to disable overriding altogether.
+
+Alias:
 """
 
 
@@ -30,15 +32,15 @@ def initialize_factory(config_id: ConfigID, raise_on_fnf: bool = False) -> Hook:
 
     Specifically, initializes the :class:`~coma.config.base.Config` corresponding
     to :obj:`config_id` from amongst the configs (or supplemental configs) in
-    :attr:`~coma.hooks.base.InvocationData.parameters`.
+    :attr:`coma.hooks.base.HookData.parameters`.
 
     The initialization leverages :func:`~coma.config.io.initialize()`. The
     :obj:`file_path` parameter to :obj:`initialize()` is derived by calling
-    :meth:`~coma.config.io.PersistenceManager.get_file_path()` on the current
-    value of the :attr:`~coma.hooks.base.InvocationData.persistence_manager`
-    object, **except** if :obj:`config_id` corresponds to a config that
-    :meth:`~coma.config.cli.ParamData.is_non_serializable()`, which is never
-    initialized from file.
+    :meth:`coma.config.io.PersistenceManager.get_file_path()` on the current
+    value of the :attr:`~coma.hooks.base.HookData.persistence_manager`
+    object, **except** if :obj:`config_id` corresponds to a config where
+    :meth:`~coma.config.cli.ParamData.is_serializable()` is :obj:`False`,
+    which is never initialized from file.
 
     If loading from file fails due to a :obj:`FileNotFoundError`, the error is
     re-raised if :obj:`raise_on_fnf` is :obj:`True`. If :obj:`raise_on_fnf` is
@@ -104,16 +106,16 @@ def write_factory(
     Specifically, serializes the :obj:`instance_key` instance of the
     :class:`~coma.config.base.Config` corresponding to :obj:`config_id`
     from amongst the configs (or supplemental configs) in
-    :attr:`~coma.hooks.base.InvocationData.parameters`.
+    :attr:`coma.hooks.base.HookData.parameters`.
 
     The serialization leverages :func:`~coma.config.io.write()`, with
     :obj:`instance_key` and :obj:`resolve` passed directly to it. The
     :obj:`file_path` parameter to :obj:`write()` is derived by calling
-    :meth:`~coma.config.io.PersistenceManager.get_file_path()` on the current
-    value of the :attr:`~coma.hooks.base.InvocationData.persistence_manager`
-    object, **except** if :obj:`config_id` corresponds to a config that
-    :meth:`~coma.config.cli.ParamData.is_non_serializable()`, which is never
-    written to file.
+    :meth:`coma.config.io.PersistenceManager.get_file_path()` on the current
+    value of the :attr:`~coma.hooks.base.HookData.persistence_manager`
+    object, **except** if :obj:`config_id` corresponds to a config where
+    :meth:`~coma.config.cli.ParamData.is_serializable()` is :obj:`False`,
+    which is never written to file.
 
     If the destination file already exists, new content is only written if
     :obj:`overwrite` is :obj:`True`.
@@ -171,17 +173,16 @@ def override_factory(
     Specifically, overrides the :obj:`instance_key` instance of the
     :class:`~coma.config.base.Config` corresponding to :obj:`config_id`
     from amongst the configs (or supplemental configs) in
-    :attr:`~coma.hooks.base.InvocationData.parameters` with command line arguments.
+    :attr:`coma.hooks.base.HookData.parameters` with command line arguments.
 
     Leverages :class:`~coma.config.cli.Override`, with :obj:`instance_key` passed
     directly to it. If :obj:`override` has value :data:`~coma.hooks.base.SENTINEL`,
     an :obj:`Override` with default parameters is used. Slight variations can be
     declared by directly setting :obj:`override` to a specific instance of
-    :obj:`Override`. using :func:`~coma.config.cli.override_factory`. Alternatively,
-    entirely custom implementations can also be provided so long as the provided
-    object is a Callable with a signature that adheres to the
-    :class:`~coma.config.cli.OverrideProtocol`. If :obj:`override` is :obj:`None`,
-    returns immediately without performing any override.
+    :obj:`Override`. Alternatively, entirely custom implementations can also be
+    provided so long as the provided object is a Callable with a signature that
+    adheres to the :class:`~coma.config.cli.OverrideProtocol`. If :obj:`override`
+    is :obj:`None`, returns immediately without performing any override.
 
     Example:
 
@@ -197,8 +198,8 @@ def override_factory(
             the latest instance is used.
         override (:data:`~coma.hooks.config_hook.OverrideProtocolOrSentinels`):
             Callable to override config attributes with command line arguments; or
-            :obj:`SENTINEL` to use :class:`~coma.config.cli.Override` with
-            default parameters; or :obj:`None` to disable override altogether.
+            :data:`~coma.hooks.base.SENTINEL` to use :class:`~coma.config.cli.Override`
+            with default parameters; or :obj:`None` to disable override altogether.
 
     Raises:
         KeyError: If :obj:`config_id` does not match any known config or supplemental
@@ -210,8 +211,8 @@ def override_factory(
         :data:`~coma.hooks.base.Hook`: A hook with partial :obj:`config_hook` semantics.
 
     See also:
+        * :func:`coma.hooks.config_hook.default_factory()`
         * :class:`~coma.config.cli.Override`
-        * :func:`~coma.hooks.config_hook.default_factory()`
     """
 
     def hook(data: InvocationData) -> None:
@@ -253,29 +254,32 @@ def default_factory(
 
         1. Configs are declarative. They follow the following declaration hierarchy:
             CLI override > file (if any) > code default.
-        2. Configs are, by default, useful. This means, by default, declared configs
-            (both standard and supplemental) are loaded (where "loaded" here means
-            loaded based on the entire declarative hierarchy). However, the CLI
-            override can be disabled by setting :obj:`override` to :obj:`None`.
-        3. Persistence of configs is *typically* desirable. This means that, by
-            default, configs are serialized (to enable the middle of the declarative
-            hierarchy), but skipping serialization is made easy (use :obj:`skip_write`
-            to disable for particular configs, or set :obj:`write` is :obj:`False` to
-            disable for all configs).
-        4. Configs often fall into neat groups that should be treated a particular way
-            (e.g., one group skips overriding, while another skips serializing). Both
-            :obj:`config_ids` and :obj:`skip_write` enable such group declarations.
+        2. Configs are, by default, useful.
+            This means, by default, declared configs (both standard and supplemental)
+            are loaded (where "loaded" here means loaded based on the entire
+            declarative hierarchy). However, the CLI override can be disabled by
+            setting :obj:`override` to :obj:`None`.
+        3. Persistence of configs is *typically* desirable.
+            This means that, by default, configs are serialized (to enable the middle
+            of the declarative hierarchy), but skipping serialization is made easy (use
+            :obj:`skip_write` to disable for particular configs, or set :obj:`write` is
+            :obj:`False` to disable for all configs).
+        4. Configs often fall into neat groups that should be treated a particular way.
+            For example, one group skips overriding, while another skips serializing.
+            Both :obj:`config_ids` and :obj:`skip_write` enable such group declarations.
 
-    Equivalent to:
+    This default factory is equivalent to:
 
-        1. Calling :func:`coma.hooks.config_hook.initialize_factory()` on
-            the specified configs, passing in :obj:`raise_on_fnf` directly.
-        2. Then, calling :func:`coma.hooks.config_hook.override_factory()`, passing
-            in :obj:`override_instance_key`, and :obj:`override` directly.
+        1. Calling :func:`~coma.hooks.config_hook.initialize_factory()` on
+        the specified configs, passing in :obj:`raise_on_fnf` directly.
+
+        2. Then, calling :func:`~coma.hooks.config_hook.override_factory()`, passing
+        in :obj:`override_instance_key`, and :obj:`override` directly.
+
         3. Then, only if :obj:`write` is :obj:`True`,
-            calling :func:`coma.hooks.config_hook.write_factory()` on all specified
-            configs **not** also in :obj:`skip_write`, passing in
-            :obj:`write_instance_key`, :obj:`resolve`, and :obj:`overwrite` directly.
+        calling :func:`~coma.hooks.config_hook.write_factory()` on all specified
+        configs **not** also in :obj:`skip_write`, passing in :obj:`write_instance_key`,
+        :obj:`resolve`, and :obj:`overwrite` directly.
 
     Example:
 
@@ -376,8 +380,9 @@ def preload(
                 preload(data, *preload_ids)
                 cfgs = data.parameters.select(*preload_ids)
                 do_something_with(cfgs)
-                data.parameters.delete(*preload_ids)  # This prevents further processing of these configs.
-                return data
+
+                # This prevents further processing of these configs.
+                data.parameters.delete(*preload_ids)
 
             @command(
                 name="command_name",
@@ -404,7 +409,7 @@ def preload(
 
     Returns:
         None: :obj:`data` is modified in-place and preloaded configs should be
-            retrieved directly from it.
+        retrieved directly from it.
 
     Raises:
         ValueError: If :obj:`limited` is :obj:`True` but :obj:`config_ids` is empty.
