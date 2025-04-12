@@ -5,3 +5,4 @@ coma.config.io
     :members:
 
 .. autoclass:: coma.config.io::PersistenceManager
+    :members:
