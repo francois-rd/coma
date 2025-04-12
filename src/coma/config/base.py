@@ -40,7 +40,7 @@ ConfigID = Identifier
 Configs = dict[ConfigID, "Config"]
 """
 Type alias for mapping between config identifiers and 
-:class:`~coma.config.base.Config`s.
+:class:`~coma.config.base.Config` s.
 """
 
 ParamID = Identifier
@@ -60,8 +60,8 @@ class Config:
         back_end (typing.Any): The backing construct of the config. Must be an
             ``omegaconf``-supported type, which means either a ``list`` object, a
             ``dict`` object, or a ``dataclass`` type or object.
-        instances (dict[:data:`~coma.config.base.InstanceKey`, typing.Any]): The
-            collection of instance variants of :obj:`type` mapped by variant keys.
+        instances (dict[InstanceKey, typing.Any]): The
+            collection of instance variants of :obj:`back_end` mapped by variant keys.
     """
 
     back_end: Any
@@ -74,6 +74,12 @@ class Config:
     def get(self, key: InstanceKey) -> Any:
         """
         Returns the instance corresponding to :obj:`key`.
+
+        Args:
+            key (:data:`~coma.config.base.InstanceKey`): The instance key.
+
+        Returns:
+            typing.Any: The corresponding instance.
 
         Raises:
             KeyError: If no corresponding instance exists.
@@ -93,6 +99,7 @@ class Config:
 
         See also:
             * :meth:`~coma.config.base.Config.get_latest()`
+            * :meth:`~coma.config.base.Config.get_latest_key()`
         """
         if force_latest:
             self.delete(key, raise_on_missing=False)
@@ -145,7 +152,7 @@ class Config:
 
         Returns:
             :data:`~coma.config.base.InstanceKey`: The key corresponding to the
-                latest instance to be set.
+            latest instance to be set.
 
         Raises:
             ValueError: If there are no instances at all and so no latest instance.
@@ -162,6 +169,9 @@ class Config:
         """
         Returns the instance corresponding to :obj:`key` *unless* :obj:`key` is
         :obj:`None` in which case the latest instance is returned instead.
+
+        Returns:
+            typing.Any: The corresponding instance.
 
         Raises:
             KeyError: If :obj:`key` is not :obj:`None`, but no corresponding
@@ -220,19 +230,21 @@ class Config:
         Args:
             key (:data:`~coma.config.base.InstanceKey`): The instance variant
                 key for which to convert the instance data into a primitive.
-            resolve (bool): Passed to :meth:`omegaconf.OmegaConf.to_container()`.
-            throw_on_missing (bool): Passed to
-                :meth:`omegaconf.OmegaConf.to_container()`.
-            enum_to_str (bool): Passed to :meth:`omegaconf.OmegaConf.to_container()`.
+            resolve (bool): Passed to `OmegaConf.to_container()`_.
+            throw_on_missing (bool): Passed to `OmegaConf.to_container()`_.
+            enum_to_str (bool): Passed to `OmegaConf.to_container()`_.
             structured_config_mode (:class:`omegaconf.base.SCMode`): Passed to
-                :meth:`omegaconf.OmegaConf.to_container()`.
+                `OmegaConf.to_container()`_.
 
         Returns:
             typing.Any: The instance data for :obj:`key` as a Python primitive.
 
         Raises:
             KeyError: If no corresponding instance exists.
-            Others: As may be raised by :meth:`omegaconf.OmegaConf.to_container()`.
+            Others: As may be raised by `OmegaConf.to_container()`_.
+
+        .. _OmegaConf.to_container():
+            https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#omegaconf-to-container
         """
         if self.is_primitive(key):
             return self.get(key)
@@ -265,16 +277,18 @@ class Config:
             key (:data:`~coma.config.base.InstanceKey`): The instance variant
                 key for which to convert the instance data into a primitive.
             parent (:class:`omegaconf.basecontainer.BaseContainer`, optional):
-                Passed to :meth:`omegaconf.OmegaConf.create()`.
-            flags (dict[str, bool], optional): Passed to
-                :meth:`omegaconf.OmegaConf.create()`.
+                Passed to `OmegaConf.create()`_.
+            flags (dict[str, bool], optional): Passed to `OmegaConf.create()`_.
 
         Returns:
             typing.Any: The instance data for :obj:`key` as an ``omegaconf`` container.
 
         Raises:
             KeyError: If no corresponding instance exists.
-            Others: As may be raised by :meth:`omegaconf.OmegaConf.create()`.
+            Others: As may be raised by `OmegaConf.create()`_.
+
+        .. _OmegaConf.create():
+            https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#creating
         """
         if self.is_primitive(key):
             return OmegaConf.create(self.get(key), parent, flags)
