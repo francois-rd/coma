@@ -11,7 +11,7 @@ hooks to avoid repeating the hook registration for the new :obj:`leave` command:
 
 .. code-block:: python
     :emphasize-lines: 12, 14
-    :caption: main.py
+:caption: main.py
 
     import coma
 
@@ -79,7 +79,7 @@ dedicated config object:
         coma.register("greet", lambda: print("Hello World!"))
         coma.wake()
 
-Here, :obj:`greet` acts in accordance with ``coma``'s default behaviour, whereas
+Here, :obj:`greet` acts in accordance with ``coma``'s default behavior, whereas
 :obj:`numbers` is defined quite differently. First, we define a
 :func:`~coma.hooks.utils.sequence` for the :obj:`parser_hook` made up of
 :func:`~coma.hooks.parser_hook.factory` calls, each of which simply passes its
@@ -108,7 +108,7 @@ same functionality would be:
 
 .. code-block:: python
     :emphasize-lines: 5, 10
-    :caption: main.py
+:caption: main.py
 
     import coma
 

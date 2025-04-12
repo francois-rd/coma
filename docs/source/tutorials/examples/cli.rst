@@ -66,7 +66,7 @@ as long as the abbreviation is unambiguous (i.e., matches only one config identi
 
 .. code-block:: python
     :emphasize-lines: 15
-    :caption: main.py
+:caption: main.py
 
     from dataclasses import dataclass
 
@@ -100,7 +100,7 @@ Overriding Structured Objects
 -------------------
 
 Config attributes in ``coma`` can be structured objects (lists or dicts). Since ``coma``
-uses ``omegaconf`` configs under the hood, the behaviour of these structured configs
+uses ``omegaconf`` configs under the hood, the behavior of these structured configs
 follows that of ``omegaconf`` (``>=2.0.0``). In particular, when specifying these
 attributes on the command line, the command line data either overrides (for lists and
 existing dict keys) or merges (for new dict keys) with the default values.

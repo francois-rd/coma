@@ -2,16 +2,10 @@ coma.config
 ===========
 
 .. automodule:: coma.config
-    :members:
 
 .. toctree::
     :caption: Sub-Modules
 
+    base
     cli
     io
-
-Module Attributes
------------------
-
-.. automodule:: coma.config.utils
-    :members:

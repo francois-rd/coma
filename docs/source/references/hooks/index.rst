@@ -7,14 +7,9 @@ coma.hooks
 .. toctree::
     :caption: Sub-Modules
 
+    base
+    management
     parser_hook
     config_hook
-    post_config_hook
     init_hook
     run_hook
-
-Module Attributes
------------------
-
-.. automodule:: coma.hooks.utils
-    :members:
