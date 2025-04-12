@@ -734,75 +734,84 @@ class ParamData:
         ensuring that the identifiers of supplemental configs do not clash with
         any identifiers in :obj:`signature` or with :obj:`inline_identifier`.
 
-        The distinction between a config and some other parameter in :obj:`signature`
-        is determined by inspecting its type annotation (if any), its default value (if
-        any), its kind, and whether the parameter identifier is marked as :obj:`inline`.
+        The distinction between :obj:`configs` and :obj:`other_parameters` in
+        :obj:`signature` is determined by inspecting its type annotation (if any),
+        its default value (if any), its `kind`_, and whether the parameter
+        identifier is marked as :obj:`inline`.
 
         An inline parameter is a one-off config field. Specifically, all
         :obj:`inline` parameters are aggregated into a special
         :class:`~coma.config.cli.ParamData.inline_config`, which is backed by a
         programmatic ``dataclass``. This provides all the rigorous runtime type
-        validation of a standard ``dataclass``-backed config without requiring
-        a dataclass to be created just for those one-off fields. Moreover, inline
-        configs are considered non-serializable by default.
+        validation of a standard ``dataclass``-backed ``omegaconf`` config without
+        requiring a ``dataclass`` to be created just for those one-off fields.
+        Moreover, inline configs are considered **non**-serializable by default.
 
-        Configs take priority over other parameters: If a parameter **can** be
-        considered a config (as per the criteria below), it **is** treated as one.
-        A non-config parameter is assumed to be regular parameters **unless** it
-        meets the inline criteria (below) in which case it **is** treated as inline.
+        :obj:`configs` take priority over :obj:`other_parameters`: If a parameter
+        **can** be considered a config (as per the criteria below), it **is** treated
+        as one. A non-config parameter is assumed to be regular parameters **unless**
+        it meets the inline criteria (below) in which case it **is** treated as inline.
 
-        Criteria for interpreting a parameter as a config:
+        **Criteria for interpreting a parameter as a config:**
 
         1. The parameter has a type annotation that **exactly** matches one of ``list``,
-            ``dict``, or any dataclass type. We refer to these as "config annotations".
+        ``dict``, or any dataclass type. We refer to these as "config annotations".
+
         2. The parameter does **not** have a default value. Since configs employ a
-            dedicated initialization protocol, default parameter values are not needed.
+        dedicated initialization protocol, default parameter values are not needed.
 
-            .. note::
+        .. note::
 
-                This means that a convenient way to ensure that a config-annotated
-                parameter is interpreted as a regular parameter is to give it a default.
-                For example, :obj:`list_cfg: list` is interpreted as a config whereas
-                :obj:`non_cfg_list: list = None` is interpreted as a regular parameter.
+            This means that a convenient way to ensure that a config-annotated
+            parameter is interpreted as a regular parameter is to give it a default.
+            For example, :obj:`list_cfg: list` is interpreted as a config whereas
+            :obj:`non_cfg_list: list = None` is interpreted as a regular parameter.
+
         3. The parameter's identifier in not found in :obj:`inline`. Even if the
-            parameter has a config annotation, being in :obj:`inline` disqualifies.
-        4. **Special case:** Because variadic positional (:obj:`*args`) and variadic
-            keyword (:obj:`**kwargs`) parameters cannot be assigned defaults in Python,
-            and because they can never be marked as :obj:`inline`, criteria (2) and
-            (3) cannot be used. Instead, use the flags :obj:`args_as_config` and
-            :obj:`kwargs_as_config`.
+        parameter has a config annotation, being in :obj:`inline` disqualifies.
 
-        Checklist for interpreting a parameter as inline:
+        4. **Special case:** Because variadic positional (:obj:`*args`) and variadic
+        keyword (:obj:`**kwargs`) parameters cannot be assigned defaults in Python,
+        and because they can never be marked as :obj:`inline`, criteria (2) and
+        (3) cannot be used. Instead, use the flags :obj:`args_as_config` and
+        :obj:`kwargs_as_config`.
+
+        **Checklist for interpreting a parameter as inline:**
 
         1. The parameter has a type annotation. A missing annotation is disqualifying.
+
         2. The parameter has a default value. A missing default value is disqualifying.
-            See note below on mutable defaults.
+
+        .. note::
+
+            On **mutable inline default values**. Because it is un-Pythonic to declare
+            a mutable default value in a function definition, it can be tricky to set a
+            good default value for inline parameters. So, items in :obj:`inline` can
+            consist of either just a :data:`~coma.config.base.ParamID` s, or be 2-tuple
+            where the first value is a :obj:`ParamID` and the second value is a
+            :obj:`default_factory` conforming to the requirements of the same argument
+            in `dataclasses.field()`_. It is an error to give both a signature-level
+            default and an inline-level default factory.
+
         3. The default value is a valid instance of the annotation type. If not,
-            the underlying ``omegaconf`` call will raise a :obj:`ValidationError`.
+        the underlying ``omegaconf`` call will raise a :obj:`ValidationError`.
+
         4. The parameter's identifier is found in :obj:`inline`. If this is true, but
-            one of the above criteria are violated, an error is raised.
+        one of the above criteria are violated, an error is raised.
+
         5. The parameter's kind is not variadic positional or variadic keyword. These
-            two special cases can be configs or regular parameters, but never inline.
-
-        Mutable inline defaults:
-
-        Because it is un-Pythonic to provide a mutable default value, it can be tricky
-        to set a good default value for inline parameters. So, items in :obj:`inline`
-        can consist of either just a :data:`~coma.config.base.ParamID`s, or be 2-tuple
-        where the first value is a :obj:`ParamID` and the second value is a
-        :obj:`default_factory` conforming to the requirements of `dataclasses.field()`_.
-        It is an error to give both a signature-level default and an inline-level
-        default factory.
+        two special cases can be configs or regular parameters, but never inline.
 
         Example:
 
-            Even though :obj:`Data` is a ``dataclass``, it is not considered a config
-            because of its non-config annotation and its :obj:`None` default value
-            (either one of which is disqualifying on its own). On the other hand,
+            Even though :obj:`Data` below is a ``dataclass``, it is *not* considered a
+            config because of its non-config annotation and its :obj:`None` default
+            value (either one of which is disqualifying on its own). On the other hand,
             :obj:`out_file` can be overridden on the command line because of its
             inline declaration. Any list-like command line arguments are not fed to
             :obj:`*args` because :obj:`args_as_config` is :obj:`False` whereas the
-            opposite is true for :obj:`**kwargs` and dict-like command line arguments.
+            opposite is true for :obj:`**kwargs` and dict-like command line arguments
+            because :obj:`kwargs_as_config` is :obj:`True` (by default).
 
                 .. code-block:: python
                     :caption: main.py
@@ -829,7 +838,7 @@ class ParamData:
                         print("*args is:", args)
                         print("*kwargs is:", kwargs)
 
-            Invoking on the command line with some overrides in the following:
+            Invoking on the command line with some overrides results in the following:
 
                 .. code-block:: console
 
@@ -840,23 +849,30 @@ class ParamData:
                     *args is: ()
                     *kwargs is: {'x': 1, 'y': 2}
 
-            Notice that:
-                1. The list-like argument 'z' is not in :obj:`*args` because
-                    :obj:`*args` is not a config.
+            Notice that
+                1. The list-like argument :obj:`'z'` is not in :obj:`*args` because
+                :obj:`*args` is not a config.
+
                 2. :obj:`**kwargs` includes both dict-like arguments.
+
                 3. :obj:`out_file` is overridden.
-                4. :obj:`out_file` is prefixed with the reserved "inline" config
-                    identifier to prevent :obj:`**kwargs` from also containing an
-                    "out_file" entry. This prevents a runtime error resulting from
-                    "out_file" appearing multiple times in the Callable's parameter list.
+
+                4. :obj:`out_file` is prefixed with the reserved config identifier
+                :obj:`"inline"` to prevent :obj:`**kwargs` from also containing an
+                :obj:`"out_file"` entry. This prevents a runtime error resulting
+                from :obj:`"out_file"` appearing multiple times in the Callable's
+                parameter list.
+
                 5. Because :obj:`cfg` is a config, it's :obj:`y` attribute was also
-                    overridden (this is the default override model where overrides are
-                    applied as widely as possible; to disable, see
-                    :class:`~coma.config.cli.Override`).
+                overridden (this is the default override model where overrides are
+                applied as widely as possible; to disable, see
+                :class:`~coma.config.cli.Override`).
+
                 6. Because :obj:`data` is not a config, it's :obj:`x` attribute is not
-                    overridden. In fact, because the default value of :obj:`data` is
-                    not replaced in any :deco:`~coma.core.command.command` hook, its
-                    value when invoking this command will invariably be :obj:`None`.
+                overridden. In fact, because the default value of :obj:`data` is
+                not replaced in any :func:`~coma.core.command.command()` hook, its
+                value when invoking this command will invariably be :obj:`None`. Use
+                :meth:`~coma.config.cli.ParamData.replace()` in a hook to change this.
 
         Args:
             signature (inspect.Signature): The signature of the Callable from which
@@ -869,16 +885,16 @@ class ParamData:
                 identifier to use for the inline config.
             inline (typing.Sequence): The parameters in :obj:`signature` to mark as
                 inline config parameters (if any). Items in this sequence must either
-                be :data:`~coma.config.base.ParamID`s or be 2-tuple where the first
+                be :data:`~coma.config.base.ParamID` s or be 2-tuple where the first
                 value is a :obj:`ParamID` and the second value is a
                 :obj:`default_factory` conforming to the requirements of
                 `dataclasses.field()`_.
-            **supplemental_configs (:data:`~coma.config.base.Parameters`): Any additional
-                parameters not in :obj:`signature` to convert into configs.
+            **supplemental_configs (:data:`~coma.config.base.Parameters`): Any
+                additional parameters not in :obj:`signature` to convert into configs.
 
         Returns:
             :class:`~coma.config.cli.ParamData`: Filled according to the specifics
-                of :obj:`signature` and the various allowance criteria.
+            of :obj:`signature` and the various allowance criteria.
 
         Raises:
             ValueError: If any parameter identifier in :obj:`supplemental_configs`
@@ -889,6 +905,8 @@ class ParamData:
 
         .. _dataclasses.field():
             https://docs.python.org/3/library/dataclasses.html#dataclasses.field
+        .. _kind:
+            https://docs.python.org/3/library/inspect.html#inspect.Parameter.kind
         """
         data = cls(
             inline_identifier=inline_identifier,
@@ -925,7 +943,7 @@ class ParamData:
     ) -> T:
         """
         Calls :obj:`fn` using the current state of :obj:`self.configs` and
-        :obj:`self.other_parameters`, returning the value of :obj:`fn`.
+        :obj:`self.other_parameters`, returning the return value of :obj:`fn`.
 
         Args:
             fn (typing.Callable): The Callable to call using internal signature data.
