@@ -37,7 +37,7 @@ class GeneralSentinel(Enum):
 
 DEFAULT = HookSentinels.DEFAULT
 """
-Sentinel for marking a hook to either :deco:`~coma.core.command.command` or
+Sentinel for marking a hook to either :func:`~coma.core.command.command()` or
 :func:`~coma.core.wake.wake()` as being a default hook. The runtime value of
 the hook will be replaced by the corresponding ``coma`` default.
 
@@ -71,12 +71,16 @@ returning an instance of the same type :obj:`T` is also permitted to account for
 where :obj:`T` is an immutable type. A non-:obj:`None` return value takes precedence:
 it replaces the procedural parameter is all downstream hooks in a hook pipeline.
 Typically, :obj:`T` is a subclass of :class:`~coma.hooks.base.HookData`.
+
+Alias:
 """
 
 HookOrSentinels = Union[Hook, HookSentinels, None]
 """
 A :data:`~coma.hooks.base.Hook` or one of the valid hook sentinels:
 :data:`~coma.hooks.base.DEFAULT`, :data:`~coma.hooks.base.SHARED`, or :obj:`None`.
+
+Alias:
 """
 
 AugmentedHook = Union[HookOrSentinels, Sequence[HookOrSentinels]]
@@ -95,6 +99,8 @@ Example::
         ),
         add_argument_factory(...),
     )
+    
+Alias:
 """
 
 CommandName = str
@@ -105,8 +111,8 @@ invoke the command on the command line. Any value allowed by ``argparse`` is all
 
 Command = Union[Callable, type]
 """
-Any function or any class with (default) a no-argument "run" method. Configs are
-inferred from the command signature. See :deco:`~coma.core.command.command`.
+Any function or any class with (by default) a no-argument :obj:`run()` method. Configs
+are inferred from the command signature. See :func:`~coma.core.command.command()`.
 """
 
 
@@ -169,7 +175,7 @@ def identity(arg: T) -> T:
 
 class Pipe:
     """
-    A convenience wrapper for sequences of :data:`~coma.hooks.base.Hook`s.
+    A convenience wrapper for sequences of :data:`~coma.hooks.base.Hook` s.
 
     Recursively composes functions, which can then be invoked with a single call.
 
