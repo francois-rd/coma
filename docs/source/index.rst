@@ -18,8 +18,8 @@ declarative statements.
 Example
 -------
 
-Let's see how ``coma`` works with a simple mock example of pushing and pulling
-data to and from a server.
+Let's see ``coma`` in action with a simple example command for pushing data to
+a server.
 
 .. code-block:: python
     :caption: main.py
