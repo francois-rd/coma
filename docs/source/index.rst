@@ -9,11 +9,11 @@ Introduction
 Commands (also known as sub-commands) are the ``commit`` and ``pull`` part of
 ``git commit`` and ``git pull`` (whereas ``git`` is the program).
 
-With ``coma``, commands are each associated with modular configuration files and
-initialization routines. This not only enables command-specific configs and
-initializations that don't affect the whole program, but also facilitates sharing
-common configs and initialization components between all commands with simple
-declarative statements.
+``coma`` provides a *modular* and *declarative* interface for defining **commands**,
+associated **configuration** files, and **initialization** routines. This not only
+enables command-specific configs and initializations, but also facilitates sharing
+common configs and initialization components between all commands that need them
+with simple, declarative statements.
 
 Example
 -------
@@ -37,7 +37,7 @@ a server.
     @command
     def push(remote: RemoteCfg, **data):
         print(f"Pushing data: {data}")
-        print("To: {remote.server}:{remote.port}")
+        print(f"To url: {remote.server}:{remote.port}")
 
     # Step 3: Launch!
     if __name__ == "__main__":
@@ -51,14 +51,15 @@ The above declarations provide a rich command line interface for invoking your
 program. Assuming this code is in a file called :obj:`main.py`, you get:
 
 1. A **command** that can be invoked by name (:obj:`push`) with command
-   **parameters** for each *directly* available as command line arguments:
+   **parameters** *directly* available as command line arguments:
 
 .. code-block:: console
 
     $ python main.py push \
         remote::server=127.0.0.1 remote::port=8000 \
         data::header=foo data::content=bar
-    Pushing data {'header': 'foo', 'content': 'bar'} to remote: 127.0.0.1:8000
+    Pushing data: {'header': 'foo', 'content': 'bar'}
+    To url: 127.0.0.1:8000
 
 2. Config serialization based on its parameter name (:obj:`remote.yaml` in this case):
 
@@ -116,7 +117,7 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
 
 .. toctree::
     :maxdepth: 2
-    :caption: Tutorials
+    :caption: Tutorials and Examples
 
     tutorials/intro
     tutorials/core/index
