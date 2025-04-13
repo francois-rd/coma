@@ -16,72 +16,42 @@ common configs and initialization components between all commands with simple
 declarative statements.
 
 Example
-^^^^^^^
+-------
 
 Let's see how ``coma`` works with a simple mock example of pushing and pulling
 data to and from a server.
-
-Step 1: Declare configurations
-""""""""""""""""""""""""""""""
-
-Use plain ``list`` or ``dict`` for maximally-flexible configs, or ``dataclasses``
-for structured configs that are rigorously type validated at runtime.
 
 .. code-block:: python
     :caption: main.py
 
     from dataclasses import dataclass
+    from coma import command, wake
 
+    # Step 1: Declare one or more configurations.
     @dataclass
     class RemoteCfg:
         server: str = "localhost"
         port: int = 9001
 
-    # Other config declarations as needed ...
-
-
-Step 2: Declare commands
-""""""""""""""""""""""""
-
-Both functions and classes with a no-argument :obj:`run()` method work.
-
-.. code-block:: python
-    :caption: main.py
-
-    from coma import command
-
+    # Step 2: Declare one or more commands.
     @command
     def push(remote: RemoteCfg, **data):
-        print(f"Pushing data {data} to remote: {remote.server}:{remote.port}")
+        print(f"Pushing data: {data}")
+        print("To: {remote.server}:{remote.port}")
 
-    @command
-    class Pull:
-        def __init__(self, remote: RemoteCfg):
-            self.remote = remote
-
-        def run(self):
-            print(f"Pulling from remote: {self.remote.server}:{self.remote.port}")
-
-Step 3: Launch.
-"""""""""""""""
-
-.. code-block:: python
-    :caption: main.py
-
-    from coma import wake
-
+    # Step 3: Launch!
     if __name__ == "__main__":
         wake()
 
 
-Step 4: Invoke.
-"""""""""""""""
+Key Features
+------------
 
 The above declarations provide a rich command line interface for invoking your
-program. Assuming all this code is in a file called :obj:`main.py`, you get:
+program. Assuming this code is in a file called :obj:`main.py`, you get:
 
-1. Two commands that can be invoked by name (:obj:`push` and :obj:`pull`)
-   with command arguments for each directly available as command line arguments:
+1. A **command** that can be invoked by name (:obj:`push`) with command
+   **parameters** for each *directly* available as command line arguments:
 
 .. code-block:: console
 
@@ -90,7 +60,7 @@ program. Assuming all this code is in a file called :obj:`main.py`, you get:
         data::header=foo data::content=bar
     Pushing data {'header': 'foo', 'content': 'bar'} to remote: 127.0.0.1:8000
 
-2. Config serialization:
+2. Config serialization based on its parameter name (:obj:`remote.yaml` in this case):
 
 .. code-block:: console
 
@@ -119,10 +89,13 @@ Including:
   to easily tweak, replace, or extend ``coma``'s
   `template <https://en.wikipedia.org/wiki/Template_method_pattern>`_-based
   design.
-    ``coma`` has very few baked in assumptions. All of ``coma``'s default
-    behavior results from pre-defined hooks. Nearly all behavior can be
-    drastically changed with user-defined hooks. Factories enable tweaking
-    the core default behavior without having to re-implement any hooks.
+
+    .. note::
+
+        ``coma`` has very few baked in assumptions. All of ``coma``'s default
+        behavior results from pre-defined hooks. Nearly all behavior can be
+        drastically changed with user-defined hooks. Factories enable tweaking
+        the core default behavior without having to re-implement any hooks.
 * Integrating with `omegaconf <https://github.com/omry/omegaconf>`_'s extremely
   rich and powerful configuration management features.
 
@@ -134,11 +107,11 @@ Installation
 
     pip install coma
 
+
 Getting Started
 ---------------
 
-Excited? Jump straight into the short introductory tutorial or learn by
-browsing the many usage examples.
+Excited? Jump straight into the tutorials or learn by browsing the many usage examples.
 
 
 .. toctree::
