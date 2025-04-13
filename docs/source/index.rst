@@ -10,15 +10,14 @@ Commands (also known as sub-commands) are the ``commit`` and ``pull`` part of
 ``git commit`` and ``git pull`` (whereas ``git`` is the program).
 
 ``coma`` provides a *modular* and *declarative* interface for defining **commands**,
-associated **configuration** files, and **initialization** routines. This not only
-enables command-specific configs and initializations, but also facilitates sharing
-common configs and initialization components between all commands that need them
-with simple, declarative statements.
+associated **configuration** files, and **initialization** routines. Configs and
+initializations can be command-specific or injected as reusable components in
+multiple commands.
 
 Example
 -------
 
-Let's see ``coma`` in action with a simple example command for pushing data to
+Let's see ``coma`` in action with a simple mock command for pushing data to
 a server.
 
 .. code-block:: python
@@ -36,6 +35,7 @@ a server.
     # Step 2: Declare one or more commands.
     @command
     def push(remote: RemoteCfg, **data):
+        # Code for pushing data to remote. Mocked here as print statements.
         print(f"Pushing data: {data}")
         print(f"To url: {remote.server}:{remote.port}")
 
@@ -72,10 +72,11 @@ program. Assuming this code is in a file called :obj:`main.py`, you get:
     server: localhost
     port: 9001
 
+.. note::
 
-Notice that the saved config file :obj:`remote.yaml` contains the default
-config declaration, not any of the command line overrides. Updating the values
-in the saved file changes the defaults that are loaded on command invocation.
+    Notice that the saved config file :obj:`remote.yaml` contains the default
+    config declaration, not any of the command line overrides. Updating the values
+    in the saved file changes the defaults that are loaded on command invocation.
 
 3. And lots more!
 
