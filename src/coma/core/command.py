@@ -106,7 +106,7 @@ def command(
 
         .. note::
 
-            Throughout, we refer to ***"the command"***, which applies regardless of
+            Throughout, we refer to **"the command"**, which applies regardless of
             usage mode (decorator or procedural) and regardless of whether the command
             object is a function or a class (:obj:`my_cmd` or :obj:`MyCmd`,
             respectively, in the above examples). The **"command signature"** refers
