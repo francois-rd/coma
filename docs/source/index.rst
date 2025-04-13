@@ -51,7 +51,8 @@ The above declarations provide a rich command line interface for invoking your
 program. Assuming this code is in a file called :obj:`main.py`, you get:
 
 1. A **command** that can be invoked by name (:obj:`push`) with command
-   **parameters** *directly* available as command line arguments:
+   **parameters** (:obj:`remote` and :obj:`data`) *directly* available as
+   command line arguments:
 
 .. code-block:: console
 

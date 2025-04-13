@@ -21,6 +21,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "sphinx_rtd_dark_mode",
 ]
 
 intersphinx_mapping = {
@@ -44,3 +45,7 @@ add_module_names = False  # Displays as 'func' rather than 'module.sub.func'.
 autodoc_default_options = {
     "member-order": "bysource",  # Module members appear in source order.
 }
+
+# -- Options for sphinx_rtd_dark_mode
+
+default_dark_mode = True  # user starts in dark mode
