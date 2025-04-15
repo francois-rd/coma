@@ -11,7 +11,6 @@ hooks to avoid repeating the hook registration for the new :obj:`leave` command:
 
 .. code-block:: python
     :emphasize-lines: 12, 14
-:caption: main.py
 
     import coma
 
@@ -108,7 +107,6 @@ same functionality would be:
 
 .. code-block:: python
     :emphasize-lines: 5, 10
-:caption: main.py
 
     import coma
 

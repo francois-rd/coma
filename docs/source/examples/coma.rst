@@ -26,7 +26,6 @@ The first option is redefining the :obj:`run_hook` of
 
 .. code-block:: python
     :emphasize-lines: 11
-    :caption: main.py
 
     import coma
 
@@ -60,7 +59,6 @@ The program now runs as expected:
 
     .. code-block:: python
         :emphasize-lines: 11, 13
-        :caption: main.py
 
         import coma
 
@@ -78,7 +76,8 @@ The program now runs as expected:
             coma.wake()
 
     This ensures that other commands are not affected. See
-    :doc:`here <../core/forget>` for details on using :func:`~coma.core.forget.forget`.
+    :doc:`here <../tutorials/core/forget>` for details on using
+    :func:`~coma.core.forget.forget`.
 
 Wrapping with Functions
 -----------------------
@@ -87,7 +86,6 @@ The second option is wrapping :obj:`StartCommand` in a function-based command:
 
 .. code-block:: python
     :emphasize-lines: 11
-    :caption: main.py
 
     import coma
 
@@ -114,7 +112,6 @@ compatible class-based command:
 
 .. code-block:: python
     :emphasize-lines: 10-12, 15
-    :caption: main.py
 
     import coma
 
@@ -145,7 +142,6 @@ attribute) to :obj:`StartCommand`:
 
 .. code-block:: python
     :emphasize-lines: 11
-    :caption: main.py
 
     import coma
 

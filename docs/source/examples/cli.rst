@@ -106,7 +106,7 @@ existing dict keys) or merges (for new dict keys) with the default values.
 
 .. note::
 
-    See :ref:`here <https://stackoverflow.com/questions/61315623/omegaconf-can-i-influence-how-lists-are-merged>`
+    See `here <https://stackoverflow.com/questions/61315623/omegaconf-can-i-influence-how-lists-are-merged>`_
     for an answer directly from ``omegaconf``'s developer.
 
 Consider the following example, where :obj:`l` has type :obj:`list` with default value
@@ -327,8 +327,8 @@ identifiers when instantiating the command. In this case, we skip the config wit
 .. note::
 
     We also added a new :obj:`post_run_hook` conveniently defined using ``coma``'s
-    :doc:`hook <../hooks/index>` decorator. This hook simply prints out the attributes
-    of the :obj:`extras` config after the command is executed
+    :doc:`hook <../tutorials/hooks/index>` decorator. This hook simply prints out
+    the attributes of the :obj:`extras` config after the command is executed.
 
 
 .. code-block:: python

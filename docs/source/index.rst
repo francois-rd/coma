@@ -123,7 +123,7 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Tutorials
 
     tutorials/intro
@@ -131,16 +131,16 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
     tutorials/hooks/index
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Examples
 
-    tutorials/examples/cli
-    tutorials/examples/coma
-    tutorials/examples/parser
-    tutorials/examples/serialization
+    examples/cli
+    examples/coma
+    examples/parser
+    examples/serialization
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
     :caption: Package Reference
     :titlesonly:
 

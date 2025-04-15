@@ -9,7 +9,7 @@ Default Behavior
 ----------------
 
 To illustrate the default behavior, let's revisit an example from the
-:doc:`introductory tutorial <../intro>`:
+:doc:`introductory tutorial <../tutorials/intro>`:
 
 .. code-block:: python
     :caption: main.py
@@ -116,7 +116,6 @@ extension through the :obj:`config_hook` of :func:`~coma.core.initiate.initiate`
 
 .. code-block:: python
     :emphasize-lines: 10-14
-    :caption: main.py
 
     from dataclasses import dataclass
 

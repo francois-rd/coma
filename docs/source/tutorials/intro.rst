@@ -6,6 +6,17 @@ Introduction
 Commands
 --------
 
+TODO: Can we essentially extend the landing page example instead?
+Or at the very least, let's rename the Greeting config to Saying and use it
+for both commands?
+
+Use plain ``list`` or ``dict`` for maximally-flexible configs, or ``dataclasses``
+for structured configs that are rigorously type validated at runtime.
+
+Both functions and classes with a no-argument :obj:`run()` method work.
+
+
+
 Let's dive in with a classic :obj:`Hello World!` program:
 
 .. code-block:: python
@@ -74,7 +85,7 @@ convenience decorator:
 
 .. code-block:: python
     :emphasize-lines: 1, 4, 9
-    :caption: main.py
+:caption: main.py
 
     from coma import command
     import coma
@@ -224,7 +235,7 @@ leads to the following program execution:
 
 .. note::
 
-    See :doc:`here <examples/serialization>` for full details on configuration files.
+    See :doc:`here <../examples/serialization>` for full details on configuration files.
 
 Config attribute values can also be overridden on the command line using ``omegaconf``'s
 `dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_:
@@ -236,7 +247,7 @@ Config attribute values can also be overridden on the command line using ``omega
 
 .. note::
 
-    See :doc:`here <examples/cli>` for full details on command line overrides.
+    See :doc:`here <../examples/cli>` for full details on command line overrides.
 
 .. note::
 
