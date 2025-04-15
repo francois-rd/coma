@@ -46,15 +46,15 @@ a server:
 Key Features
 ------------
 
-The above declarations provide a rich command line interface for invoking your
-program. Assuming this code is in a file called :obj:`main.py`, you get:
+The declarations in the above example provide a rich command line interface for
+invoking your program. Assuming this code is in a file called :obj:`main.py`, you get:
 
 Direct command parameter access
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The **command** that can be invoked by name (:obj:`push`) with command
-**parameters** (:obj:`remote` and :obj:`data`) *directly* available
-as command line arguments:
+The **command** (:obj:`push`) is invoked by name. Command
+**parameters** (:obj:`remote` and :obj:`data`) are *directly* available
+as command line arguments (also by name):
 
 .. code-block:: console
 
@@ -67,8 +67,8 @@ as command line arguments:
 Config serialization
 ^^^^^^^^^^^^^^^^^^^^
 
-Configs are automatically serialized to file based on their parameter name in the
-command (config :obj:`remote` is saved to :obj:`remote.yaml` in this case):
+Command parameters that represent configs are automatically serialized to file based
+on their name (config :obj:`remote` is saved to :obj:`remote.yaml` in this case):
 
 .. code-block:: console
 
@@ -79,9 +79,8 @@ command (config :obj:`remote` is saved to :obj:`remote.yaml` in this case):
     server: localhost
     port: 9001
 
-Notice that the saved config file :obj:`remote.yaml` contains the default
-config declaration, not any of the command line overrides. Updating the values
-in the saved file changes the defaults that are loaded on command invocation.
+Updating :obj:`remote.yaml` changes the default config values that are loaded on
+command invocation.
 
 And lots more!
 ^^^^^^^^^^^^^^
@@ -100,10 +99,11 @@ Including:
 
     .. note::
 
-        ``coma`` has very few baked in assumptions. All of ``coma``'s default
-        behavior results from pre-defined hooks. Nearly all behavior can be
-        drastically changed with user-defined hooks. Factories enable tweaking
-        the core default behavior without having to re-implement any hooks.
+        ``coma`` has very few baked in assumptions. **All** of ``coma``'s default
+        behavior results from :doc:`pre-defined hooks <tutorials/hooks/intro>`.
+        Nearly all behavior can be drastically changed with user-defined hooks.
+        Factories enable tweaking the core default behavior without having to
+        re-implement any hooks.
 * Integrating with `omegaconf <https://github.com/omry/omegaconf>`_'s extremely
   rich and powerful configuration management features.
 

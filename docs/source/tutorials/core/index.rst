@@ -1,11 +1,8 @@
-Core UI
-=======
+Declaring Commands
+==================
 
-Four functions make up the core ``coma`` user interface:
+Two functions make up the core ``coma`` user interface for declaring commands:
 
     .. toctree::
-        initiate
-        register
         command
-        forget
         wake
