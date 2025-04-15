@@ -18,10 +18,9 @@ Example
 -------
 
 Let's see ``coma`` in action with a simple mock command for pushing data to
-a server.
+a server:
 
 .. code-block:: python
-    :caption: main.py
 
     from dataclasses import dataclass
     from coma import command, wake
@@ -50,9 +49,12 @@ Key Features
 The above declarations provide a rich command line interface for invoking your
 program. Assuming this code is in a file called :obj:`main.py`, you get:
 
-1. A **command** that can be invoked by name (:obj:`push`) with command
-   **parameters** (:obj:`remote` and :obj:`data`) *directly* available as
-   command line arguments:
+Direct command parameter access
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The **command** that can be invoked by name (:obj:`push`) with command
+**parameters** (:obj:`remote` and :obj:`data`) *directly* available
+as command line arguments:
 
 .. code-block:: console
 
@@ -62,7 +64,11 @@ program. Assuming this code is in a file called :obj:`main.py`, you get:
     Pushing data: {'header': 'foo', 'content': 'bar'}
     To url: 127.0.0.1:8000
 
-2. Config serialization based on its parameter name (:obj:`remote.yaml` in this case):
+Config serialization
+^^^^^^^^^^^^^^^^^^^^
+
+Configs are automatically serialized to file based on their parameter name in the
+command (config :obj:`remote` is saved to :obj:`remote.yaml` in this case):
 
 .. code-block:: console
 
@@ -73,13 +79,12 @@ program. Assuming this code is in a file called :obj:`main.py`, you get:
     server: localhost
     port: 9001
 
-.. note::
+Notice that the saved config file :obj:`remote.yaml` contains the default
+config declaration, not any of the command line overrides. Updating the values
+in the saved file changes the defaults that are loaded on command invocation.
 
-    Notice that the saved config file :obj:`remote.yaml` contains the default
-    config declaration, not any of the command line overrides. Updating the values
-    in the saved file changes the defaults that are loaded on command invocation.
-
-3. And lots more!
+And lots more!
+^^^^^^^^^^^^^^
 
 Including:
 
@@ -119,12 +124,20 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
 
 .. toctree::
     :maxdepth: 2
-    :caption: Tutorials and Examples
+    :caption: Tutorials
 
     tutorials/intro
     tutorials/core/index
     tutorials/hooks/index
-    tutorials/examples/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Examples
+
+    tutorials/examples/cli
+    tutorials/examples/coma
+    tutorials/examples/parser
+    tutorials/examples/serialization
 
 .. toctree::
     :maxdepth: 3

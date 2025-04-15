@@ -21,7 +21,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-    "sphinx_rtd_dark_mode",
+    "piccolo_theme",
 ]
 
 intersphinx_mapping = {
@@ -34,8 +34,8 @@ templates_path = ["_templates"]
 
 # -- Options for HTML output
 
-html_theme = "sphinx_rtd_theme"
-html_theme_options = {"collapse_navigation": False}
+html_theme = "piccolo_theme"
+html_theme_options = {"source_url": "https://github.com/francois-rd/coma"}
 
 # -- Options for EPUB output
 
@@ -45,7 +45,3 @@ add_module_names = False  # Displays as 'func' rather than 'module.sub.func'.
 autodoc_default_options = {
     "member-order": "bysource",  # Module members appear in source order.
 }
-
-# -- Options for sphinx_rtd_dark_mode
-
-default_dark_mode = True  # user starts in dark mode
