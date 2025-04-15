@@ -65,8 +65,7 @@ By default, ``coma`` also supports prefix abbreviations. A prefix can be abbrevi
 as long as the abbreviation is unambiguous (i.e., matches only one config identifier):
 
 .. code-block:: python
-    :emphasize-lines: 15
-:caption: main.py
+    :caption: main.py
 
     from dataclasses import dataclass
 
@@ -97,7 +96,7 @@ This is enables convenient shorthands for command line overrides:
 .. _objectoverride:
 
 Overriding Structured Objects
--------------------
+-----------------------------
 
 Config attributes in ``coma`` can be structured objects (lists or dicts). Since ``coma``
 uses ``omegaconf`` configs under the hood, the behavior of these structured configs
