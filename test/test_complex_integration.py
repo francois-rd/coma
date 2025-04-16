@@ -4,7 +4,14 @@ import os
 
 import pytest
 
-from coma import InstanceKeys, InvocationData, command, preload, wake
+from coma import (
+    InstanceKeys,
+    InvocationData,
+    SignatureInspector,
+    command,
+    preload,
+    wake,
+)
 from coma.core.singleton import Coma
 import coma
 
@@ -65,8 +72,9 @@ def setup(cli_args):
     @command(
         pre_config_hook=strategize_hook,
         pre_init_hook=strategy_builder_factory_hook,
-        inline_identifier="which",
-        inline=["choice"],
+        signature_inspector=SignatureInspector(
+            inline_identifier="which", inline=["choice"]
+        ),
         **strategies,
     )
     def cmd(strategy: Strategy, choice: StrategyChoices = StrategyChoices.MISSING):

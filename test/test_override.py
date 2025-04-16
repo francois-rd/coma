@@ -3,14 +3,14 @@ from dataclasses import dataclass, field
 import pytest
 
 from coma.core.singleton import Coma
-from coma import command, wake
+from coma import SignatureInspector, command, wake
 import coma
 
 
 def test_unknown_prefix():
     Coma.reset()
 
-    @command(inline=["x"])
+    @command(signature_inspector=SignatureInspector(inline=["x"]))
     def cmd(x: int = 0):  # noqa: Unused.
         assert False
 
@@ -22,7 +22,7 @@ def test_unknown_prefix():
 def test_prefix_with_wrong_dot_list_type():
     Coma.reset()
 
-    @command(inline=["x"])
+    @command(signature_inspector=SignatureInspector(inline=["x"]))
     def cmd(x: int = 0):  # noqa: Unused.
         assert False
 
@@ -39,7 +39,7 @@ def test_exclusive_prefix_true():
             override=coma.Override(exclusive_prefixed=True),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):  # noqa: Unused.
         assert False
@@ -57,7 +57,7 @@ def test_exclusive_prefix_false():
             override=coma.Override(exclusive_prefixed=False),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):
         assert insert_dict == dict(x=42) and x == 42
@@ -73,7 +73,7 @@ def test_exclusive_shared_true():
             override=coma.Override(exclusive_shared=True),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):  # noqa: Unused.
         assert False
@@ -96,7 +96,7 @@ def test_exclusive_shared_false():
             override=coma.Override(exclusive_shared=False),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):
         assert insert_dict == dict(x=42) and x == 42
@@ -116,7 +116,7 @@ def test_unique_true():
             ),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):  # noqa: Unused.
         assert False
@@ -138,7 +138,7 @@ def test_unique_false():
             ),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):
         assert insert_dict == dict(x=2) and x == 2
@@ -153,7 +153,7 @@ def test_known_limitation_with_unique_prefixes_before_shared_default_options():
         config_hook=coma.config_hook.default_factory(
             override=coma.Override(unique_overrides=False), write=False
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(x: int = 0):
         assert x == 2
@@ -173,7 +173,7 @@ def test_known_limitation_with_unique_prefixes_before_shared_all_options_false()
             ),
             write=False,
         ),
-        inline=["x"],
+        signature_inspector=SignatureInspector(inline=["x"]),
     )
     def cmd(insert_dict: dict, x: int = 0):
         assert insert_dict == dict(x=2) and x == 2
