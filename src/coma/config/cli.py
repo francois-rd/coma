@@ -724,7 +724,7 @@ class ParamData:
         kwargs_as_config: bool,
         inline_identifier: ConfigID,
         inline: Sequence[Union[ParamID, tuple[ParamID, Callable[[], Any]]]],
-        **supplemental_configs: Any,
+        supplemental_configs: Parameters,
     ) -> "ParamData":
         """
         Returns a :class:`~coma.config.cli.ParamData` filled according to the
@@ -741,7 +741,7 @@ class ParamData:
 
         An inline parameter is a one-off config field. Specifically, all
         :obj:`inline` parameters are aggregated into a special
-        :class:`~coma.config.cli.ParamData.inline_config`, which is backed by a
+        :attr:`~coma.config.cli.ParamData.inline_config`, which is backed by a
         programmatic ``dataclass``. This provides all the rigorous runtime type
         validation of a standard ``dataclass``-backed ``omegaconf`` config without
         requiring a ``dataclass`` to be created just for those one-off fields.
@@ -787,7 +787,7 @@ class ParamData:
             On **mutable inline default values**. Because it is un-Pythonic to declare
             a mutable default value in a function definition, it can be tricky to set a
             good default value for inline parameters. So, items in :obj:`inline` can
-            consist of either just a :data:`~coma.config.base.ParamID` s, or be 2-tuple
+            consist of either just a :data:`~coma.config.base.ParamID`\\ s, or be 2-tuple
             where the first value is a :obj:`ParamID` and the second value is a
             :obj:`default_factory` conforming to the requirements of the same argument
             in `dataclasses.field()`_. It is an error to give both a signature-level
@@ -824,7 +824,11 @@ class ParamData:
                     class Config:
                         y: float = 3.14
 
-                    @coma.command(args_as_config=False, inline=["out_file"])
+                    @coma.command(
+                        signature_inspector=SignatureInspector(
+                            args_as_config=False, inline=["out_file"],
+                        ),
+                    )
                     def cmd(
                             cfg: Config,
                             data: Optional[Data] = None,
@@ -892,7 +896,7 @@ class ParamData:
                 value is a :obj:`ParamID` and the second value is a
                 :obj:`default_factory` conforming to the requirements of
                 `dataclasses.field()`_.
-            **supplemental_configs (:data:`~coma.config.base.Parameters`): Any
+            supplemental_configs (:data:`~coma.config.base.Parameters`): Any
                 additional parameters not in :obj:`signature` to convert into configs.
 
         Returns:
@@ -1293,7 +1297,7 @@ class SignatureInspectorProtocol(Protocol):
     """
 
     def __call__(
-        self, signature: Signature, supplemental_configs: Configs
+        self, signature: Signature, supplemental_configs: dict[ConfigID, Any]
     ) -> ParamData:
         pass
 
@@ -1325,7 +1329,7 @@ class SignatureInspector(SignatureInspectorProtocol):
     inline: Sequence[Union[ParamID, tuple[ParamID, Callable[[], Any]]]] = ()
 
     def __call__(
-        self, signature: Signature, supplemental_configs: Configs
+        self, signature: Signature, supplemental_configs: Parameters
     ) -> ParamData:
         return ParamData.from_signature(
             signature=signature,
@@ -1333,5 +1337,5 @@ class SignatureInspector(SignatureInspectorProtocol):
             kwargs_as_config=self.kwargs_as_config,
             inline_identifier=self.inline_identifier,
             inline=self.inline,
-            **supplemental_configs,
+            supplemental_configs=supplemental_configs,
         )
