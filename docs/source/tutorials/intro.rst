@@ -248,6 +248,7 @@ the new attribute value (``coma``):
     part of the initialization until ``run()`` is called, which would be the case
     if the latter required config declaration.
 
+.. _intro_config_serialization:
 
 Config Serialization
 --------------------
