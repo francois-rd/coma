@@ -269,11 +269,16 @@ class PersistenceManager:
 
         .. note::
 
-            Registering a particular :obj:`config_id` does *not* guarantee/force that
-            the config will be persisted, but rather only enables the possibility.
+            Registering a particular :obj:`config_id` does **not** guarantee/force that
+            the config will be serialized, but rather only explicitly determines the
+            parameters that get passed to `add_argument()`_ (instead of relying on the
+            sensible defaults that are otherwise provided).
 
         See also:
             * :meth:`~coma.config.io.PersistenceManager.get_file_path()`
+
+        .. _add_argument():
+            https://docs.python.org/3/library/argparse.html#the-add-argument-method
         """
         extension = extension or self.default_extension
         self.configs[config_id] = (extension, names_or_flags, kwargs)
