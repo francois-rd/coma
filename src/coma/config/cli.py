@@ -1272,3 +1272,66 @@ class ParamData:
                 return False
             else:
                 raise ValueError(f"Unsupported policy: {policy}")
+
+
+class SignatureInspectorProtocol(Protocol):
+    """
+    Protocol for a command signature inspector that takes in a command signature
+    object and **supplemental** configs and returns a (possible subclassed)
+    instance of :class:`~coma.config.cli.ParamData`.
+
+    To make use of other default ``coma`` components, user-defined alternative
+    implementation should adhere to this same protocol and to the protocols
+    (all public methods except :meth:`~coma.config.cli.ParamData.from_signature()`)
+    of :obj:`ParamData`.
+
+    Protocol::
+
+        Callable[[inspect.Signature, dict[ConfigID, Any]], ParamData]
+
+    with :data:`~coma.config.base.ConfigID` and :class:`~coma.config.cli.ParamData`.
+    """
+
+    def __call__(
+        self, signature: Signature, supplemental_configs: Configs
+    ) -> ParamData:
+        pass
+
+
+@dataclass
+class SignatureInspector(SignatureInspectorProtocol):
+    """
+    Lightweight wrapper around :meth:`~coma.config.cli.ParamData.from_signature()`
+    acting as the default :class:`~coma.config.cli.SignatureInspectorProtocol`
+    when no user-defined alternative is provided.
+
+    Attributes:
+        args_as_config (bool): Whether to treat the variadic positional parameter
+            in the command signature (if any) as a list config or a regular parameter.
+        kwargs_as_config (bool): Whether to treat the variadic keyword parameter
+            in the command signature (if any) as a dict config or a regular parameter.
+        inline_identifier (:data:`~coma.config.base.ConfigID`): The config identifier
+            to use for the inline config (regardless of whether there is one).
+        inline (typing.Sequence, of str or tuple[str, Callable]): The parameters in the
+            command signature to mark as inline config parameters (if any).
+
+    See also:
+        * :meth:`~coma.config.cli.ParamData.from_signature()`
+    """
+
+    args_as_config: bool = True
+    kwargs_as_config: bool = True
+    inline_identifier: ConfigID = "inline"
+    inline: Sequence[Union[ParamID, tuple[ParamID, Callable[[], Any]]]] = ()
+
+    def __call__(
+        self, signature: Signature, supplemental_configs: Configs
+    ) -> ParamData:
+        return ParamData.from_signature(
+            signature=signature,
+            args_as_config=self.args_as_config,
+            kwargs_as_config=self.kwargs_as_config,
+            inline_identifier=self.inline_identifier,
+            inline=self.inline,
+            **supplemental_configs,
+        )

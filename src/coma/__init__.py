@@ -16,6 +16,8 @@ from .config import (
     Parameters,
     ParamID,
     PersistenceManager,
+    SignatureInspector,
+    SignatureInspectorProtocol,
 )
 from .hooks import (
     InvocationData,

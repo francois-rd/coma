@@ -10,7 +10,15 @@ from .base import (
     Parameters,
     ParamID,
 )
-from .cli import Override, OverrideData, OverridePolicy, OverrideProtocol, ParamData
+from .cli import (
+    Override,
+    OverrideData,
+    OverridePolicy,
+    OverrideProtocol,
+    ParamData,
+    SignatureInspector,
+    SignatureInspectorProtocol,
+)
 from .io import (
     Extension,
     PersistenceManager,

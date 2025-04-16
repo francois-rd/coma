@@ -1,17 +1,16 @@
 """Register a command that might be invoked upon waking from a coma."""
 
 from inspect import signature
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional
 
 from boltons.funcutils import wraps
 
 from .singleton import Coma, RegistrationData
 from ..config import (
-    ConfigID,
     Parameters,
-    ParamData,
-    ParamID,
     PersistenceManager,
+    SignatureInspector,
+    SignatureInspectorProtocol,
 )
 from ..hooks.base import Command, CommandName, AugmentedHook, SHARED
 from ..hooks.management import Hooks
@@ -37,13 +36,10 @@ def command(
     pre_run_hook: AugmentedHook = SHARED,
     run_hook: AugmentedHook = SHARED,
     post_run_hook: AugmentedHook = SHARED,
-    args_as_config: bool = True,
-    kwargs_as_config: bool = True,
-    inline_identifier: ConfigID = "inline",
-    inline: Sequence[Union[ParamID, tuple[ParamID, Callable[[], Any]]]] = (),
-    persistence_manager: PersistenceManager = None,
+    signature_inspector: Optional[SignatureInspectorProtocol] = None,
+    persistence_manager: Optional[PersistenceManager] = None,
     parser_kwargs: Optional[Parameters] = None,
-    **supplemental_configs,
+    **supplemental_configs: Any,
 ):
     """
     Registers a command that might be invoked upon waking from a coma.
@@ -124,10 +120,10 @@ def command(
 
     Details:
 
-        The command's signature is inspected to infer and separate
-        :class:`~coma.config.base.Config` s from other parameters. A rich set of
-        options exist for declaring which parameters are config or regular parameters.
-        See :class:`~coma.config.cli.ParamData` for details.
+        The command's signature is inspected (using :obj:`signature_inspector`) to
+        infer and separate :class:`~coma.config.base.Config` s from other parameters.
+        A rich set of options exist for declaring which parameters are config or regular
+        parameters. See :class:`~coma.config.cli.SignatureInspector` for details.
 
         Additional configs not present in the command signature can be supplied through
         :obj:`supplemental_configs`. These can be helpful for providing additional
@@ -178,28 +174,25 @@ def command(
             command-specific hook with run hook semantics.
         post_run_hook (:data:`~coma.hooks.base.AugmentedHook`): An optional
             command-specific hook with post run hook semantics.
-        args_as_config (bool): Whether to treat the variadic positional parameter
-            in the command signature (if any) as a list config or as a regular parameter.
-        kwargs_as_config (bool): Whether to treat the variadic keyword parameter
-            in the command signature (if any) as a dict config or as a regular parameter.
-        inline_identifier (:data:`~coma.config.base.ConfigID`): The config
-            identifier to use for the inline config.
-        inline (typing.Sequence, of str or tuple[str, Callable]): The parameters in the
-            command signature to mark as inline config parameters (if any). See
-            :meth:`~coma.config.cli.ParamData.from_signature()` for details.
+        signature_inspector (:class:`~coma.config.cli.SignatureInspectorProtocol`, optional):
+            The :obj:`SignatureInspectorProtocol` to use for inspecting the :obj:`cmd`
+            object's signature. If :obj:`None`, a
+            :class:`~coma.config.cli.SignatureInspector` with default
+            parameters is used.
         persistence_manager (:class:`~coma.config.io.PersistenceManager`, optional):
             Manager for the serializing of configs. If :obj:`None`, a manager with
             default parameters is used.
         parser_kwargs (:data:`~coma.config.base.Parameters`, optional): Keyword
              arguments passed along to the :obj:`ArgumentParser` sub-parser that
              will be created just for this command.
-        supplemental_configs: Additional configs not present in the command signature.
-            Not affected by any of the above allowance criteria.
+        **supplemental_configs (typing.Any): Additional configs not present in the
+            command signature. Any ``omegaconf``-compatible config type is valid.
 
     See also:
         * The online docs for detailed tutorials and examples.
-        * :class:`~coma.config.io.PersistenceManager`
+        * :class:`~coma.config.cli.SignatureInspector`
         * :class:`~coma.config.cli.ParamData`
+        * :class:`~coma.config.io.PersistenceManager`
         * :func:`~coma.core.wake.wake()`
 
     .. _Template:
@@ -226,13 +219,8 @@ def command(
                 run_hook=run_hook,
                 post_run_hook=post_run_hook,
             ),
-            parameters=ParamData.from_signature(
-                signature=signature(cmd_),
-                args_as_config=args_as_config,
-                kwargs_as_config=kwargs_as_config,
-                inline_identifier=inline_identifier,
-                inline=inline,
-                **supplemental_configs,
+            parameters=(signature_inspector or SignatureInspector())(
+                signature(cmd_), supplemental_configs
             ),
             persistence_manager=persistence_manager or PersistenceManager(),
             parser_kwargs=parser_kwargs or {},
