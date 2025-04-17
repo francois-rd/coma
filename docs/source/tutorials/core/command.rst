@@ -6,6 +6,8 @@ Using ``coma`` primarily consists of registering commands using the
 of ``@command`` is explained in the :doc:`introductory tutorial <../intro>`.
 Here, the emphasis is on more advanced use cases.
 
+.. _command_hooks:
+
 Command Hooks
 -------------
 
@@ -40,8 +42,8 @@ Specifically, any of ``coma``'s 10 total hooks can be redefined in
         ...
 
 Typically, a hook is a function with a specific signature (again, see the dedicated
-:doc:`hooks tutorial <../hooks/intro>` for details). However, there are three
-additional (non-function) sentinel objects that have special meaning as hook values.
+:doc:`hooks tutorial <../hooks/intro>` for details). However, there are three additional
+(non-function) sentinel objects that have special meaning as command hook values.
 
 Any hook in ``@command`` that is not explicitly redefined defaults to the
 :data:`~coma.hooks.base.SHARED` sentinel. The goal of ``SHARED`` is to indicate that
@@ -50,7 +52,7 @@ with the value of the corresponding hook from :func:`~coma.core.wake.wake()`.
 Nearly all of ``coma``'s default behavior results from pre-defined hooks declared
 in ``wake()``. ``SHARED`` copies that functionality to every command declaration.
 
-See :func:`~coma.core.wake.wake()` for the full details on shared hooks. The
+See :ref:`here <shared_hooks>` for the full details on shared hooks. The
 relevant point here is that any hook declared in ``wake()`` is automatically
 propagated to *every* command declaration, **not** because that behavior is baked
 into ``coma``, but rather because each hook in ``@command`` defaults to ``SHARED``.
@@ -128,7 +130,7 @@ flag to the command line, as well as a ``pre_run_hook`` that exits the program e
 
     def pre_run_hook(data: InvocationData):
         if data.known_args.dry_run:
-            print("Early exit!")
+            print(f"Early exit for command: {data.name}")
             quit()
 
     @command(
@@ -148,7 +150,7 @@ Let's see this new functionality in action:
     $ python main.py greet
     Hello World!
     $ python main.py greet --dry-run
-    Early exit!
+    Early exit for command: greet
 
 .. note::
 
