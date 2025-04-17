@@ -1,49 +1,9 @@
 Command Line Arguments
 ======================
 
-Program-Level Arguments
------------------------
-
-Using program-level command line arguments is as an easy way to inject
-additional behavior into a program. This example is similar to the one seen
-:ref:`here <localhooks>`. The main difference is using global hooks instead of local
-hooks to avoid repeating the hook registration for the new :obj:`leave` command:
-
-.. code-block:: python
-    :emphasize-lines: 12, 14
-
-    import coma
-
-    parser_hook = coma.hooks.parser_hook.factory("--dry-run", action="store_true")
-
-    @coma.hooks.hook
-    def pre_run_hook(known_args):
-        if known_args.dry_run:
-            print("Early exit!")
-            quit()
-
-    if __name__ == "__main__":
-        coma.initiate(parser_hook=parser_hook, pre_run_hook=pre_run_hook)
-        coma.register("greet", lambda: print("Hello World!"))
-        coma.register("leave", lambda: print("Goodbye World!"))
-        coma.wake()
-
-In this example, the :obj:`parser_hook` adds a new :obj:`--dry-run` flag to the
-command line. This flag is used by the :obj:`pre_run_hook` to exit the program
-early (before a command is actually executed) if the flag is given on the
-command line. Because these are global hooks, this behavior is present
-regardless of the command that is invoked:
-
-.. code-block:: console
-
-    $ python main.py greet
-    Hello World!
-    $ python main.py leave
-    Goodbye World!
-    $ python main.py greet --dry-run
-    Early exit!
-    $ python main.py leave --dry-run
-    Early exit!
+Adding command line arguments is as an easy way to inject additional behavior into
+a program. See the :ref:`command <command_hooks>` and :ref:`shared <shared_hooks>`
+examples for an introduction.
 
 .. _commandlevelarguments:
 

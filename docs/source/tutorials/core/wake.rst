@@ -1,5 +1,5 @@
-Global Settings
-===============
+Wake Settings
+=============
 
 After all commands have been declared using
 :func:`@command <coma.core.command.command>`, the last step is always to

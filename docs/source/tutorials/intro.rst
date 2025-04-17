@@ -400,7 +400,7 @@ configurable commands using ``coma``'s *declarative* interface! 🎉
 * Customizing the underlying ``argparse`` objects.
 * Adding command line arguments and flags to your program.
 * Using hooks to tweak, replace, or extend ``coma``'s default behavior.
-* Registering shared hooks that are declared once and applied to every command.
+* Registering shared hooks that are declared once and propagated to every command.
 * And lots more!
 
 Read the other tutorials and usage examples to learn more.

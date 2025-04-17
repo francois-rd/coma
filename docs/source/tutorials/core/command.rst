@@ -1,5 +1,5 @@
-``@command``
-============
+Declaring Commands
+==================
 
 Using ``coma`` primarily consists of registering commands using the
 :func:`@command <coma.core.command.command>` decorator. The basic functionality
