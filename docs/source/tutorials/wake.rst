@@ -61,8 +61,8 @@ Shared Hooks
 ``coma``'s `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_-based
 design enables its behavior to be easily tweaked, replaced, or extended using
 `hooks <https://en.wikipedia.org/wiki/Hooking>`_. These are covered in great detail
-:doc:`in their own tutorial <../hooks/intro>`. In this tutorial, we'll further assume
-prior knowledge of :ref:`command hooks <command_hooks>`. Here, the emphasis is on the
+:doc:`in their own tutorial <hooks>`. In this tutorial, we'll further assume prior
+knowledge of :ref:`command hooks <command_hooks>`. Here, the emphasis is on the
 difference between *shared* and *command* hooks.
 
 Any *command* hook that is not explicitly redefined for a particular

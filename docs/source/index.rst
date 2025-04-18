@@ -126,9 +126,9 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
     :caption: Tutorials
 
     tutorials/intro
-    tutorials/core/command
-    tutorials/core/wake
-    tutorials/hooks/index
+    tutorials/command
+    tutorials/wake
+    tutorials/hooks
 
 .. toctree::
     :maxdepth: 1

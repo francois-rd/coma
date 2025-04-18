@@ -1,5 +1,5 @@
-Introduction
-============
+Defining Hooks
+==============
 
 ``coma`` uses the `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_
 design pattern. `Hooks <https://en.wikipedia.org/wiki/Hooking>`_ make it easy to
@@ -139,15 +139,15 @@ steps involved in successfully invoking the command to which they are bound.
 
 .. _hook_protocols:
 
-Hook Protocols
---------------
+Hook Protocol
+-------------
 
 To enable interoperability between hooks (especially in the hook pipeline), all
 hooks must follow a specific protocol (i.e., function signature). All hooks,
 regardless of semantics, must take *exactly* one parameter. For **parser hooks**,
 this parameter is a :class:`~coma.hooks.base.ParserData` object, whereas it is an
 :class:`~coma.hooks.base.InvocationData` object for **invocation hooks**. Both of
-these derive from :class:`~coma.hooks.base.HookData`, and it is perfectly acceptable
+these inherit from :class:`~coma.hooks.base.HookData`, and it is perfectly acceptable
 to subclass any of these to add additional attributes needed in custom hooks.
 
 Hooks typically modify their input parameter *inplace* and return ``None``. However,
@@ -181,9 +181,9 @@ default hooks are generated from **factory functions** with default parameters.
     hook using its factory with a single changed parameter. For example,
     :func:`run_hook.default_factory() <coma.hooks.run_hook.default_factory>`
     can be used to change the command execution method name from the default
-    ``run()`` to something else. See :doc:`here <../../examples/coma>`.
+    ``run()`` to something else. See :doc:`here <../examples/coma>`.
 
-    Browse the hooks' :doc:`package reference <../../references/hooks/index>` to
+    Browse the hooks' :doc:`package reference <../references/hooks/index>` to
     explore factory options. Factory function names always end with ``*_factory``.
     All the default factories are named ``default_factory`` and can be found in
     their respective hook-semantic module. For example, the default factory for
@@ -191,7 +191,7 @@ default hooks are generated from **factory functions** with default parameters.
 
     If you are finding that the factory functions are insufficient, consider
     making use of the many config-related utilities found
-    :doc:`here <../../references/config/index>` to help you in writing your own
+    :doc:`here <../references/config/index>` to help you in writing your own
     custom hooks.
 
 In the explanations below, ``data`` refers to the input parameter of the hook
@@ -205,8 +205,9 @@ In the explanations below, ``data`` refers to the input parameter of the hook
     add, for each :meth:`serializable <coma.config.cli.ParamData.is_serializable>` config,
     a :meth:`parser path argument <coma.config.io.PersistenceManager.add_path_argument>`.
     This enables an explicit file path to the config file to be specified on the command
-    line via a flag (``--{config_id}-path`` by default where ``config_id`` is the name
-    of the config parameter in the :ref:`command signature <command_signature_inspection>`).
+    line via a flag. By default, the flag is ``--{config_name}-path``, where
+    ``config_name`` is the name of the corresponding config parameter in the
+    :ref:`command signature <command_signature_inspection>`.
 
 **Default Main Config Hook:**
 
@@ -222,8 +223,8 @@ In the explanations below, ``data`` refers to the input parameter of the hook
       :attr:`data.persistence_manager <coma.hooks.base.HookData.persistence_manager>`
       to :meth:`get the file path <coma.config.io.PersistenceManager.get_file_path>`
       of each config based on its path declaration in the default ``parser_hook``.
-      See :doc:`here <../../examples/serialization>` for more details on config files.
-    * For each config, an attempt is made to :doc:`override <../../examples/cli>` its
+      See :doc:`here <../examples/serialization>` for more details on config files.
+    * For each config, an attempt is made to :doc:`override <../examples/cli>` its
       config attribute values with any command line arguments that fit ``omegaconf``'s
       `dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_.
 
@@ -232,7 +233,7 @@ In the explanations below, ``data`` refers to the input parameter of the hook
         Each config variant in the :ref:`declarative hierarchy <config_declaration_hierarchy>`
         is :class:`stored <coma.config.base.Config>` so that later hooks can access any
         variant (if needed). This is particularly helpful in cases where some configs
-        need to be :doc:`preloaded <../../examples/preload>` before others.
+        need to be :doc:`preloaded <../examples/preload>` before others.
 
     The ``config_hook``'s :func:`default factory <coma.hooks.config_hook.default_factory>`
     includes many flags for tweaking the default behavior. For example, you can skip the
@@ -268,7 +269,7 @@ In the explanations below, ``data`` refers to the input parameter of the hook
 
     The :func:`default <coma.hooks.run_hook.default_factory>` ``run_hook`` calls
     the :attr:`data.command <coma.hooks.base.HookData.command>` object's ``run()``
-    (by default, though this can be :doc:`changed <../../examples/coma>`) method
+    (by default, though this can be :doc:`changed <../examples/coma>`) method
     with no parameters. This assumes that the ``init_hook`` has instantiated
     ``data.command`` from a class type to an instance.
 
@@ -281,14 +282,14 @@ Typically, a hook is a function with a signature based on the
 :ref:`hook protocol <hook_protocols>`. However, there are three additional
 (non-function) sentinel objects (``SHARED``, ``DEFAULT``, and ``None``) that have
 :ref:`special meaning <hook_sentinel_summary>` as :ref:`command <command_hooks>`
-and/or :ref:`shared <shared_hooks>` hook values. A valid "plain" hook can be any single
-function adhering to the hook protocol **or** any single of these three sentinels.
+and/or :ref:`shared <shared_hooks>` hook values. A valid "plain" hook can be any
+single function adhering to the hook protocol or any single of these three sentinels.
 
 In addition, any (recursively) nested **sequences** of these singular/plain values
 is also a valid hook. Each item in these sequences is recursively inspected for the
 presence of any of the three sentinels. These are replaced at runtime with their
-:ref:`semantic equivalent <command_hooks>` function. This is particularly useful to
-**add** behavior on top of ``coma``'s default, rather than outright replacing it. See
+:ref:`semantic equivalent <hook_sentinel_summary>` function. This is particularly useful
+to **add** behavior on top of ``coma``'s default, rather than outright replacing it. See
 :ref:`here <command_hook_example>` and :ref:`here <shared_hook_example>` for practical
 examples. To emphasize the recursive potential of nested hook sequences, consider this
 toy example:

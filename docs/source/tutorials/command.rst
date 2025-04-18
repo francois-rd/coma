@@ -3,7 +3,7 @@ Declaring Commands
 
 Using ``coma`` primarily consists of registering commands using the
 :func:`@command <coma.core.command.command>` decorator. The basic functionality
-of ``@command`` is explained in the :doc:`introductory tutorial <../intro>`.
+of ``@command`` is explained in the :doc:`introductory tutorial <intro>`.
 Here, the emphasis is on more advanced use cases.
 
 .. _command_hooks:
@@ -14,7 +14,7 @@ Command Hooks
 ``coma`` uses the `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_
 design pattern, which leverages `hooks <https://en.wikipedia.org/wiki/Hooking>`_ to
 implement, tweak, replace, or extend its behavior. See the dedicated
-:doc:`hooks tutorial <../hooks/intro>` for details on ``coma``'s hook protocols.
+:doc:`hooks tutorial <hooks>` for details on ``coma``'s hook protocols.
 In this tutorial, we'll assume prior knowledge of hooks, while demonstrating how
 to use ``@command`` to replace ``coma``'s default hooks to alter its behavior for
 a particular command declaration.
@@ -166,7 +166,7 @@ Let's see this new functionality in action:
     bound to this command.
 
     Most hooks have factories to enable behavioral tweaks as one-liners as seen
-    here. Browse the hooks' :doc:`package reference <../../references/hooks/index>`
+    here. Browse the hooks' :doc:`package reference <../references/hooks/index>`
     for details. Factory function names always end with ``*_factory``.
 
 .. _command_signature_inspection:
@@ -297,8 +297,7 @@ Criteria for Interpreting a Parameter as ``inline``
    configs or regular parameters, but never ``inline``. This is done to avoid duplicate
    parameter values when executing the command at runtime.
 
-See the :ref:`example <command_inspection_example>` below to get a better sense
-of how this gets applied.
+See the example below to get a better sense of how this gets applied.
 
 .. _command_inspection_example:
 
@@ -383,7 +382,7 @@ Notice that:
    (otherwise, it would have been in ``*args``). It is also not in ``my_list`` because
    ``my_list`` is an inline config and so adding to ``my_list`` requires an explicit
    ``omegaconf`` dotlist notation to be used (``'my_list=[bar]'`` in this example).
-   See :doc:`here <../../examples/cli>` for further explanation.
+   See :doc:`here <../examples/cli>` for further explanation.
 
 2. ``**kwargs`` includes both dict-like arguments (``x`` and ``y``).
 
@@ -393,7 +392,7 @@ Notice that:
 4. ``out_file`` is prefixed with the inline config identifier (``"inline"``) to
    prevent ``**kwargs`` from *also* containing an ``"out_file"`` field. This occurs
    because ``**kwargs`` is backed by a ``dict``, and ``omegaconf`` permits any fields
-   in ``dict`` configs. See :doc:`here <../../examples/cli>` for further explanation.
+   in ``dict`` configs. See :doc:`here <../examples/cli>` for further explanation.
    The upshot relevant to this discussion is that including ``"out_file"`` in
    ``**kwargs`` would result in a runtime error from ``"out_file"`` appearing multiple
    times in the command's parameter list (which is a ``TypeError`` in Python).
@@ -403,10 +402,10 @@ Notice that:
    behavior in ``coma``. To disable it, see :class:`~coma.config.cli.Override`.
 
 6. Because ``data`` is not a config, it's ``x`` attribute is not overridden. In fact,
-   because the default value of ``data`` is not replaced in any
-   :doc:`hooks <../hooks/intro>`, its value when invoking the command will invariably
-   be ``None``. Use :meth:`ParamData.replace() <coma.config.cli.ParamData.replace()>`
-   in a hook to change this.
+   because the default value of ``data`` is not replaced in any :doc:`hooks <hooks>`,
+   its value when invoking the command will invariably be ``None``. Use
+   :meth:`ParamData.replace() <coma.config.cli.ParamData.replace()>` in a hook to
+   change this. See :doc:`here <../examples/preload>` for an example.
 
 7. Because ``inline`` configs and variadic configs are
    :ref:`non-serializable <command_non_serializable>`, the only config file that
@@ -418,8 +417,8 @@ Supplemental Configs
 
 Supplemental configs are additional ``config`` parameters that required by the command
 declaration but do *not* appear in the command's signature. These can be helpful for
-providing additional configurable information to the :doc:`hooks <../hooks/intro>`
-beyond what the command object itself requires.
+providing additional configurable information to the :doc:`hooks <hooks>` beyond what
+the command object itself requires.
 
 Any object passed as :obj:`supplemental_configs` to ``@command`` are invariably
 treated as configs and converted into :class:`~coma.config.base.Configs` without
@@ -490,12 +489,12 @@ and examples in these docs are YAML files. It is *not* baked into ``@command``.
 .. note::
 
     ``coma`` supports both YAML and JSON config file formats. For JSON examples,
-    see :doc:`here <../../examples/serialization>`.
+    see :doc:`here <../examples/serialization>`.
 
 A persistence manager allows you to :meth:`~coma.config.io.PersistenceManager.register`
 an explicit file path and explicit ``argparse`` flag arguments for a specific config.
 If no explicit registration is used, a sensible default is used. For details,
-see :doc:`here <../../examples/serialization>`.
+see :doc:`here <../examples/serialization>`.
 
 .. warning::
 
@@ -517,9 +516,8 @@ whether that config gets ``register()``\ ed with a persistence manager.
 
 .. note::
 
-    To force a non-serializable config to be serialized, write a
-    :doc:`custom hook <../../examples/cli>` that directly calls
-    :func:`~coma.config.io.write()` on that config object.
+    To force a non-serializable config to be serialized, write a custom hook that
+    directly calls :func:`~coma.config.io.write()` on that config object.
 
 Parameters to ``argparse``
 --------------------------

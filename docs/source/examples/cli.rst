@@ -331,7 +331,7 @@ identifiers when instantiating the command. In this case, we skip the config wit
 .. note::
 
     We also added a new :obj:`post_run_hook` conveniently defined using ``coma``'s
-    :doc:`hook <../tutorials/hooks/index>` decorator. This hook simply prints out
+    :doc:`hook <../tutorials/hooks>` decorator. This hook simply prints out
     the attributes of the :obj:`extras` config after the command is executed.
 
 

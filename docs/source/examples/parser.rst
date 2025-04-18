@@ -2,8 +2,8 @@ Command Line Arguments
 ======================
 
 Adding command line arguments is as an easy way to inject additional behavior into
-a program. See the :ref:`command <command_hooks>` and :ref:`shared <shared_hooks>`
-examples for an introduction.
+a program. For an introduction, see the :ref:`command <command_hook_example>` and
+:ref:`shared <shared_hook_example>` examples.
 
 .. _commandlevelarguments:
 
