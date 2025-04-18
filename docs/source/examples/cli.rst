@@ -1,6 +1,10 @@
 Command Line Config Overrides
 =============================
 
+TODO: add a list example with and without a prefix to show what that looks like.
+TODO: add example of force overwrite of override values in a config (as an example
+for the initial setting of a dict-like config).
+
 .. _prefixingoverrides:
 
 Prefixing Overrides
@@ -372,3 +376,8 @@ attributes are printed as part of the global :obj:`post_run_hook` rather than th
     foo: 3
     bar:
       baz: 4
+
+
+.. _forcing_overwrites:
+
+TODO

@@ -72,12 +72,11 @@ to **every** command declaration that does not explicitly redefine that hook. As
 such, the *shared* hooks given to ``wake()`` have wide-reaching effects. Nearly all
 of ``coma``'s default behavior results from pre-defined hooks declared in ``wake()``.
 
-Typically, a hook is a function with a specific signature (again, see the dedicated
-:doc:`hooks tutorial <../hooks/intro>` for details). However, there are two
-additional (non-function) sentinel objects that have special meaning as *shared*
-hook values: :data:`~coma.hooks.base.DEFAULT` and ``None``. Specifically, of
-``coma``'s 10 total hooks, 4 default to ``DEFAULT`` in ``wake()`` while the other
-6 default to ``None``:
+Typically, a hook is a function with a :ref:`specific signature <hook_protocols>`.
+However, there are two additional (non-function) sentinel objects that have special
+meaning as *shared* hook values: :data:`~coma.hooks.base.DEFAULT` and ``None``.
+Specifically, of ``coma``'s :ref:`10 total hooks <hook_semantics>`, 4 default to
+``DEFAULT`` in ``wake()`` while the other 6 default to ``None``:
 
 .. code-block:: python
 
@@ -99,20 +98,18 @@ hook values: :data:`~coma.hooks.base.DEFAULT` and ``None``. Specifically, of
         ...
 
 ``DEFAULT`` gets replaced at runtime with the corresponding
-:doc:`pre-defined default hook <../hooks/intro>` that gives ``coma`` its default
+:ref:`pre-defined default hook <default_hooks>` that gives ``coma`` its default
 behavior. On the other hand, the propagation of a shared hook can be disabled by setting
 its value to ``None``. Although ``None`` is a built in Python object, here it is being
 used as a sentinel to mean "skip this hook" (though, in practice, we replace it with
 the no-op :func:`~coma.hooks.base.identity()` function rather than truly skipping it).
 
-When discussing :ref:`command hooks <command_hooks>`, we saw how a few hooks can
-easily add functionality into a particular command beyond ``coma``'s defaults.
+In the :ref:`command hook example <command_hook_example>`, we saw how a few hooks
+can easily add functionality into a particular command beyond ``coma``'s defaults.
 In this example, we'll declare those same hooks to be **shared** hooks instead in
-order to propagate that new functionality to all commands.
+order to propagate that same new functionality to all commands:
 
-Specifically, we define a ``parser_hook`` that adds a new ``--dry-run`` flag to
-the command line, as well as a ``pre_run_hook`` that exits the program early (before
-the command is actually executed) if that flag is given on the command line:
+.. _shared_hook_example:
 
 .. code-block:: python
 
@@ -140,11 +137,11 @@ the command is actually executed) if that flag is given on the command line:
         )
 
 The definition of the custom hooks themselves have not changed compared to the
-:ref:`command hook example <command_hooks>`. The difference is that the hooks are
-given to ``wake()`` instead of to ``@command``. This ensures the new functionality
+:ref:`command hook example <command_hook_example>`. The difference is that the hooks
+are given to ``wake()`` instead of to ``@command``. This ensures the new functionality
 propagates to all commands (both ``greet`` and ``leave``) without having to repeat
 the hook redefinition for each one explicitly. Notice also that the ``parser_hook``
-includes ``DEFAULT`` in its :doc:`sequence declaration <../hooks/intro>`. This
+includes ``DEFAULT`` in its :ref:`sequence declaration <hooks_as_sequences>`. This
 ensures that ``coma``'s default ``parser_hook`` is not replaced but rather added to.
 
 Let's see this new functionality in action:

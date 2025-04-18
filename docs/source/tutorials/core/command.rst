@@ -19,8 +19,8 @@ In this tutorial, we'll assume prior knowledge of hooks, while demonstrating how
 to use ``@command`` to replace ``coma``'s default hooks to alter its behavior for
 a particular command declaration.
 
-Specifically, any of ``coma``'s 10 total hooks can be redefined in
-``@command`` using the corresponding keyword argument:
+Specifically, any of ``coma``'s :ref:`10 total hooks <hook_semantics>` can be
+redefined in ``@command`` using the corresponding keyword argument:
 
 .. code-block:: python
 
@@ -41,9 +41,9 @@ Specifically, any of ``coma``'s 10 total hooks can be redefined in
     def my_cmd(...):
         ...
 
-Typically, a hook is a function with a specific signature (again, see the dedicated
-:doc:`hooks tutorial <../hooks/intro>` for details). However, there are three additional
-(non-function) sentinel objects that have special meaning as command hook values.
+Typically, a hook is a function with a :ref:`specific signature <hook_protocols>`.
+However, there are three additional (non-function) sentinel objects that have special
+meaning as command hook values.
 
 Any hook in ``@command`` that is not explicitly redefined defaults to the
 :data:`~coma.hooks.base.SHARED` sentinel. The goal of ``SHARED`` is to indicate that
@@ -71,8 +71,8 @@ Although ``None`` is a built in Python object, here it is being used as a sentin
 mean "skip this hook" (though, in practice, we replace it with the no-op
 :func:`~coma.hooks.base.identity()` function rather than truly skipping it).
 
-The dedicated :doc:`hooks tutorial <../hooks/intro>` also emphasizes that hooks can
-be single/plain values, or they can be nested **sequences** of such values. These
+The dedicated hooks tutorial also emphasizes that hooks can be single/plain values,
+or they can be :ref:`nested sequences <hooks_as_sequences>` of such values. These
 nested sequences (if any) are recursively inspected for the presence of any of these
 three sentinels (``SHARED``, ``DEFAULT``, and ``None``). These are replaced at
 runtime with their semantic equivalent function. This is particularly useful to
@@ -93,6 +93,8 @@ means the ``parser_hook`` for this command declaration will first call the share
 ``parser_hook`` defined in ``wake()`` and then call ``additional_hook``. The order
 here matters. Having ``SHARED`` *after* ``additional_hook`` calls them in the
 reverse order.
+
+.. _hook_sentinel_summary:
 
 .. admonition:: Summary:
 
@@ -121,6 +123,8 @@ Let's see how a few hooks can easily add functionality into a command beyond ``c
 defaults. In this example, we define a ``parser_hook`` that adds a new ``--dry-run``
 flag to the command line, as well as a ``pre_run_hook`` that exits the program early
 (before the command is actually executed) if that flag is given on the command line:
+
+.. _command_hook_example:
 
 .. code-block:: python
 
@@ -165,6 +169,8 @@ Let's see this new functionality in action:
     here. Browse the hooks' :doc:`package reference <../../references/hooks/index>`
     for details. Factory function names always end with ``*_factory``.
 
+.. _command_signature_inspection:
+
 Command Signature Inspection
 ----------------------------
 
@@ -182,8 +188,8 @@ is quite common, as we will see.
 ``SignatureInspector`` is just a lightweight wrapper around
 :meth:`ParamData.from_signature() <coma.config.cli.ParamData.from_signature()>`,
 which does all the heavy lifting. We'll explore ``from_signature()``'s parameter
-options an :ref:`example <command_inspection_example>`. But first, let's get a
-basic sense of how the command signature is inspected.
+options in the upcoming :ref:`example <command_inspection_example>`. But first,
+let's get a basic sense of how the command signature is inspected.
 
 Configs vs Regular Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -193,13 +199,13 @@ and :attr:`ParamData.other_parameters <coma.config.cli.ParamData.other_parameter
 (which we will interchangeably call *regular* parameters) in a command's signature is
 determined by inspecting its **type annotation** (if any), its **default value**
 (if any), its `kind <https://docs.python.org/3/library/inspect.html#inspect.Parameter.kind>`_,
-and whether the parameter is marked as ``inline``
-(:ref:`inline <command_inline_configs>` configs are discussed in the next section).
+and whether the parameter is marked as ``inline`` (discussed in the
+:ref:`next section <command_inline_configs>`).
 
 **Configs take priority over regular parameters.** If a parameter *can* be considered
 a config (as per the criteria below), it *is* treated as one. All parameters that
 cannot be interpreted as configs are assumed to be regular parameters **unless**
-marked as `inline``.
+marked as ``inline``.
 
 Criteria for Interpreting a Parameter as a Config
 """""""""""""""""""""""""""""""""""""""""""""""""
@@ -208,7 +214,7 @@ Criteria for Interpreting a Parameter as a Config
    ``dict``, or any ``dataclass`` type. We refer to these as **config annotations**.
 
 2. The parameter does **not** have a default value. Since configs enjoy a
-   dedicated :ref:`declarative initialization protocol <intro_config_serialization>`,
+   dedicated :ref:`declarative initialization protocol <config_declaration_hierarchy>`,
    default parameter values are not needed.
 
    .. note::
@@ -218,12 +224,12 @@ Criteria for Interpreting a Parameter as a Config
         For example, ``list_cfg: list`` is interpreted as a config whereas
         ``non_cfg_list: list = None`` is interpreted as a regular parameter.
 
-3. The parameter is **not** marked ``inline``. Even if the parameter has a config
-   annotation, being marked ``inline`` disqualifies.
+3. The parameter is **not** marked ``inline``. Even if the parameter otherwise
+   conforms to criteria (1) and (2), being marked ``inline`` disqualifies.
 
 4. **Special case:** Because variadic positional (``*args``) and variadic keyword
-   (``**kwargs``) parameters cannot be assigned defaults in Python, and because they
-   can never be marked as ``inline`` (see :ref:`below <command_inline_configs>`),
+   (``**kwargs``) parameters cannot be assigned defaults in Python, and because
+   they can :ref:`never <command_inline_configs>` be marked as ``inline``,
    criteria (2) and (3) cannot be used for them. Instead, use the special flags
    :attr:`SignatureInspector.args_as_config <coma.config.cli.SignatureInspector.args_as_config>`
    and
@@ -312,8 +318,8 @@ of the inline declaration, rather than providing a mutable default directly in t
 command signature. That is not necessary for ``out_file`` because strings are
 immutable in Python.
 
-Any list-like command line arguments are appended to ``my_list`` because it is
-marked ``inline``. However, these same arguments are not given to ``*args`` because
+List-like command line arguments are appended to ``my_list`` because it is
+marked ``inline``. However, list-like arguments are not given to ``*args`` because
 ``args_as_config`` is ``False``. On the other hand, because ``kwargs_as_config`` is
 ``True`` (implicitly, by default), any dict-like command line arguments are given to
 ``**kwargs``.
@@ -360,9 +366,9 @@ these difference results in the following:
 
 .. code-block:: console
 
-    $ python main.py cmd x=1 y=2 z inline::out_file=foo.txt
+    $ python main.py cmd x=1 y=2 z inline::out_file=foo.txt 'my_list=[bar]'
     cfg is: Config(y=2.0)
-    my_list is: []
+    my_list is: ['bar']
     data is: Data(x=42)
     out_file is: "foo.txt"
     *args is: ()
@@ -373,16 +379,16 @@ these difference results in the following:
 
 Notice that:
 
-1. The list-like argument ``'z'`` is not in ``*args`` because ``*args`` is not a
-   config. It is also not in ``my_list`` because ``my_list`` is an inline config
-   and so adding to ``my_list`` requires an explicit ``omegaconf`` dotlist notation
-   to be used: ``'my_list=[z]'`` instead of just ``'z'``. See
-   :doc:`here <../../examples/cli>` for further explanation.
+1. The list-like argument ``'z'`` is not in ``*args`` because ``*args`` is not a config
+   (otherwise, it would have been in ``*args``). It is also not in ``my_list`` because
+   ``my_list`` is an inline config and so adding to ``my_list`` requires an explicit
+   ``omegaconf`` dotlist notation to be used (``'my_list=[bar]'`` in this example).
+   See :doc:`here <../../examples/cli>` for further explanation.
 
 2. ``**kwargs`` includes both dict-like arguments (``x`` and ``y``).
 
-3. Unlike ``my_list``, we did provide the full notation for ``out_file``, and so
-   ``out_file`` is overridden.
+3. ``out_file`` is overridden. Unlike ``my_list``, we prefixed ``out_file`` with the
+    inline config identifier (``"inline"``). See the next point for an explanation.
 
 4. ``out_file`` is prefixed with the inline config identifier (``"inline"``) to
    prevent ``**kwargs`` from *also* containing an ``"out_file"`` field. This occurs
@@ -429,7 +435,7 @@ we rename the ``inline_identifier`` to ``"param"`` while provide a supplemental
 config named ``"inline"``. Although this supplemental config won't be available as
 part of the command invocation, it is available in all the hooks via ``get_config()``
 on :attr:`InvocationData.parameters <coma.hooks.base.HookData.parameters>`. See
-:doc:`hooks <../hooks/intro>` for details on :class:`~coma.hooks.base.InvocationData`.
+:ref:`here <hook_protocols>` for details on :class:`~coma.hooks.base.InvocationData`.
 
 .. code-block:: python
 
@@ -506,14 +512,14 @@ Non-Serializable Configs
 
 ``coma`` considers variadic positional (``*args``) and keyword (``**kwargs``) configs,
 as well as all ``inline`` configs to be non-serializable. These configs will never be
-serialized by ``coma``'s default :doc:`hooks <../hooks/intro>` **regardless** of
+serialized by ``coma``'s :ref:`default hooks <default_hooks>` **regardless** of
 whether that config gets ``register()``\ ed with a persistence manager.
 
 .. note::
 
     To force a non-serializable config to be serialized, write a
-    :doc:`custom hook <../hooks/intro>` that directly calls
-    :func:`~coma.config.io.write()` on that config object in question.
+    :doc:`custom hook <../../examples/cli>` that directly calls
+    :func:`~coma.config.io.write()` on that config object.
 
 Parameters to ``argparse``
 --------------------------

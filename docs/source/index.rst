@@ -97,13 +97,12 @@ Including:
   `template <https://en.wikipedia.org/wiki/Template_method_pattern>`_-based
   design.
 
-    .. note::
+  .. note::
 
-        ``coma`` has very few baked in assumptions. **All** of ``coma``'s default
-        behavior results from :doc:`pre-defined hooks <tutorials/hooks/intro>`.
-        Nearly all behavior can be drastically changed with user-defined hooks.
-        Factories enable tweaking the core default behavior without having to
-        re-implement any hooks.
+      ``coma`` has very few baked in assumptions. **All** of ``coma``'s default
+      behavior results from :ref:`pre-defined hooks <default_hooks>`. Nearly all
+      behavior can be drastically changed with user-defined hooks. Factories enable
+      tweaking the core default behavior without having to re-implement any hooks.
 * Integrating with `omegaconf <https://github.com/omry/omegaconf>`_'s extremely
   rich and powerful configuration management features.
 
@@ -138,6 +137,7 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
     examples/cli
     examples/coma
     examples/parser
+    examples/preload
     examples/serialization
 
 .. toctree::

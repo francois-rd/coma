@@ -8,7 +8,7 @@ design pattern, which leverages `hooks <https://en.wikipedia.org/wiki/Hooking>`_
 implement, tweak, replace, or extend its behavior.
 
 In this tutorial, we'll explore ``coma``'s **default** behavior. Nearly all of it
-results from :doc:`pre-defined hooks <hooks/intro>`. ``coma`` has very few baked
+results from :ref:`pre-defined hooks <default_hooks>`. ``coma`` has very few baked
 in assumptions, so its behavior can be drastically changed with user-defined hooks.
 We'll highlight these alternatives in later tutorials.
 
@@ -168,10 +168,10 @@ command requires. Let's declare a ``Recipient`` config for our running example:
 
 .. note::
 
-    The ``@command`` decarator provides a rich interface for tweaking which command
+    The ``@command`` decorator provides a rich interface for tweaking which command
     parameters are configs and which are regular parameters. It also enables inline
     config parameters. Additionally, variadic parameters (``*args`` and ``**kwargs``)
-    can be configs if desired. See the :doc:`advanced tutorial <core/command>` for more.
+    can be configs :ref:`if desired <command_inspection_example>`.
 
 Invoking on the command line, we get:
 
@@ -248,8 +248,6 @@ the new attribute value (``coma``):
     part of the initialization until ``run()`` is called, which would be the case
     if the latter required config declaration.
 
-.. _intro_config_serialization:
-
 Config Serialization
 --------------------
 
@@ -265,6 +263,8 @@ saved to ``recipient.yaml`` in our example):
     recipient.yaml
     $ cat recipient.yaml
     entity: World
+
+.. _config_declaration_hierarchy:
 
 Notice that it is the **default** config value that gets saved to file, not any
 subsequent command line overrides. Configs in ``coma`` adhere to a

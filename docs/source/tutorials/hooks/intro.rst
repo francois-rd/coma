@@ -1,176 +1,382 @@
 Introduction
 ============
 
-Hooks make it easy to tweak, replace, or extend ``coma``.
+``coma`` uses the `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_
+design pattern. `Hooks <https://en.wikipedia.org/wiki/Hooking>`_ make it easy to
+tweak, replace, or extend ``coma``'s default behavior.
 
-.. _typesofhooks:
+.. _hook_semantics:
 
-Types of Hooks
+Hook Semantics
 --------------
 
-At the highest level, hooks belong to one of two types:
+``coma`` has very few baked in assumptions. **All** of ``coma``'s default behavior
+results from pre-defined hooks that have been chosen to fill its template slots.
+Nearly all behavior can be drastically changed with user-defined hooks.
 
-:parser:
-    Parser hooks are called when a command is :func:`~coma.core.register.register`\ ed
-    and are meant to `add_arguments() <https://docs.python.org/3/library/argparse.html#the-add-argument-method>`_
-    to the underlying `ArgumentParser <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser>`_
-    bound to the command.
-:invocation:
-    Invocation hooks are called by :func:`~coma.core.wake.wake` if, and only if,
-    the command to which they are globally :func:`~coma.core.initiate.initiate`\ d
-    or locally :func:`~coma.core.register.register`\ ed is invoked.
+``coma`` has 10 total hook slots in its template. To help users decide which hooks to
+define, each of these slots has *semantics* (the type of functionality that ``coma``
+expects that particular hook slot will have). Most of these semantics are not hard
+requirements, and hook implementations are free to vary wildly from their semantics.
+That said, semantics provide a solid base from which to explore this space.
 
-**Invocation hooks** further belong to one of three sub-types:
+At the highest level, hooks belong to one of two semantic types: **parser** and
+**invocation**.
 
-:config:
-    A config hook is meant to initialize or affect the config objects that are
-    globally :func:`~coma.core.initiate.initiate`\ d or locally
-    :func:`~coma.core.register.register`\ ed to a command.
-:init:
-    An init hook is meant to instantiate or affect the command itself.
+Parser Hooks
+^^^^^^^^^^^^
+
+Parser hooks are the only type of hook that get executed at command *registration*
+time (prior to command invocation). The ``parser_hook`` semantics are to add command
+line flags via calls to `add_argument() <https://docs.python.org/3/library/argparse.html#the-add-argument-method>`_
+on the underlying `ArgumentParser <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser>`_
+bound to the command that will later be invoked.
+
+Parser hooks for **all** declared commands are executed (at registration time).
+This is needed so that ``argparse`` has all the necessary information to invoke
+the correct command based on the provided command line arguments. This means that
+parser hooks with side effects will **always** execute those side effects, even
+if the command they are bound to isn't the one that ultimately gets invoked.
+
+Invocation Hooks
+^^^^^^^^^^^^^^^^
+
+Invocation hooks are *stored* during command registration, but only get *executed*
+if the command to which they are bound is invoked (i.e., is chosen by ``argparse``
+based on the provided command line arguments). Invocation hooks, as their name
+suggests, are responsible for completing all necessary steps involved in successfully
+invoking the command to which they are bound.
+
+Invocation hooks *semantics* further belong to one of three sub-types:
+
+**Config:**
+
+    Config hooks are meant to initialize or affect the config objects that are
+    bound to a particular command.
+
+.. _invocation_init_hook:
+
+**Init:**
+
+    Init hooks are meant to instantiate or affect the command object (either a
+    function or a class).
 
     .. warning::
 
-        For function-based commands, the function is internally wrapped in
-        another object, and it is this wrapper object that an init hook receives.
-:run:
-    A run hook is meant to execute or surround the execution of the command.
+        Function-based command objects are internally wrapped in a
+        programmatically-generated class, and it is this wrapper class that an
+        init hook receives, not the raw function object. This unifies the
+        interface, since (from the perspective of an init hook) all command
+        objects are classes that ought to be instantiated.
 
-For all three hook sub-types above (**config**, **init**, and **run**), each is
-further split into three sub-sub-types:
+**Run:**
 
-:pre:
-    A pre hook is called immediately *before* a **main hook** as a way to
-    add additional behavior.
-:main:
-    A main hook is generally meant to perform the bulk of the work.
-:post:
-    A post hook is called immediately *after* a **main hook** as a way to
-    add additional behavior.
+    Run hooks are meant to execute or surround the execution of the command object
+    after it has been instantiated (presumably by an init hook).
 
-Altogether, there are 9 **invocation hooks**.
+Each of the three invocation hook sub-types (**config**, **init**, and **run**) is
+further split into three flavors:
 
-.. _hookpipeline:
+**Pre:**
 
-Hook Pipeline
--------------
+    Pre hooks are executed immediately *before* the **main hook** of the same type
+    as a way to add additional behavior.
 
-As stated above, **parser hooks** are called at the time a command is
-:func:`~coma.core.register.register`\ ed, whereas the **invocation hooks** are
-called if, and only if, the corresponding command is invoked.
+**Main:**
 
-The following keywords are used to :func:`~coma.core.initiate.initiate`,
-:func:`~coma.core.register.register`, and/or :func:`~coma.core.forget.forget` hooks:
+    Main hooks are generally meant to perform the bulk of the work for that semantic
+    category (**config**, **init**, or **run**).
+
+**Post:**
+
+    Post hooks are executed immediately *after* the **main hook** of the same type
+    as a way to add additional behavior.
+
+Altogether, there are 9 **invocation hooks**. The following keywords are used in
+:func:`@command <coma.core.command.command>` and :func:`~coma.core.wake.wake()`
+to define :ref:`command <command_hooks>` and :ref:`shared <shared_hooks>` hooks,
+respectively:
 
 .. table::
     :widths: auto
 
-    +------------+----------+--------------+-------------------------+
-    | Type       | Sub-Type | Sub-Sub-Type | Keyword                 |
-    +============+==========+==============+=========================+
-    | parser     | N/A      | N/A          | :obj:`parser_hook`      |
-    +------------+----------+--------------+-------------------------+
-    | invocation | config   | pre          | :obj:`pre_config_hook`  |
-    |            |          +--------------+-------------------------+
-    |            |          | main         | :obj:`config_hook`      |
-    |            +          +--------------+-------------------------+
-    |            |          | post         | :obj:`post_config_hook` |
-    |            +----------+--------------+-------------------------+
-    |            | init     | pre          | :obj:`pre_init_hook`    |
-    |            |          +--------------+-------------------------+
-    |            |          | main         | :obj:`init_hook`        |
-    |            +          +--------------+-------------------------+
-    |            |          | post         | :obj:`post_init_hook`   |
-    |            +----------+--------------+-------------------------+
-    |            | run      | pre          | :obj:`pre_run_hook`     |
-    |            |          +--------------+-------------------------+
-    |            |          | main         | :obj:`run_hook`         |
-    |            +          +--------------+-------------------------+
-    |            |          | post         | :obj:`post_run_hook`    |
-    +------------+----------+--------------+-------------------------+
+    +------------+----------+--------+-------------------------+
+    | Type       | Sub-Type | Flavor | Keyword                 |
+    +============+==========+========+=========================+
+    | parser     | N/A      | N/A    | :obj:`parser_hook`      |
+    +------------+----------+--------+-------------------------+
+    | invocation | config   | pre    | :obj:`pre_config_hook`  |
+    |            |          +--------+-------------------------+
+    |            |          | main   | :obj:`config_hook`      |
+    |            +          +--------+-------------------------+
+    |            |          | post   | :obj:`post_config_hook` |
+    |            +----------+--------+-------------------------+
+    |            | init     | pre    | :obj:`pre_init_hook`    |
+    |            |          +--------+-------------------------+
+    |            |          | main   | :obj:`init_hook`        |
+    |            +          +--------+-------------------------+
+    |            |          | post   | :obj:`post_init_hook`   |
+    |            +----------+--------+-------------------------+
+    |            | run      | pre    | :obj:`pre_run_hook`     |
+    |            |          +--------+-------------------------+
+    |            |          | main   | :obj:`run_hook`         |
+    |            +          +--------+-------------------------+
+    |            |          | post   | :obj:`post_run_hook`    |
+    +------------+----------+--------+-------------------------+
 
-The **invocation hook pipeline** consists of calling all the **invocation hooks**,
-in the order listed here, one immediately following the other, with no other code in
-between. In other words, the invocation hooks make up the entirety of the hook pipeline.
+.. _hook_pipeline:
 
-Default Hook Pipeline
----------------------
+Hook Pipeline
+-------------
 
-Rather than being hard-coded, ``coma``'s default behavior is, almost entirely, a
-result of having certain specific default hooks :func:`~coma.core.initiate.initiate`\ d.
-The upshot is that there is almost no part of ``coma``'s default behavior that cannot
-be tweaked, replaced, or extended through clever use of hooks.
+As stated above, **parser hooks** are executed when a command is registered,
+whereas the **invocation hooks** are executed if, and only if, the command to
+which they are bound is invoked by ``argparse``. The **invocation hook pipeline**
+consists of executing all the **invocation hooks** (in order) one immediately
+following the other, with no other code in between. In other words, the invocation
+hooks make up the **entirety** of the code responsible for completing all necessary
+steps involved in successfully invoking the command to which they are bound.
 
-The default hooks are:
+.. _hook_protocols:
 
-:parser:
-    The default :obj:`parser_hook` is :func:`coma.hooks.parser_hook.default`.
-    This hook uses `add_argument() <https://docs.python.org/3/library/argparse.html#the-add-argument-method>`_
-    to add, for each config, a parser argument of the form :obj:`--{config_id}-path`
-    where :obj:`{config_id}` is the config's identifier. This enables an explicit
-    file path to the serialized config to be specified on the command line.
-:pre config:
-    N/A
-:main config:
-    The default :obj:`config_hook` is :func:`coma.hooks.config_hook.default`.
-    This hook does a lot of the heaving lifting for manifesting ``coma``'s
-    default behavior regarding configs. In short, for each config, this hook:
+Hook Protocols
+--------------
 
-        * Attempts to load the config from file. This can interact with the default :obj:`parser_hook`.
-        * If the config file isn't found, a config object with default attribute values is instantiated, and the default config object is serialized.
+To enable interoperability between hooks (especially in the hook pipeline), all
+hooks must follow a specific protocol (i.e., function signature). All hooks,
+regardless of semantics, must take *exactly* one parameter. For **parser hooks**,
+this parameter is a :class:`~coma.hooks.base.ParserData` object, whereas it is an
+:class:`~coma.hooks.base.InvocationData` object for **invocation hooks**. Both of
+these derive from :class:`~coma.hooks.base.HookData`, and it is perfectly acceptable
+to subclass any of these to add additional attributes needed in custom hooks.
 
-    .. note::
+Hooks typically modify their input parameter *inplace* and return ``None``. However,
+a hook can also return a new object (of the same type as its input parameter) derived
+from the input parameter instead of making inplace modifications. Subsequent hooks in
+the pipeline receive whichever object is the latest non-``None`` return object from a
+preceding hook.
 
-        YAML is used for serialization by default (since it is the only format
-        that ``omegaconf`` supports), but ``coma`` also natively supports JSON. See
-        :doc:`here <../../examples/serialization>` for full details on configuration files.
-:post config:
-    The default :obj:`post_config_hook` is :func:`coma.hooks.post_config_hook.default`.
-    This hook is responsible for overriding config attribute values with any that are
-    specified on the command line in ``omegaconf``'s `dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_.
-    See :doc:`here <../../examples/cli>` for full details on command line overrides.
-:pre init:
-    N/A
-:main init:
-    The default :obj:`init_hook` is :func:`coma.hooks.init_hook.default`. This
-    hook instantiates the command object by invoking it with all configs given,
-    in order, as positional arguments.
-:post init:
-    N/A
-:pre run:
-    N/A
-:main run:
-    The default :obj:`run_hook` is :func:`coma.hooks.run_hook.default`. This
-    hook calls the command object's :obj:`run()` method with no parameters.
-:post run:
-    N/A
+.. _default_hooks:
+
+Default Hooks
+-------------
+
+Rather than being hardcoded, ``coma``'s default behavior is, almost entirely, a
+result of having specific pre-defined hooks as default value in the definition of
+:func:`~coma.core.wake.wake()` that :ref:`propagate <shared_hooks>` to all command
+declarations unless explicitly :ref:`redefined <command_hooks>`. The upshot is
+that there is almost no part of ``coma``'s default behavior that cannot be tweaked,
+replaced, or extended through hooks.
+
+That being said, ``coma``'s default hooks already provide extensive functionality.
+Of ``coma``'s 10 total hooks, only 4 have pre-defined defaults: the ``parser_hook``,
+the main ``config_hook``, the main ``init_hook``, and the main ``run_hook``. All
+default hooks are generated from **factory functions** with default parameters.
+
+.. _default_hook_factories:
 
 .. note::
 
-    For each of the default hooks, **factory functions** are provided that can create
-    new variations on these defaults. For example, :func:`coma.hooks.run_hook.factory`
-    can be used to change the command execution method name from :obj:`run()` to
-    something else. See :doc:`here <../../references/hooks/index>` to explore all
-    factory options.
+    Factories to enable behavioral tweaks as one-liners by redefining a default
+    hook using its factory with a single changed parameter. For example,
+    :func:`run_hook.default_factory() <coma.hooks.run_hook.default_factory>`
+    can be used to change the command execution method name from the default
+    ``run()`` to something else. See :doc:`here <../../examples/coma>`.
 
-.. note::
+    Browse the hooks' :doc:`package reference <../../references/hooks/index>` to
+    explore factory options. Factory function names always end with ``*_factory``.
+    All the default factories are named ``default_factory`` and can be found in
+    their respective hook-semantic module. For example, the default factory for
+    ``run_hook`` is found in :func:`coma.hooks.run_hook.default_factory`.
 
-    If you are finding that the factory functions for the **parser hook**,
-    **main config hook**, and/or **post config hook** are insufficient, consider
+    If you are finding that the factory functions are insufficient, consider
     making use of the many config-related utilities found
     :doc:`here <../../references/config/index>` to help you in writing your own
     custom hooks.
 
-Global and Local Hooks
-----------------------
+In the explanations below, ``data`` refers to the input parameter of the hook
+(:class:`~coma.hooks.base.ParserData` for parser hooks and
+:class:`~coma.hooks.base.InvocationData` for all other hooks).
 
-Hooks can be :func:`~coma.core.initiate.initiate`\ d globally to affect ``coma``'s
-behavior towards all commands or :func:`~coma.core.register.register`\ ed locally
-to only affect ``coma``'s behavior towards a specific command.
+**Default Parser Hook:**
 
-.. warning::
+    The :func:`default <coma.hooks.parser_hook.default_factory>` ``parser_hook`` uses
+    :attr:`data.persistence_manager <coma.hooks.base.HookData.persistence_manager>` to
+    add, for each :meth:`serializable <coma.config.cli.ParamData.is_serializable>` config,
+    a :meth:`parser path argument <coma.config.io.PersistenceManager.add_path_argument>`.
+    This enables an explicit file path to the config file to be specified on the command
+    line via a flag (``--{config_id}-path`` by default where ``config_id`` is the name
+    of the config parameter in the :ref:`command signature <command_signature_inspection>`).
 
-    Local hooks are **appended** to the list of global hooks. Local hooks **do not**
-    override global hooks. To override a global hook, use
-    :func:`~coma.core.register.register` in conjunction with
-    :func:`~coma.core.forget.forget`. See :doc:`here <../core/forget>` for details.
+**Default Main Config Hook:**
+
+    The :func:`default <coma.hooks.config_hook.default_factory>` ``config_hook`` does
+    all the heaving lifting for manifesting ``coma``'s default behavior regarding
+    configs. In short, for each config, this hook initializes the config based on the
+    :ref:`declarative hierarchy <config_declaration_hierarchy>` protocol:
+
+    * At minimum, each config is initialized from its base declaration.
+    * :meth:`Serializable <coma.config.cli.ParamData.is_serializable>` configs
+      are then loaded from file (if one exists) or written to file (otherwise).
+      This step interacts with the default ``parser_hook`` since it queries the same
+      :attr:`data.persistence_manager <coma.hooks.base.HookData.persistence_manager>`
+      to :meth:`get the file path <coma.config.io.PersistenceManager.get_file_path>`
+      of each config based on its path declaration in the default ``parser_hook``.
+      See :doc:`here <../../examples/serialization>` for more details on config files.
+    * For each config, an attempt is made to :doc:`override <../../examples/cli>` its
+      config attribute values with any command line arguments that fit ``omegaconf``'s
+      `dot-list notation <https://omegaconf.readthedocs.io/en/2.1_branch/usage.html#from-a-dot-list>`_.
+
+    .. note::
+
+        Each config variant in the :ref:`declarative hierarchy <config_declaration_hierarchy>`
+        is :class:`stored <coma.config.base.Config>` so that later hooks can access any
+        variant (if needed). This is particularly helpful in cases where some configs
+        need to be :doc:`preloaded <../../examples/preload>` before others.
+
+    The ``config_hook``'s :func:`default factory <coma.hooks.config_hook.default_factory>`
+    includes many flags for tweaking the default behavior. For example, you can skip the
+    override or the serialization of some configs but not others. Or you can raise a
+    :obj:`FileNotFoundError` if a particular config file cannot be found. Or even
+    :ref:`force <forcing_overwrites>` the serialization of the override values rather
+    than the base config declaration.
+
+**Default Main Init Hook:**
+
+    The :func:`default <coma.hooks.init_hook.default_factory>` ``init_hook``
+    instantiates the :attr:`data.command <coma.hooks.base.HookData.command>`
+    class by calling its ``__init__()`` method with all
+    :ref:`declared parameters <command_signature_inspection>` (config, inline, and
+    regular) filled in through the :meth:`~coma.config.cli.ParamData.call_on()`
+    method of :attr:`data.parameters <coma.hooks.base.HookData.parameters>`. Then,
+    the value of :attr:`data.command <coma.hooks.base.HookData.command>` (a class
+    type) gets replaced **inplace** with the value of the instantiated object.
+
+    .. warning::
+
+        In user-defined hooks, never make decisions based on directly inspecting
+        the ``data.command`` object. Not only are function-based commands
+        :ref:`implicitly wrapped <invocation_init_hook>` in a class, but also the
+        value of ``data.command`` changes from a class type to an instance of that
+        class as part of this default init hook.
+
+        Instead, use :attr:`data.name <coma.hooks.base.HookData.name>` if you need to
+        determine which command is being invoked, since the command name is guaranteed
+        to be unique across all declared commands.
+
+**Default Main Run Hook:**
+
+    The :func:`default <coma.hooks.run_hook.default_factory>` ``run_hook`` calls
+    the :attr:`data.command <coma.hooks.base.HookData.command>` object's ``run()``
+    (by default, though this can be :doc:`changed <../../examples/coma>`) method
+    with no parameters. This assumes that the ``init_hook`` has instantiated
+    ``data.command`` from a class type to an instance.
+
+.. _hooks_as_sequences:
+
+Hooks as Sequences
+------------------
+
+Typically, a hook is a function with a signature based on the
+:ref:`hook protocol <hook_protocols>`. However, there are three additional
+(non-function) sentinel objects (``SHARED``, ``DEFAULT``, and ``None``) that have
+:ref:`special meaning <hook_sentinel_summary>` as :ref:`command <command_hooks>`
+and/or :ref:`shared <shared_hooks>` hook values. A valid "plain" hook can be any single
+function adhering to the hook protocol **or** any single of these three sentinels.
+
+In addition, any (recursively) nested **sequences** of these singular/plain values
+is also a valid hook. Each item in these sequences is recursively inspected for the
+presence of any of the three sentinels. These are replaced at runtime with their
+:ref:`semantic equivalent <command_hooks>` function. This is particularly useful to
+**add** behavior on top of ``coma``'s default, rather than outright replacing it. See
+:ref:`here <command_hook_example>` and :ref:`here <shared_hook_example>` for practical
+examples. To emphasize the recursive potential of nested hook sequences, consider this
+toy example:
+
+.. code-block:: python
+
+    from coma import command, wake, DEFAULT
+
+    @command(
+        run_hook=(
+            (
+                None,
+                lambda _: print("First"),
+            ),
+            lambda _: print("Second"),
+            (
+                (
+                    (
+                        (
+                            DEFAULT,
+                            lambda _: print("Fourth"),
+                        ),
+                    ),
+                ),
+            ),
+            None,
+            (),
+            lambda _: print("Last"),
+        ),
+    )
+    def nested():
+        print("Third")
+
+    if __name__ == "__main__":
+        wake()
+
+Let's see how ``coma`` resolves the nested sequences:
+
+.. code-block:: console
+
+    $ python main.py nested
+    First
+    Second
+    Third
+    Fourth
+    Last
+
+Notice that ``DEFAULT`` gets replaced at runtime with the default ``run_hook`` which
+runs the command and prints ``Third`` at that position in the nested sequences.
+
+Beyond this toy example, sequences are helpful in practice for decomposing a complex
+hook function into a series of smaller ones. Often these component functions will be
+hook variants created using :ref:`factories <default_hook_factories>`. Hook sequences
+essentially wrap each component function into a higher-order function that executes the
+components in order following the rules of the :ref:`hook protocol <hook_protocols>`.
+
+As an extreme example, we could redefine the ``pre_config_hook`` of a command to
+stuff the **entire** default :ref:`invocation pipeline <hook_pipeline>` into it
+while setting the standard hooks to ``None``:
+
+.. code-block:: python
+
+    from coma import command, wake, config_hook, init_hook, run_hook
+
+    @command(
+        pre_config_hook=(
+            config_hook.default_factory(),
+            init_hook.default_factory(),
+            run_hook.default_factory(),
+        ),
+        config_hook=None,
+        init_hook=None,
+        run_hook=None,
+    )
+    def cmd():
+        print("No problem!")
+
+    if __name__ == "__main__":
+        wake()
+
+This example also highlights the utility of ``pre`` and ``post`` hooks. They are really
+just conceptual convenience functions. All functionality could *in principle* be placed
+in a single hook sequence as shown here. The benefit of multiple hook types and
+sub-types with differing semantics is to help *conceptually* separate concerns. Consider
+that, in :ref:`this <command_hook_example>` example, we defined a ``pre_run_hook`` that
+exits the program before running the command. In principle, we could have implemented
+this same functionality by redefining the ``run_hook`` as ``(pre_run_hook, SHARED)``.
+However, because the new functionality is an early exit (*before* running the command),
+it feels conceptually cleaner to exit as as a separate ``pre_run_hook``, rather than as
+an initial component of the ``run_hook`` in the invocation pipeline. This distinction
+is purely conceptual. The resulting behavior is essentially equivalent.
