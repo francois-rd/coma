@@ -249,7 +249,7 @@ class PersistenceManager:
         extension: Optional[Extension] = None,
         *names_or_flags: str,
         **kwargs: Any,
-    ) -> None:
+    ) -> "PersistenceManager":
         """
         Registers parameters defining a file path argument for :obj:`config_id`
         that can later be added to an ``argparse.ArgumentParser`` via
@@ -274,6 +274,10 @@ class PersistenceManager:
             parameters that get passed to `add_argument()`_ (instead of relying on the
             sensible defaults that are otherwise provided).
 
+        Returns:
+            :class:`~coma.config.io.PersistenceManager`: This persistence manager
+            (to enable fluent interfacing).
+
         See also:
             * :meth:`~coma.config.io.PersistenceManager.get_file_path()`
 
@@ -282,6 +286,7 @@ class PersistenceManager:
         """
         extension = extension or self.default_extension
         self.configs[config_id] = (extension, names_or_flags, kwargs)
+        return self
 
     def _get_or_default(self, config_id: ConfigID) -> tuple[Extension, tuple, dict]:
         return self.configs.get(config_id, (self.default_extension, (), {}))
