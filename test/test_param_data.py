@@ -16,6 +16,7 @@ def test_empty_signature(capsys):
         kwargs_as_config=True,
         inline_identifier="inline",
         inline=(),
+        supplemental_configs={},
     )
     data = ParamData.from_signature(signature(fn), **kwargs)
     assert len(data.configs) == 0
@@ -42,12 +43,14 @@ def test_supplemental_types(capsys):
         kwargs_as_config=True,
         inline_identifier="inline",
         inline=(),
-        list_type_sup=list,
-        list_value_sup=[1, 2, 3],
-        dict_type_sup=dict,
-        dict_value_sup=dict(a=1, b=2),
-        struct_type_sup=Config,
-        struct_value_sup=Config(42),
+        supplemental_configs=dict(
+            list_type_sup=list,
+            list_value_sup=[1, 2, 3],
+            dict_type_sup=dict,
+            dict_value_sup=dict(a=1, b=2),
+            struct_type_sup=Config,
+            struct_value_sup=Config(42),
+        ),
     )
     assert data.supplemental_configs["list_type_sup"].back_end == []
     assert data.supplemental_configs["list_value_sup"].back_end == [1, 2, 3]
@@ -74,7 +77,7 @@ def test_duplicate_in_supplemental(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=(),
-            repeat=list,
+            supplemental_configs=dict(repeat=list),
         )
     assert "also appears in supplemental" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -92,6 +95,7 @@ def test_inline_name_clash(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=(),
+            supplemental_configs={},
         )
     assert "is a reserved identifier" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -109,6 +113,7 @@ def test_duplicate_inline(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=("repeat", "repeat"),
+            supplemental_configs={},
         )
     assert "declared multiple times" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -124,6 +129,7 @@ def test_duplicate_inline(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=[("repeat", list), ("repeat", dict)],
+            supplemental_configs={},
         )
     assert "declared multiple times" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -136,6 +142,7 @@ def test_duplicate_inline(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=[("repeat", list), "repeat"],
+            supplemental_configs={},
         )
     assert "declared multiple times" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -153,6 +160,7 @@ def test_missing_inline(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=["missing"],
+            supplemental_configs={},
         )
     assert "missing from signature" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -165,6 +173,7 @@ def test_missing_inline(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=[("missing", list)],
+            supplemental_configs={},
         )
     assert "missing from signature" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -182,6 +191,7 @@ def test_inline_declaration_error(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=["no_default"],
+            supplemental_configs={},
         )
     assert "Missing mandatory default value" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -197,6 +207,7 @@ def test_inline_declaration_error(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=[("double_default", lambda: "still bad")],
+            supplemental_configs={},
         )
     assert "Duplicate default declaration" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -212,6 +223,7 @@ def test_inline_declaration_error(capsys):
             kwargs_as_config=True,
             inline_identifier="inline",
             inline=["no_hint"],
+            supplemental_configs={},
         )
     assert "Missing mandatory type annotation" in str(exec_info.value)
     out, err = capsys.readouterr()
@@ -228,6 +240,7 @@ def test_variadic_config(capsys):
         kwargs_as_config=True,
         inline_identifier="inline",
         inline=(),
+        supplemental_configs={},
     )
     assert set(data.configs.keys()) == {"_", "__"}
     assert len(data.supplemental_configs) == 0
@@ -250,6 +263,7 @@ def test_variadic_non_config(capsys):
         kwargs_as_config=False,
         inline_identifier="inline",
         inline=(),
+        supplemental_configs={},
     )
     assert len(data.configs) == 0
     assert len(data.supplemental_configs) == 0
@@ -271,6 +285,7 @@ def test_variadic_inline(capsys):
             kwargs_as_config=False,
             inline_identifier="inline",
             inline=["_", "__"],
+            supplemental_configs={},
         )
     assert "cannot be inline" in str(exec_info.value)
 
@@ -351,6 +366,7 @@ def test_all_valid_param_declarations(capsys):
         kwargs_as_config=True,
         inline_identifier="inline",
         inline=inline,
+        supplemental_configs={},
     )
     assert set(data.configs.keys()) == set(config_ids)
     assert len(data.supplemental_configs) == 0
@@ -377,6 +393,7 @@ def test_non_config_call_on(capsys):
         kwargs_as_config=False,
         inline_identifier="inline",
         inline=(),
+        supplemental_configs={},
     )
     assert len(data.configs) == 0
     assert len(data.supplemental_configs) == 0
