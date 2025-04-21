@@ -1,9 +1,8 @@
 Defining Hooks
 ==============
 
-``coma`` uses the `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_
-design pattern. `Hooks <https://en.wikipedia.org/wiki/Hooking>`_ make it easy to
-tweak, replace, or extend ``coma``'s default behavior.
+``coma`` has a template-based architecture. Hooks not only implement ``coma``'s
+default behavior, but also make it easy to tweak, replace, or extend that behavior.
 
 .. _hook_semantics:
 
@@ -187,7 +186,7 @@ default hooks are generated from **factory functions** with default parameters.
     explore factory options. Factory function names always end with ``*_factory``.
     All the default factories are named ``default_factory`` and can be found in
     their respective hook-semantic module. For example, the default factory for
-    ``run_hook`` is found in :func:`coma.hooks.run_hook.default_factory`.
+    ``run_hook`` is found in :func:`coma.hooks.run_hook.default_factory()`.
 
     If you are finding that the factory functions are insufficient, consider
     making use of the many config-related utilities found
@@ -196,7 +195,9 @@ default hooks are generated from **factory functions** with default parameters.
 
 In the explanations below, ``data`` refers to the input parameter of the hook
 (:class:`~coma.hooks.base.ParserData` for parser hooks and
-:class:`~coma.hooks.base.InvocationData` for all other hooks).
+:class:`~coma.hooks.base.InvocationData` for invocation hooks).
+
+.. _default_parser_hook:
 
 **Default Parser Hook:**
 
@@ -205,21 +206,37 @@ In the explanations below, ``data`` refers to the input parameter of the hook
     add, for each :meth:`serializable <coma.config.cli.ParamData.is_serializable>` config,
     a :meth:`parser path argument <coma.config.io.PersistenceManager.add_path_argument>`.
     This enables an explicit file path to the config file to be specified on the command
-    line via a flag. By default, the flag is ``--{config_name}-path``, where
-    ``config_name`` is the name of the corresponding config parameter in the
-    :ref:`command signature <command_signature_inspection>`.
+    line via a flag. By :ref:`default <persistence_registration>`, the flag is
+    ``--{config_name}-path``, where ``config_name`` is the name of the corresponding
+    config parameter in the :ref:`command signature <command_signature_inspection>`.
+
+.. _default_config_hook:
 
 **Default Main Config Hook:**
 
     The :func:`default <coma.hooks.config_hook.default_factory>` ``config_hook`` does
     all the heaving lifting for manifesting ``coma``'s default behavior regarding
-    configs. In short, for each config, this hook initializes the config based on the
+    configs. It makes the following assumptions:
+
+    * Configs are declarative. They should always follow the
+      :ref:`declarative hierarchy <config_declaration_hierarchy>`.
+    * Declared configs are required. This means that declared configs (both in the
+      command's signature and any :ref:`supplemental configs <supplemental_configs>`)
+      are *loaded* (based on the declarative hierarchy) by default.
+    * Persistence of configs is typically desirable. This means that, by default, all
+      :meth:`serializable <coma.config.cli.ParamData.is_serializable>` configs are
+      serialized (to enable the middle step of the
+      :ref:`declarative hierarchy <config_declaration_hierarchy>`), but skipping
+      serialization for a particular config is easy.
+
+    In short, for each config, this hook initializes the config based on the
     :ref:`declarative hierarchy <config_declaration_hierarchy>` protocol:
 
     * At minimum, each config is initialized from its base declaration.
-    * :meth:`Serializable <coma.config.cli.ParamData.is_serializable>` configs
-      are then loaded from file (if one exists) or written to file (otherwise).
-      This step interacts with the default ``parser_hook`` since it queries the same
+    * :meth:`Serializable <coma.config.cli.ParamData.is_serializable>` configs are
+      then loaded from file (if one exists) or written to file (otherwise) unless
+      serialization has been explicitly toggled off for that particular config.
+      Serialization interacts with the default ``parser_hook`` since it queries the same
       :attr:`data.persistence_manager <coma.hooks.base.HookData.persistence_manager>`
       to :meth:`get the file path <coma.config.io.PersistenceManager.get_file_path>`
       of each config based on its path declaration in the default ``parser_hook``.
@@ -239,8 +256,10 @@ In the explanations below, ``data`` refers to the input parameter of the hook
     includes many flags for tweaking the default behavior. For example, you can skip the
     override or the serialization of some configs but not others. Or you can raise a
     :obj:`FileNotFoundError` if a particular config file cannot be found. Or even
-    :ref:`force <forcing_overwrites>` the serialization of the override values rather
-    than the base config declaration.
+    :ref:`force <on_the_fly_hook_redefinition>` the serialization of the override
+    values rather than the base config declaration.
+
+.. _default_init_hook:
 
 **Default Main Init Hook:**
 
@@ -255,15 +274,15 @@ In the explanations below, ``data`` refers to the input parameter of the hook
 
     .. warning::
 
-        In user-defined hooks, never make decisions based on directly inspecting
-        the ``data.command`` object. Not only are function-based commands
+        In user-defined hooks, be sure to **never** make decisions based on directly
+        inspecting the ``data.command`` object. Not only are function-based commands
         :ref:`implicitly wrapped <invocation_init_hook>` in a class, but also the
         value of ``data.command`` changes from a class type to an instance of that
         class as part of this default init hook.
 
         Instead, use :attr:`data.name <coma.hooks.base.HookData.name>` if you need to
         determine which command is being invoked, since the command name is guaranteed
-        to be unique across all declared commands.
+        to be **unique** across all declared commands.
 
 **Default Main Run Hook:**
 
@@ -288,11 +307,10 @@ single function adhering to the hook protocol or any single of these three senti
 In addition, any (recursively) nested **sequences** of these singular/plain values
 is also a valid hook. Each item in these sequences is recursively inspected for the
 presence of any of the three sentinels. These are replaced at runtime with their
-:ref:`semantic equivalent <hook_sentinel_summary>` function. This is particularly useful
-to **add** behavior on top of ``coma``'s default, rather than outright replacing it. See
-:ref:`here <command_hook_example>` and :ref:`here <shared_hook_example>` for practical
-examples. To emphasize the recursive potential of nested hook sequences, consider this
-toy example:
+:ref:`semantic equivalent <hook_sentinel_summary>` function. This is particularly
+useful to :ref:`extend <command_hook_example>` ``coma``'s default behavior,
+rather than outright replacing :ref:`replacing <on_the_fly_hook_redefinition>` it. To
+emphasize the recursive potential of nested hook sequences, consider this toy example:
 
 .. code-block:: python
 

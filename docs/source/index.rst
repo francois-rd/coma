@@ -22,8 +22,8 @@ a server:
 
 .. code-block:: python
 
-    from dataclasses import dataclass
     from coma import command, wake
+    from dataclasses import dataclass
 
     # Step 1: Declare one or more configurations.
     @dataclass
@@ -47,14 +47,21 @@ Key Features
 ------------
 
 The declarations in the above example provide a rich command line interface for
-invoking your program. Assuming this code is in a file called :obj:`main.py`, you get:
+invoking your program.
+
+.. note::
+
+    Throughout this documentation, we always assume the program code is in a
+    file called ``main.py``, so that we can run it on the command line using
+    ``python main.py <command-name>``.
+
+Assuming this code is in a file called ``main.py``, you get:
 
 Direct command parameter access
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The **command** (:obj:`push`) is invoked by name. Command
-**parameters** (:obj:`remote` and :obj:`data`) are *directly* available
-as command line arguments (also by name):
+The **command** (``push``) is invoked by name. Command **parameters** (``remote``
+and ``data``) are *directly* available as command line arguments (also by name):
 
 .. code-block:: console
 
@@ -68,7 +75,8 @@ Config serialization
 ^^^^^^^^^^^^^^^^^^^^
 
 Command parameters that represent configs are automatically serialized to file based
-on their name (config :obj:`remote` is saved to :obj:`remote.yaml` in this case):
+on their name (config ``remote`` is saved to ``remote.yaml`` in this case), enabling
+long-term persistence:
 
 .. code-block:: console
 
@@ -79,8 +87,8 @@ on their name (config :obj:`remote` is saved to :obj:`remote.yaml` in this case)
     server: localhost
     port: 9001
 
-Updating :obj:`remote.yaml` changes the default config values that are loaded on
-command invocation.
+Both YAML and JSON are supported. Updating ``remote.yaml`` changes the config
+values that are loaded on command invocation.
 
 And lots more!
 ^^^^^^^^^^^^^^
@@ -91,11 +99,8 @@ Including:
   `argparse <https://docs.python.org/3/library/argparse.html>`_
   while retaining full ``argparse`` interoperability and customizability for
   complex use cases.
-* Providing a comprehensive set of
-  `hooks <https://en.wikipedia.org/wiki/Hooking>`_
-  to easily tweak, replace, or extend ``coma``'s
-  `template <https://en.wikipedia.org/wiki/Template_method_pattern>`_-based
-  design.
+* Providing a comprehensive set of hooks to easily tweak, replace, or extend
+  ``coma``'s template-based default behavior.
 
   .. note::
 
@@ -134,11 +139,11 @@ Excited? Jump straight into the tutorials or learn by browsing the many usage ex
     :maxdepth: 1
     :caption: Examples
 
-    examples/cli
-    examples/coma
     examples/parser
-    examples/preload
+    examples/cli
     examples/serialization
+    examples/preload
+    examples/coma
 
 .. toctree::
     :maxdepth: 2

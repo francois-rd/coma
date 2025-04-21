@@ -7,7 +7,7 @@ After all commands have been declared using
 
 1. Parameterizing the top-level `ArgumentParser <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser>`_
    that determines which declared command is invoked.
-2. Adding shared hooks to all command declarations.
+2. Adding shared hooks that propagate to all command declarations by default.
 3. Waking the program by invoking the correct command (as determined in step 1).
 
 Let's examine each in turn.
@@ -29,7 +29,7 @@ an ``ArgumentParser`` with default parameters.
         command(name="greet", cmd=lambda: print("Hello World!"))
         wake(parser=ArgumentParser(description="My Program description."))
 
-Let's run this program with the :obj:`-h` flag to see the result:
+Let's run this program with the ``-h`` flag to see the result:
 
 .. code-block:: console
     :emphasize-lines: 4
@@ -47,7 +47,7 @@ Let's run this program with the :obj:`-h` flag to see the result:
 
 You can also provide keyword arguments to override the default parameter values
 to the internal `ArgumentParser.add_subparsers() <https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_subparsers>`_
-call through the :obj:`subparsers_kwargs` parameter to ``wake()``:
+call through the ``subparsers_kwargs`` parameter to ``wake()``:
 
 .. code-block:: python
 
@@ -58,12 +58,10 @@ call through the :obj:`subparsers_kwargs` parameter to ``wake()``:
 Shared Hooks
 ------------
 
-``coma``'s `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_-based
-design enables its behavior to be easily tweaked, replaced, or extended using
-`hooks <https://en.wikipedia.org/wiki/Hooking>`_. These are covered in great detail
-:doc:`in their own tutorial <hooks>`. In this tutorial, we'll further assume prior
-knowledge of :ref:`command hooks <command_hooks>`. Here, the emphasis is on the
-difference between *shared* and *command* hooks.
+``coma``'s template-based design enables its behavior to be easily tweaked,
+replaced, or extended using hooks. These are covered in detail in their own
+:doc:`tutorial <hooks>`. Here, we emphasize the difference between *shared*
+and :ref:`command <command_hooks>` hooks.
 
 Any *command* hook that is not explicitly redefined for a particular
 command declaration defaults to the corresponding hook from ``wake()`` at runtime.
@@ -105,9 +103,9 @@ used as a sentinel to mean "skip this hook" (though, in practice, we replace it 
 the no-op :func:`~coma.hooks.base.identity()` function rather than truly skipping it).
 
 In the :ref:`command hook example <command_hook_example>`, we saw how a few hooks
-can easily add functionality into a particular command beyond ``coma``'s defaults.
+can easily extend the functionality of a particular command beyond ``coma``'s defaults.
 In this example, we'll declare those same hooks to be **shared** hooks instead in
-order to propagate that same new functionality to all commands:
+order to propagate that same extended functionality to *all* commands:
 
 .. _shared_hook_example:
 
@@ -142,7 +140,7 @@ are given to ``wake()`` instead of to ``@command``. This ensures the new functio
 propagates to all commands (both ``greet`` and ``leave``) without having to repeat
 the hook redefinition for each one explicitly. Notice also that the ``parser_hook``
 includes ``DEFAULT`` in its :ref:`sequence declaration <hooks_as_sequences>`. This
-ensures that ``coma``'s default ``parser_hook`` is not replaced but rather added to.
+ensures that ``coma``'s default ``parser_hook`` is not replaced but rather extended.
 
 Let's see this new functionality in action:
 
@@ -175,7 +173,7 @@ so the simulation behavior is identical to the one described there:
 
     if __name__ == "__main__":
         command(name="greet", cmd=lambda: print("Hello World!"))
-        coma.wake(cli_args=["greet"])
+        wake(cli_args=["greet"])
 
 Running this program without providing a command name as part of the command line
 arguments works because ``wake()`` is simulating ``greet`` as a command line argument:
@@ -188,10 +186,10 @@ arguments works because ``wake()`` is simulating ``greet`` as a command line arg
 Simulated command line arguments are useful for invoking a default command. ``wake()``
 raises a :class:`~coma.core.wake.WakeException` when encountering a waking problem.
 In particular, waking without a program command specified on the command line results
-in raising this error. The main use case is to simply leave the exception unhandled
+in raising this error. Typically, we would simply leave the exception unhandled
 as it gives useful warnings (e.g., about the fact that the command name is missing
 from amongst the command line arguments). A more advanced use case involves catching
-the exception to wake with a default command:
+the exception and then waking with a default command:
 
 .. code-block:: python
 

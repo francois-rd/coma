@@ -3,19 +3,17 @@ Introduction
 
 ``coma`` makes it easy to build configurable command-based programs in Python.
 
-``coma`` uses the `Template <https://en.wikipedia.org/wiki/Template_method_pattern>`_
-design pattern, which leverages `hooks <https://en.wikipedia.org/wiki/Hooking>`_ to
-implement, tweak, replace, or extend its behavior.
-
+``coma`` uses a template-based architecture that employs hooks to implement,
+tweak, replace, or extend its behavior.
 In this tutorial, we'll explore ``coma``'s **default** behavior. Nearly all of it
 results from :ref:`pre-defined hooks <default_hooks>`. ``coma`` has very few baked
 in assumptions, so its behavior can be drastically changed with user-defined hooks.
-We'll highlight these alternatives in later tutorials.
+We'll highlight these alternatives in later tutorials and examples.
 
 Commands
 --------
 
-For now, let's dive in with a classic :obj:`Hello World!` program:
+For now, let's dive in with a classic ``Hello World!`` program:
 
 .. code-block:: python
 
@@ -35,7 +33,7 @@ For now, let's dive in with a classic :obj:`Hello World!` program:
     ``Callable`` as a command. The command declaration can be tweaked via additional
     arguments passed to ``@command``. We'll explore these a little later.
 
-    :func:`~coma.core.wake.wake`: This function registers all declared commands
+    :func:`~coma.core.wake.wake()`: This function registers all declared commands
     with `argparse <https://docs.python.org/3/library/argparse.html>`_ so
     that commands can be invoked via the command line.
 
@@ -46,14 +44,8 @@ Let's do that now by running this program on the command line:
     $ python main.py greet
     Hello World!
 
-.. note::
-
-    Throughout this tutorial, we always assume the program code is in a file
-    called :obj:`main.py`, so that we can run it on the command line using
-    ``python main.py <command-name>``.
-
-In addition to functions, :obj:`@command` can also decorate any Python class
-with a no-argument :obj:`run()` method:
+In addition to functions, ``@command`` can also decorate any Python class
+with a no-argument ``run()`` method:
 
 .. code-block:: python
 
@@ -77,7 +69,7 @@ In this case, we will provide an explicit command name via the ``name`` paramete
     from coma import command, wake
 
     @command(name="greet")
-    def an_absurdly_long_funtion_name_that_isnt_suitable_for_the_command_line():
+    def an_absurdly_long_function_name_that_isnt_suitable_for_the_command_line():
         print("Hello World!")
 
     if __name__ == "__main__":
@@ -148,8 +140,8 @@ command requires. Let's declare a ``Recipient`` config for our running example:
 
 .. code-block:: python
 
-    from dataclasses import dataclass
     from coma import command, wake
+    from dataclasses import dataclass
 
     @dataclass
     class Recipient:
@@ -171,7 +163,7 @@ command requires. Let's declare a ``Recipient`` config for our running example:
     The ``@command`` decorator provides a rich interface for tweaking which command
     parameters are configs and which are regular parameters. It also enables inline
     config parameters. Additionally, variadic parameters (``*args`` and ``**kwargs``)
-    can be configs :ref:`if desired <command_inspection_example>`.
+    can be configs :ref:`if desired <variadic_configs>`.
 
 Invoking on the command line, we get:
 
@@ -219,13 +211,13 @@ the new attribute value (``coma``):
 .. note::
 
     If the command is a Python class, it is the ``__init__()`` method that declares
-    which configs the command will require (not the :obj:`run()` method):
+    which configs the command will require (not the ``run()`` method):
 
     .. code-block:: python
         :emphasize-lines: 10
 
+        from coma import command, wake
         from dataclasses import dataclass
-        from import command, wake
 
         @dataclass
         class Recipient:
@@ -240,7 +232,7 @@ the new attribute value (``coma``):
                 print(f"Hello {self.recipient.entity}!")
 
         if __name__ == "__main__":
-            coma.wake()
+            wake()
 
     This separation between initialization (via ``__init__()``) and execution
     (via ``run()``) is done so that stateful commands can be initialized based
@@ -302,10 +294,10 @@ also supports this use case. Simply use **unique** config names across the comma
 declarations:
 
 .. code-block:: python
-    :emphasize-lines: 13
+    :emphasize-lines: 9, 13
 
-    from dataclasses import dataclass
     from coma import command, wake
+    from dataclasses import dataclass
 
     @dataclass
     class Recipient:
@@ -332,8 +324,9 @@ Now, we have two *independent* config files:
     leave_recipient.yaml
 
 Updating ``greet_recipient.yaml`` only affects ``greet``. Updating
-``leave_recipient.yaml`` only affects ``leave``. See this
-:doc:`advanced example <../examples/serialization>` for even more details.
+``leave_recipient.yaml`` only affects ``leave``. For even more details on config
+serialization, see this :ref:`tutorial <serialization_vs_management>` and this
+:doc:`example <../examples/serialization>`.
 
 .. _multiconfigs:
 
@@ -349,8 +342,8 @@ and ``greet``:
 
 .. code-block:: python
 
-    from dataclasses import dataclass
     from coma import command, wake
+    from dataclasses import dataclass
 
     @dataclass
     class Salutation:
