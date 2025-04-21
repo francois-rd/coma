@@ -225,7 +225,6 @@ class Override(OverrideProtocol):
         Resolving clashing dot-list notations with (abbreviated) prefixes:
 
             .. code-block:: python
-                :caption: main.py
 
                 @dataclass
                 class Person:
@@ -483,7 +482,8 @@ class ParamData:
     def get_all_configs(self, include_inline: bool = True) -> Configs:
         """
         Returns all :obj:`configs` and :obj:`supplemental_configs`. If
-        :obj:`include_inline` and an inline config exists, it is also returned.
+        :obj:`include_inline` is :obj:`True` and an inline config exists,
+        it is also returned.
 
         Args:
             include_inline (bool): Whether the inline config is also returned.
@@ -814,7 +814,6 @@ class ParamData:
             because :obj:`kwargs_as_config` is :obj:`True` (by default).
 
                 .. code-block:: python
-                    :caption: main.py
 
                     @dataclass
                     class Data:
@@ -849,7 +848,7 @@ class ParamData:
                     $ python main.py cmd x=1 y=2 z inline::out_file=foo.txt
                     cfg is: Config(y=2.0)
                     data is: Data(x=42)
-                    out_file is: "foo.txt"
+                    out_file is: foo.txt
                     *args is: ()
                     *kwargs is: {'x': 1, 'y': 2}
 
@@ -949,8 +948,8 @@ class ParamData:
         instance_key: Optional[InstanceKey] = None,
     ) -> T:
         """
-        Calls :obj:`fn` using the current state of :obj:`self.configs` and
-        :obj:`self.other_parameters`, returning the return value of :obj:`fn`.
+        Calls :obj:`fn` using the current state of :obj:`configs` and
+        :obj:`other_parameters`, returning the return value of :obj:`fn`.
 
         Args:
             fn (typing.Callable): The Callable to call using internal signature data.
