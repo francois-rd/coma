@@ -16,8 +16,8 @@ class WakeException(Exception):
 
 
 def wake(
-    parser: Optional[argparse.ArgumentParser] = None,
     *import_commands: Any,  # noqa: Purposefully unused.
+    parser: Optional[argparse.ArgumentParser] = None,
     cli_args: Optional[Sequence[str]] = None,
     cli_namespace: Optional[Any] = None,
     parser_hook: AugmentedHook = DEFAULT,
@@ -95,11 +95,11 @@ def wake(
             coma.wake(parser=..., parser_hook=..., ...)
 
     Args:
+        *import_commands (typing.Any): **Fully** ignored. Optional mechanism to
+            forcibly import commands scattered throughout a codebase.
         parser (:class:`argparse.ArgumentParser`, optional): Top-level
             :obj:`ArgumentParser` to use. If :obj:`None`, an :obj:`ArgumentParser`
             with default parameters is used instead.
-        *import_commands (typing.Any): **Fully** ignored. Optional mechanism to
-            forcibly import commands scattered throughout a codebase.
         cli_args (typing.Sequence[str], optional): Command line arguments to
             use with :obj:`parser`. If :obj:`None`, :obj:`sys.argv` is used instead.
         cli_namespace (typing.Any, optional): The namespace object to pass

@@ -64,7 +64,10 @@ def test_parser(capsys):
     Coma.reset()
     command(name="test", cmd=lambda: print("Shouldn't print"))
     with pytest.raises(SystemExit) as exec_info:
-        wake(ArgumentParser(usage="Some usage text", epilog="Epilog"), cli_args=["-h"])
+        wake(
+            parser=ArgumentParser(usage="Some usage text", epilog="Epilog"),
+            cli_args=["-h"],
+        )
     out, err = capsys.readouterr()
     assert "Some usage text" in out
     assert "Epilog" in out
